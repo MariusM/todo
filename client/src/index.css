@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color system from UX spec — warm neutrals (stone palette) */
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #FAFAF9;
+  --color-border: #E7E5E4;
+  --color-border-focus: #2563EB;
+  --color-text-primary: #1C1917;
+  --color-text-secondary: #78716C;
+  --color-text-muted: #A8A29E;
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+  --color-error-bg: #FEF2F2;
+  --color-error-text: #991B1B;
+  --color-error-border: #FECACA;
+  --color-completed-text: #A8A29E;
+  --color-checkbox-fill: #2563EB;
+
+  /* Typography — system font stack, no custom fonts */
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-size-base: 1rem;        /* 16px */
+  --font-size-sm: 0.875rem;      /* 14px */
+  --font-size-lg: 1.125rem;      /* 18px */
+  --font-size-xl: 1.25rem;       /* 20px */
+
+  /* Spacing — 8px unit system */
+  --spacing-unit: 0.5rem;        /* 8px */
+
+  /* Layout constraints */
+  --max-content-width: 40rem;    /* 640px */
+
+  /* Transitions */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+}

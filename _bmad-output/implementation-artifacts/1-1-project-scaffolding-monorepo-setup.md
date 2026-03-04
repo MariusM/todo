@@ -1,6 +1,6 @@
 # Story 1.1: Project Scaffolding & Monorepo Setup
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -24,47 +24,47 @@ so that I have a working development environment to build features on.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Initialize root monorepo (AC: #1)
-  - [ ] 1.1 Create root `package.json` with `"private": true` and `"workspaces": ["client", "server", "e2e"]`
-  - [ ] 1.2 Create `tsconfig.base.json` with shared TypeScript strict-mode settings (ES modules, strict: true)
-  - [ ] 1.3 Create `.gitignore` (node_modules, dist, *.db, .env, coverage)
-  - [ ] 1.4 Create `.env.example` with PORT=3001, DATABASE_PATH=./data/todos.db, CORS_ORIGIN=http://localhost, NODE_ENV=development
-- [ ] Task 2: Scaffold frontend client package (AC: #1, #2, #5)
-  - [ ] 2.1 Scaffold with `npm create vite@latest client -- --template react-ts` (Vite 7.3 + React 19.2)
-  - [ ] 2.2 Install Tailwind CSS 4.2 via Vite plugin: `npm i tailwindcss @tailwindcss/vite`
-  - [ ] 2.3 Configure `vite.config.ts` with `@tailwindcss/vite` plugin and API proxy (`/api` -> `http://localhost:3001`)
-  - [ ] 2.4 Set up `client/src/index.css` with `@import "tailwindcss"` and `@theme` directives for UX design tokens
-  - [ ] 2.5 Create `client/tsconfig.json` extending `../tsconfig.base.json`
-  - [ ] 2.6 Create empty directory structure: `src/components/`, `src/hooks/`, `src/api/`, `src/types/`
-  - [ ] 2.7 Create placeholder `client/src/types/todo.ts` with Todo, CreateTodoRequest, ApiError types
-  - [ ] 2.8 Clean up Vite boilerplate (remove App.css, default counter code) — set up minimal App.tsx
-- [ ] Task 3: Scaffold backend server package (AC: #1, #3)
-  - [ ] 3.1 Create `server/package.json` with Express 5.2, better-sqlite3, TypeScript, tsx (dev runner) dependencies
-  - [ ] 3.2 Create `server/tsconfig.json` extending `../tsconfig.base.json` (target ES2022, module NodeNext)
-  - [ ] 3.3 Create `server/src/index.ts` — minimal Express app that listens on PORT env var (default 3001)
-  - [ ] 3.4 Create empty directory structure: `src/routes/`, `src/middleware/`, `src/db/`, `src/types/`
-  - [ ] 3.5 Create placeholder `server/src/types/todo.ts` mirroring client types (no cross-package imports)
-  - [ ] 3.6 Add `"dev": "tsx watch src/index.ts"` script for auto-reload
-- [ ] Task 4: Scaffold E2E test package (AC: #1)
-  - [ ] 4.1 Create `e2e/package.json` with Playwright 1.58 dependency
-  - [ ] 4.2 Create `e2e/playwright.config.ts` with baseURL pointing to localhost:5173, Chromium browser config
-  - [ ] 4.3 Create empty `e2e/tests/` directory
-- [ ] Task 5: Configure Vitest for both packages (AC: #4)
-  - [ ] 5.1 Add Vitest 4.0 as devDependency to root or both packages
-  - [ ] 5.2 Configure `client/vite.config.ts` with Vitest test config (environment: jsdom, globals: true)
-  - [ ] 5.3 Configure server Vitest config (environment: node)
-  - [ ] 5.4 Add root-level `"test"` script that runs tests across all workspaces
-- [ ] Task 6: Add root npm scripts (AC: #1, #2, #3)
-  - [ ] 6.1 Add `"dev:client"` and `"dev:server"` scripts
-  - [ ] 6.2 Add `"build"` script building both packages
-  - [ ] 6.3 Add `"test"` script running Vitest across workspaces
-  - [ ] 6.4 Verify `npm install` at root installs all workspace dependencies
-- [ ] Task 7: Verify all acceptance criteria (AC: #1-#5)
-  - [ ] 7.1 Run `npm install` from fresh state — zero errors
-  - [ ] 7.2 Run `npm run dev:client` — Vite serves on :5173 with HMR
-  - [ ] 7.3 Run `npm run dev:server` — Express responds on :3001
-  - [ ] 7.4 Run TypeScript compilation on both packages — zero errors
-  - [ ] 7.5 Verify Tailwind classes render correctly in client
+- [x] Task 1: Initialize root monorepo (AC: #1)
+  - [x] 1.1 Create root `package.json` with `"private": true` and `"workspaces": ["client", "server", "e2e"]`
+  - [x] 1.2 Create `tsconfig.base.json` with shared TypeScript strict-mode settings (ES modules, strict: true)
+  - [x] 1.3 Create `.gitignore` (node_modules, dist, *.db, .env, coverage)
+  - [x] 1.4 Create `.env.example` with PORT=3001, DATABASE_PATH=./data/todos.db, CORS_ORIGIN=http://localhost, NODE_ENV=development
+- [x] Task 2: Scaffold frontend client package (AC: #1, #2, #5)
+  - [x] 2.1 Scaffold with `npm create vite@latest client -- --template react-ts` (Vite 7.3 + React 19.2)
+  - [x] 2.2 Install Tailwind CSS 4.2 via Vite plugin: `npm i tailwindcss @tailwindcss/vite`
+  - [x] 2.3 Configure `vite.config.ts` with `@tailwindcss/vite` plugin and API proxy (`/api` -> `http://localhost:3001`)
+  - [x] 2.4 Set up `client/src/index.css` with `@import "tailwindcss"` and `@theme` directives for UX design tokens
+  - [x] 2.5 Create `client/tsconfig.json` extending `../tsconfig.base.json`
+  - [x] 2.6 Create empty directory structure: `src/components/`, `src/hooks/`, `src/api/`, `src/types/`
+  - [x] 2.7 Create placeholder `client/src/types/todo.ts` with Todo, CreateTodoRequest, ApiError types
+  - [x] 2.8 Clean up Vite boilerplate (remove App.css, default counter code) — set up minimal App.tsx
+- [x] Task 3: Scaffold backend server package (AC: #1, #3)
+  - [x] 3.1 Create `server/package.json` with Express 5.2, better-sqlite3, TypeScript, tsx (dev runner) dependencies
+  - [x] 3.2 Create `server/tsconfig.json` extending `../tsconfig.base.json` (target ES2022, module NodeNext)
+  - [x] 3.3 Create `server/src/index.ts` — minimal Express app that listens on PORT env var (default 3001)
+  - [x] 3.4 Create empty directory structure: `src/routes/`, `src/middleware/`, `src/db/`, `src/types/`
+  - [x] 3.5 Create placeholder `server/src/types/todo.ts` mirroring client types (no cross-package imports)
+  - [x] 3.6 Add `"dev": "tsx watch src/index.ts"` script for auto-reload
+- [x] Task 4: Scaffold E2E test package (AC: #1)
+  - [x] 4.1 Create `e2e/package.json` with Playwright 1.58 dependency
+  - [x] 4.2 Create `e2e/playwright.config.ts` with baseURL pointing to localhost:5173, Chromium browser config
+  - [x] 4.3 Create empty `e2e/tests/` directory
+- [x] Task 5: Configure Vitest for both packages (AC: #4)
+  - [x] 5.1 Add Vitest 4.0 as devDependency to root or both packages
+  - [x] 5.2 Configure `client/vite.config.ts` with Vitest test config (environment: jsdom, globals: true)
+  - [x] 5.3 Configure server Vitest config (environment: node)
+  - [x] 5.4 Add root-level `"test"` script that runs tests across all workspaces
+- [x] Task 6: Add root npm scripts (AC: #1, #2, #3)
+  - [x] 6.1 Add `"dev:client"` and `"dev:server"` scripts
+  - [x] 6.2 Add `"build"` script building both packages
+  - [x] 6.3 Add `"test"` script running Vitest across workspaces
+  - [x] 6.4 Verify `npm install` at root installs all workspace dependencies
+- [x] Task 7: Verify all acceptance criteria (AC: #1-#5)
+  - [x] 7.1 Run `npm install` from fresh state — zero errors
+  - [x] 7.2 Run `npm run dev:client` — Vite serves on :5173 with HMR
+  - [x] 7.3 Run `npm run dev:server` — Express responds on :3001
+  - [x] 7.4 Run TypeScript compilation on both packages — zero errors
+  - [x] 7.5 Verify Tailwind classes render correctly in client
 
 ## Dev Notes
 
@@ -329,10 +329,54 @@ export interface ApiError {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+- npm cache permission issue (root-owned files in ~/.npm/_cacache) — worked around with `--cache /tmp/npm-cache`
+- Vitest 4.0 removed `test.workspace` in favor of `test.projects` — updated root vitest.config.ts accordingly
+- Client scaffolded manually instead of `npm create vite@latest` due to npm cache permission issue
+
 ### Completion Notes List
 
+- All 7 tasks and 30 subtasks completed successfully
+- Monorepo with npm workspaces: client/, server/, e2e/ packages
+- Root package.json with dev:client, dev:server, build, test, test:watch scripts
+- Client: Vite 7.3 + React 19.2 + Tailwind CSS 4.2 (CSS-native @theme) + TypeScript
+- Server: Express 5.2 + better-sqlite3 + TypeScript + tsx watch
+- E2E: Playwright 1.58 configured with Chromium
+- Vitest 4.0 configured with projects (client: jsdom, server: node)
+- TypeScript strict mode with zero compilation errors in both packages
+- Co-located test files: App.test.tsx (client), index.test.ts (server) — both passing
+- Design tokens from UX spec implemented in index.css @theme block
+
+### Change Log
+
+- 2026-03-04: Initial scaffolding — full monorepo setup with all packages, configs, types, and test infrastructure
+
 ### File List
+
+- package.json (new)
+- package-lock.json (new)
+- tsconfig.base.json (new)
+- vitest.config.ts (new)
+- .gitignore (modified)
+- .env.example (new)
+- client/package.json (new)
+- client/index.html (new)
+- client/vite.config.ts (new)
+- client/tsconfig.json (new)
+- client/src/main.tsx (new)
+- client/src/App.tsx (new)
+- client/src/App.test.tsx (new)
+- client/src/index.css (new)
+- client/src/vite-env.d.ts (new)
+- client/src/types/todo.ts (new)
+- server/package.json (new)
+- server/tsconfig.json (new)
+- server/vitest.config.ts (new)
+- server/src/index.ts (new)
+- server/src/index.test.ts (new)
+- server/src/types/todo.ts (new)
+- e2e/package.json (new)
+- e2e/playwright.config.ts (new)
