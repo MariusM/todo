@@ -252,9 +252,9 @@ Single Page Application (SPA) delivering a responsive personal task management e
 
 ### Error Handling & Feedback
 
-- FR15: System displays clear error messages when API operations fail
+- FR15: System displays error messages that identify the failed action and provide retry guidance when API operations fail
 - FR16: System reverts UI to previous state when an operation fails (optimistic rollback)
-- FR17: System displays a meaningful empty state when no todos exist
+- FR17: System displays an empty state with instructional text and a visible input prompt when no todos exist
 - FR18: System displays a loading state while fetching data
 - FR19: System provides visual feedback when a todo is created, completed, or deleted
 
@@ -262,7 +262,7 @@ Single Page Application (SPA) delivering a responsive personal task management e
 
 - FR20: User can access and use all features on mobile devices
 - FR21: User can access and use all features on desktop devices
-- FR22: System adapts layout appropriately across screen sizes
+- FR22: System renders single-column layout on mobile (< 768px) and centered content layout on desktop (> 1024px)
 
 ### Accessibility
 
@@ -274,7 +274,7 @@ Single Page Application (SPA) delivering a responsive personal task management e
 
 - FR26: System exposes a health check endpoint reporting operational status
 - FR27: System provides a REST API supporting all CRUD operations on todos
-- FR28: API returns consistent error responses with appropriate HTTP status codes
+- FR28: API returns JSON error responses with an error message field, using 400 for validation errors, 404 for missing resources, and 500 for server errors
 
 ## Non-Functional Requirements
 
@@ -313,13 +313,13 @@ Single Page Application (SPA) delivering a responsive personal task management e
 ### Quality & Testing
 
 - NFR18: Minimum 70% meaningful code coverage across unit and integration tests
-- NFR19: Minimum 5 passing Playwright E2E tests covering core user journeys
+- NFR19: Minimum 5 passing E2E browser tests covering core user journeys
 - NFR20: Zero unhandled errors in core CRUD operations
 - NFR21: All tests executable via CI pipeline
 - NFR22: Health check endpoints report accurate system status
 
 ### Deployment
 
-- NFR23: Application runs successfully via a single `docker-compose up` command
-- NFR24: Dockerfiles use multi-stage builds with non-root users
+- NFR23: Application runs successfully via a single container orchestration command
+- NFR24: Container images use multi-stage builds with non-root users
 - NFR25: Environment configuration supported through environment variables
