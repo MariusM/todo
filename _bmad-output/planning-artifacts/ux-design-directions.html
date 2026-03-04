@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Todo App — Design Direction Mockups</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f5f4; color: #1c1917; }
+
+  /* Navigation */
+  .nav { position: fixed; top: 0; left: 0; right: 0; background: #1c1917; color: #fafaf9; padding: 16px 24px; z-index: 100; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .nav h1 { font-size: 16px; font-weight: 600; white-space: nowrap; }
+  .nav-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .nav-btn { background: #292524; border: 1px solid #44403c; color: #e7e5e4; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.15s; }
+  .nav-btn:hover, .nav-btn.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+
+  /* Mockup Container */
+  .mockup-container { padding-top: 80px; }
+  .mockup-section { display: none; min-height: 100vh; padding: 32px 24px; }
+  .mockup-section.active { display: block; }
+  .mockup-label { text-align: center; margin-bottom: 24px; }
+  .mockup-label h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .mockup-label p { font-size: 14px; color: #78716c; }
+
+  /* Shared phone frame */
+  .frame { max-width: 420px; margin: 0 auto; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  .frame-desktop { max-width: 640px; }
+
+  /* ========== Direction 1: Classic Minimal ========== */
+  .d1 { background: #fafaf9; }
+  .d1 .app { padding: 48px 24px 24px; }
+  .d1 .app-title { font-size: 24px; font-weight: 600; color: #1c1917; margin-bottom: 24px; }
+  .d1 .input-row { display: flex; gap: 8px; margin-bottom: 24px; }
+  .d1 .input-row input { flex: 1; padding: 12px 16px; border: 1px solid #e7e5e4; border-radius: 8px; font-size: 16px; outline: none; background: #fff; }
+  .d1 .input-row input:focus { border-color: #292524; }
+  .d1 .task { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #e7e5e4; }
+  .d1 .checkbox { width: 20px; height: 20px; border: 2px solid #d6d3d1; border-radius: 4px; flex-shrink: 0; }
+  .d1 .checkbox.checked { background: #2563eb; border-color: #2563eb; position: relative; }
+  .d1 .checkbox.checked::after { content: '✓'; color: #fff; font-size: 12px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .d1 .task-text { font-size: 16px; color: #1c1917; flex: 1; }
+  .d1 .task-text.done { text-decoration: line-through; color: #a8a29e; }
+  .d1 .delete-btn { color: #d6d3d1; cursor: pointer; font-size: 18px; padding: 4px; }
+  .d1 .delete-btn:hover { color: #991b1b; }
+
+  /* ========== Direction 2: Card-Based ========== */
+  .d2 { background: #f5f5f4; }
+  .d2 .app { padding: 48px 24px 24px; }
+  .d2 .app-title { font-size: 24px; font-weight: 600; color: #1c1917; margin-bottom: 24px; }
+  .d2 .input-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .d2 .input-card input { width: 100%; border: none; font-size: 16px; outline: none; background: transparent; }
+  .d2 .input-card input::placeholder { color: #a8a29e; }
+  .d2 .task-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 12px; transition: transform 0.1s; }
+  .d2 .task-card:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+  .d2 .checkbox { width: 22px; height: 22px; border: 2px solid #d6d3d1; border-radius: 50%; flex-shrink: 0; }
+  .d2 .checkbox.checked { background: #2563eb; border-color: #2563eb; position: relative; }
+  .d2 .checkbox.checked::after { content: '✓'; color: #fff; font-size: 12px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .d2 .task-text { font-size: 16px; color: #1c1917; flex: 1; }
+  .d2 .task-text.done { text-decoration: line-through; color: #a8a29e; }
+  .d2 .task-meta { font-size: 12px; color: #a8a29e; }
+  .d2 .delete-btn { color: #d6d3d1; cursor: pointer; font-size: 16px; padding: 4px; opacity: 0; transition: opacity 0.15s; }
+  .d2 .task-card:hover .delete-btn { opacity: 1; }
+
+  /* ========== Direction 3: Ultra Minimal ========== */
+  .d3 { background: #fff; }
+  .d3 .app { padding: 80px 32px 32px; max-width: 480px; margin: 0 auto; }
+  .d3 .input-line { border: none; border-bottom: 2px solid #e7e5e4; padding: 12px 0; font-size: 18px; width: 100%; outline: none; margin-bottom: 32px; background: transparent; }
+  .d3 .input-line:focus { border-bottom-color: #1c1917; }
+  .d3 .input-line::placeholder { color: #d6d3d1; }
+  .d3 .task { display: flex; align-items: center; gap: 16px; padding: 12px 0; }
+  .d3 .dot { width: 8px; height: 8px; border-radius: 50%; background: #1c1917; flex-shrink: 0; }
+  .d3 .dot.checked { background: #d6d3d1; }
+  .d3 .task-text { font-size: 16px; color: #1c1917; }
+  .d3 .task-text.done { color: #d6d3d1; text-decoration: line-through; }
+
+  /* ========== Direction 4: Warm & Friendly ========== */
+  .d4 { background: #fef7ed; }
+  .d4 .app { padding: 48px 24px 24px; }
+  .d4 .app-title { font-size: 22px; font-weight: 600; color: #451a03; margin-bottom: 8px; }
+  .d4 .app-subtitle { font-size: 14px; color: #92400e; margin-bottom: 24px; }
+  .d4 .input-row { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 24px; border: 1px solid #fed7aa; display: flex; align-items: center; gap: 8px; }
+  .d4 .input-row input { flex: 1; border: none; font-size: 16px; outline: none; background: transparent; }
+  .d4 .input-row .add-icon { color: #f59e0b; font-size: 20px; font-weight: bold; }
+  .d4 .task { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #fff; border-radius: 10px; margin-bottom: 8px; border: 1px solid #fde68a; }
+  .d4 .checkbox { width: 20px; height: 20px; border: 2px solid #fbbf24; border-radius: 6px; flex-shrink: 0; }
+  .d4 .checkbox.checked { background: #f59e0b; border-color: #f59e0b; position: relative; }
+  .d4 .checkbox.checked::after { content: '✓'; color: #fff; font-size: 12px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .d4 .task-text { font-size: 16px; color: #451a03; flex: 1; }
+  .d4 .task-text.done { text-decoration: line-through; color: #c2a076; }
+
+  /* ========== Direction 5: Dense & Efficient ========== */
+  .d5 { background: #fafaf9; }
+  .d5 .app { padding: 32px 20px 20px; }
+  .d5 .header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .d5 .app-title { font-size: 18px; font-weight: 600; color: #1c1917; }
+  .d5 .task-count { font-size: 13px; color: #78716c; }
+  .d5 .input-row { margin-bottom: 12px; }
+  .d5 .input-row input { width: 100%; padding: 10px 12px; border: 1px solid #e7e5e4; border-radius: 6px; font-size: 14px; outline: none; background: #fff; }
+  .d5 .task { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f5f5f4; font-size: 14px; }
+  .d5 .checkbox { width: 16px; height: 16px; border: 1.5px solid #d6d3d1; border-radius: 3px; flex-shrink: 0; }
+  .d5 .checkbox.checked { background: #2563eb; border-color: #2563eb; position: relative; }
+  .d5 .checkbox.checked::after { content: '✓'; color: #fff; font-size: 10px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .d5 .task-text { color: #1c1917; flex: 1; }
+  .d5 .task-text.done { text-decoration: line-through; color: #a8a29e; }
+  .d5 .task-time { font-size: 11px; color: #a8a29e; }
+  .d5 .delete-btn { color: #e7e5e4; cursor: pointer; font-size: 14px; }
+
+  /* ========== Direction 6: Focused Zen ========== */
+  .d6 { background: #1c1917; color: #e7e5e4; }
+  .d6 .app { padding: 64px 32px 32px; }
+  .d6 .app-title { font-size: 14px; font-weight: 400; color: #78716c; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 32px; }
+  .d6 .input-line { border: none; border-bottom: 1px solid #44403c; padding: 16px 0; font-size: 18px; width: 100%; outline: none; background: transparent; color: #e7e5e4; margin-bottom: 40px; }
+  .d6 .input-line:focus { border-bottom-color: #e7e5e4; }
+  .d6 .input-line::placeholder { color: #57534e; }
+  .d6 .task { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid #292524; }
+  .d6 .checkbox { width: 18px; height: 18px; border: 1.5px solid #57534e; border-radius: 50%; flex-shrink: 0; }
+  .d6 .checkbox.checked { border-color: #2563eb; background: #2563eb; position: relative; }
+  .d6 .checkbox.checked::after { content: '✓'; color: #fff; font-size: 11px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .d6 .task-text { font-size: 16px; color: #e7e5e4; flex: 1; }
+  .d6 .task-text.done { text-decoration: line-through; color: #57534e; }
+
+  /* ========== Empty & Error States ========== */
+  .state-demo { margin-top: 32px; padding: 24px; border-radius: 12px; }
+  .empty-state { text-align: center; padding: 48px 24px; color: #78716c; }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state h3 { font-size: 18px; font-weight: 500; color: #44403c; margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; }
+  .error-banner { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .error-banner .icon { color: #991b1b; font-size: 18px; }
+  .error-banner .msg { font-size: 14px; color: #991b1b; flex: 1; }
+  .error-banner .dismiss { color: #991b1b; cursor: pointer; opacity: 0.6; font-size: 18px; }
+
+  /* Comparison */
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 900px; margin: 0 auto; }
+  @media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+  .comparison .frame { max-width: 100%; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <h1>Todo — Design Directions</h1>
+  <div class="nav-buttons">
+    <button class="nav-btn active" onclick="show('d1')">1. Classic</button>
+    <button class="nav-btn" onclick="show('d2')">2. Cards</button>
+    <button class="nav-btn" onclick="show('d3')">3. Ultra Minimal</button>
+    <button class="nav-btn" onclick="show('d4')">4. Warm</button>
+    <button class="nav-btn" onclick="show('d5')">5. Dense</button>
+    <button class="nav-btn" onclick="show('d6')">6. Dark Zen</button>
+    <button class="nav-btn" onclick="show('states')">States</button>
+    <button class="nav-btn" onclick="show('compare')">Compare</button>
+  </div>
+</nav>
+
+<div class="mockup-container">
+
+  <!-- Direction 1: Classic Minimal -->
+  <section id="d1" class="mockup-section active">
+    <div class="mockup-label">
+      <h2>Direction 1: Classic Minimal</h2>
+      <p>Clean lines, flat list, subtle borders. The paper checklist brought to screen.</p>
+    </div>
+    <div class="frame d1">
+      <div class="app">
+        <div class="app-title">Todo</div>
+        <div class="input-row">
+          <input type="text" placeholder="What needs to be done?" />
+        </div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Send revised sketches to Marco</span><span class="delete-btn">×</span></div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Buy groceries</span><span class="delete-btn">×</span></div>
+        <div class="task"><div class="checkbox checked"></div><span class="task-text done">Call dentist</span><span class="delete-btn">×</span></div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Finish algorithms problem set 3</span><span class="delete-btn">×</span></div>
+        <div class="task"><div class="checkbox checked"></div><span class="task-text done">Email professor about extension</span><span class="delete-btn">×</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Direction 2: Card-Based -->
+  <section id="d2" class="mockup-section">
+    <div class="mockup-label">
+      <h2>Direction 2: Card-Based</h2>
+      <p>Each task as a discrete card with subtle elevation. Tactile and touchable.</p>
+    </div>
+    <div class="frame d2">
+      <div class="app">
+        <div class="app-title">Todo</div>
+        <div class="input-card">
+          <input type="text" placeholder="Add a new task..." />
+        </div>
+        <div class="task-card"><div class="checkbox"></div><div style="flex:1"><span class="task-text">Send revised sketches to Marco</span><div class="task-meta">Created today</div></div><span class="delete-btn">×</span></div>
+        <div class="task-card"><div class="checkbox"></div><div style="flex:1"><span class="task-text">Buy groceries</span><div class="task-meta">Created today</div></div><span class="delete-btn">×</span></div>
+        <div class="task-card"><div class="checkbox checked"></div><div style="flex:1"><span class="task-text done">Call dentist</span><div class="task-meta">Completed</div></div><span class="delete-btn">×</span></div>
+        <div class="task-card"><div class="checkbox"></div><div style="flex:1"><span class="task-text">Finish algorithms problem set 3</span><div class="task-meta">Created yesterday</div></div><span class="delete-btn">×</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Direction 3: Ultra Minimal -->
+  <section id="d3" class="mockup-section">
+    <div class="mockup-label">
+      <h2>Direction 3: Ultra Minimal</h2>
+      <p>Stripped to absolute essentials. Underline input, dot indicators, maximum whitespace.</p>
+    </div>
+    <div class="frame d3">
+      <div class="app">
+        <input class="input-line" type="text" placeholder="New task..." />
+        <div class="task"><div class="dot"></div><span class="task-text">Send revised sketches to Marco</span></div>
+        <div class="task"><div class="dot"></div><span class="task-text">Buy groceries</span></div>
+        <div class="task"><div class="dot checked"></div><span class="task-text done">Call dentist</span></div>
+        <div class="task"><div class="dot"></div><span class="task-text">Finish algorithms problem set 3</span></div>
+        <div class="task"><div class="dot checked"></div><span class="task-text done">Email professor about extension</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Direction 4: Warm & Friendly -->
+  <section id="d4" class="mockup-section">
+    <div class="mockup-label">
+      <h2>Direction 4: Warm & Friendly</h2>
+      <p>Amber accents, rounded shapes, approachable personality. Feels like sunshine on paper.</p>
+    </div>
+    <div class="frame d4">
+      <div class="app">
+        <div class="app-title">My Tasks</div>
+        <div class="app-subtitle">3 remaining · 2 completed</div>
+        <div class="input-row">
+          <span class="add-icon">+</span>
+          <input type="text" placeholder="What's on your mind?" />
+        </div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Send revised sketches to Marco</span></div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Buy groceries</span></div>
+        <div class="task"><div class="checkbox checked"></div><span class="task-text done">Call dentist</span></div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Finish algorithms problem set 3</span></div>
+        <div class="task"><div class="checkbox checked"></div><span class="task-text done">Email professor about extension</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Direction 5: Dense & Efficient -->
+  <section id="d5" class="mockup-section">
+    <div class="mockup-label">
+      <h2>Direction 5: Dense & Efficient</h2>
+      <p>Compact layout, timestamps visible, task count header. Maximum information density.</p>
+    </div>
+    <div class="frame d5">
+      <div class="app">
+        <div class="header">
+          <div class="app-title">Todo</div>
+          <div class="task-count">3 active · 2 done</div>
+        </div>
+        <div class="input-row">
+          <input type="text" placeholder="Add task..." />
+        </div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Send revised sketches to Marco</span><span class="task-time">2m ago</span><span class="delete-btn">×</span></div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Buy groceries</span><span class="task-time">1h ago</span><span class="delete-btn">×</span></div>
+        <div class="task"><div class="checkbox checked"></div><span class="task-text done">Call dentist</span><span class="task-time">3h ago</span><span class="delete-btn">×</span></div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Finish algorithms problem set 3</span><span class="task-time">1d ago</span><span class="delete-btn">×</span></div>
+        <div class="task"><div class="checkbox checked"></div><span class="task-text done">Email professor about extension</span><span class="task-time">1d ago</span><span class="delete-btn">×</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Direction 6: Dark Zen -->
+  <section id="d6" class="mockup-section">
+    <div class="mockup-label">
+      <h2>Direction 6: Focused Zen (Dark)</h2>
+      <p>Dark background, minimal chrome, monochrome with blue accent. Deep focus mode.</p>
+    </div>
+    <div class="frame d6">
+      <div class="app">
+        <div class="app-title">Todo</div>
+        <input class="input-line" type="text" placeholder="What needs to be done?" />
+        <div class="task"><div class="checkbox"></div><span class="task-text">Send revised sketches to Marco</span></div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Buy groceries</span></div>
+        <div class="task"><div class="checkbox checked"></div><span class="task-text done">Call dentist</span></div>
+        <div class="task"><div class="checkbox"></div><span class="task-text">Finish algorithms problem set 3</span></div>
+        <div class="task"><div class="checkbox checked"></div><span class="task-text done">Email professor about extension</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- States -->
+  <section id="states" class="mockup-section">
+    <div class="mockup-label">
+      <h2>UI States</h2>
+      <p>Empty state, loading state, and error state demonstrations.</p>
+    </div>
+    <div class="comparison">
+      <div>
+        <h3 style="text-align:center; margin-bottom:12px; font-size:14px; color:#78716c;">Empty State</h3>
+        <div class="frame d1">
+          <div class="app">
+            <div class="app-title">Todo</div>
+            <div class="input-row">
+              <input type="text" placeholder="What needs to be done?" />
+            </div>
+            <div class="empty-state">
+              <div class="icon">☑</div>
+              <h3>No tasks yet</h3>
+              <p>Type a task above and press Enter to get started.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="text-align:center; margin-bottom:12px; font-size:14px; color:#78716c;">Error State</h3>
+        <div class="frame d1">
+          <div class="app">
+            <div class="app-title">Todo</div>
+            <div class="input-row">
+              <input type="text" placeholder="What needs to be done?" />
+            </div>
+            <div class="error-banner">
+              <span class="icon">⚠</span>
+              <span class="msg">That didn't go through — your task is safe. Try again?</span>
+              <span class="dismiss">×</span>
+            </div>
+            <div class="task"><div class="checkbox"></div><span class="task-text">Send revised sketches to Marco</span><span class="delete-btn">×</span></div>
+            <div class="task"><div class="checkbox"></div><span class="task-text">Buy groceries</span><span class="delete-btn">×</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compare -->
+  <section id="compare" class="mockup-section">
+    <div class="mockup-label">
+      <h2>Side-by-Side Comparison</h2>
+      <p>Classic Minimal vs Card-Based — the two strongest candidates for our calm aesthetic.</p>
+    </div>
+    <div class="comparison">
+      <div>
+        <h3 style="text-align:center; margin-bottom:12px; font-size:14px; color:#78716c;">1. Classic Minimal</h3>
+        <div class="frame d1">
+          <div class="app">
+            <div class="app-title">Todo</div>
+            <div class="input-row">
+              <input type="text" placeholder="What needs to be done?" />
+            </div>
+            <div class="task"><div class="checkbox"></div><span class="task-text">Send revised sketches to Marco</span><span class="delete-btn">×</span></div>
+            <div class="task"><div class="checkbox"></div><span class="task-text">Buy groceries</span><span class="delete-btn">×</span></div>
+            <div class="task"><div class="checkbox checked"></div><span class="task-text done">Call dentist</span><span class="delete-btn">×</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="text-align:center; margin-bottom:12px; font-size:14px; color:#78716c;">2. Card-Based</h3>
+        <div class="frame d2">
+          <div class="app">
+            <div class="app-title">Todo</div>
+            <div class="input-card">
+              <input type="text" placeholder="Add a new task..." />
+            </div>
+            <div class="task-card"><div class="checkbox"></div><div style="flex:1"><span class="task-text">Send revised sketches to Marco</span><div class="task-meta">Created today</div></div><span class="delete-btn">×</span></div>
+            <div class="task-card"><div class="checkbox"></div><div style="flex:1"><span class="task-text">Buy groceries</span><div class="task-meta">Created today</div></div><span class="delete-btn">×</span></div>
+            <div class="task-card"><div class="checkbox checked"></div><div style="flex:1"><span class="task-text done">Call dentist</span><div class="task-meta">Completed</div></div><span class="delete-btn">×</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.mockup-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>
