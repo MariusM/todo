@@ -16,18 +16,18 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 ## Technology Stack & Versions
 
-| Technology | Version | Package |
-|---|---|---|
-| React | 19.2 | client |
-| Vite | 7.3 | client |
-| Tailwind CSS | 4.2 | client (CSS-native @theme) |
-| Express | 5.2 | server |
-| better-sqlite3 | 11.x | server |
-| TypeScript | 5.x | both (ES modules) |
-| Node.js | 22 LTS | runtime |
-| Vitest | 4.0 | both |
-| Playwright | 1.58 | e2e |
-| Helmet.js | latest | server |
+| Technology     | Version | Package                    |
+|----------------|---------|----------------------------|
+| React          | 19.2    | client                     |
+| Vite           | 7.3     | client                     |
+| Tailwind CSS   | 4.2     | client (CSS-native @theme) |
+| Express        | 5.2     | server                     |
+| better-sqlite3 | 11.x    | server                     |
+| TypeScript     | 5.x     | both (ES modules)          |
+| Node.js        | 22 LTS  | runtime                    |
+| Vitest         | 4.0     | both                       |
+| Playwright     | 1.58    | e2e                        |
+| Helmet.js      | latest  | server                     |
 
 **Explicit exclusions:** No ORM, no axios, no routing library, no external state library, no custom fonts.
 
