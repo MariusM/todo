@@ -24,44 +24,44 @@ const mockTodos: Todo[] = [
 
 describe('TaskList', () => {
   it('renders loading indicator when isLoading is true', () => {
-    render(<TaskList todos={[]} isLoading={true} onToggle={vi.fn()} />)
+    render(<TaskList todos={[]} isLoading={true} onToggle={vi.fn()} onEdit={vi.fn()} />)
     expect(screen.getByText('Loading tasks…')).toBeInTheDocument()
   })
 
   it('renders EmptyState when no todos and not loading', () => {
-    render(<TaskList todos={[]} isLoading={false} onToggle={vi.fn()} />)
+    render(<TaskList todos={[]} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} />)
     expect(screen.getByText('No tasks yet')).toBeInTheDocument()
   })
 
   it('renders todos in a list', () => {
-    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} />)
+    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} />)
     expect(screen.getByText('Buy milk')).toBeInTheDocument()
     expect(screen.getByText('Walk the dog')).toBeInTheDocument()
   })
 
   it('uses proper list semantics', () => {
-    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} />)
+    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} />)
     expect(screen.getByRole('list', { name: 'Task list' })).toBeInTheDocument()
   })
 
   it('has aria-live for screen reader announcements', () => {
-    const { container } = render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} />)
+    const { container } = render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} />)
     const liveRegion = container.firstElementChild
     expect(liveRegion).toHaveAttribute('aria-live', 'polite')
   })
 
   it('does not render EmptyState when loading', () => {
-    render(<TaskList todos={[]} isLoading={true} onToggle={vi.fn()} />)
+    render(<TaskList todos={[]} isLoading={true} onToggle={vi.fn()} onEdit={vi.fn()} />)
     expect(screen.queryByText('No tasks yet')).not.toBeInTheDocument()
   })
 
   it('does not render loading when todos exist', () => {
-    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} />)
+    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} />)
     expect(screen.queryByText('Loading tasks…')).not.toBeInTheDocument()
   })
 
   it('renders TaskItem components with checkboxes', () => {
-    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} />)
+    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} />)
     const checkboxes = screen.getAllByRole('checkbox')
     expect(checkboxes).toHaveLength(2)
   })
@@ -69,8 +69,19 @@ describe('TaskList', () => {
   it('passes onToggle to TaskItem components', async () => {
     const onToggle = vi.fn()
     const user = userEvent.setup()
-    render(<TaskList todos={mockTodos} isLoading={false} onToggle={onToggle} />)
+    render(<TaskList todos={mockTodos} isLoading={false} onToggle={onToggle} onEdit={vi.fn()} />)
     await user.click(screen.getAllByRole('checkbox')[0])
     expect(onToggle).toHaveBeenCalledWith('1', true)
+  })
+
+  it('passes onEdit to TaskItem components', async () => {
+    const onEdit = vi.fn()
+    const user = userEvent.setup()
+    render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={onEdit} />)
+    await user.click(screen.getByText('Buy milk'))
+    const input = screen.getByRole('textbox')
+    await user.clear(input)
+    await user.type(input, 'Buy eggs{Enter}')
+    expect(onEdit).toHaveBeenCalledWith('1', 'Buy eggs')
   })
 })

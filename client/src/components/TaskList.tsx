@@ -6,9 +6,10 @@ interface TaskListProps {
   todos: Todo[]
   isLoading: boolean
   onToggle: (id: string, completed: boolean) => void
+  onEdit: (id: string, text: string) => void
 }
 
-export default function TaskList({ todos, isLoading, onToggle }: TaskListProps) {
+export default function TaskList({ todos, isLoading, onToggle, onEdit }: TaskListProps) {
   return (
     <div aria-live="polite">
       {isLoading ? (
@@ -20,7 +21,7 @@ export default function TaskList({ todos, isLoading, onToggle }: TaskListProps) 
       ) : (
         <ul role="list" aria-label="Task list" className="divide-y divide-border">
           {todos.map((todo) => (
-            <TaskItem key={todo.id} todo={todo} onToggle={onToggle} />
+            <TaskItem key={todo.id} todo={todo} onToggle={onToggle} onEdit={onEdit} />
           ))}
         </ul>
       )}

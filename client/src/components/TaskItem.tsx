@@ -1,11 +1,47 @@
+import { useState, useRef, useEffect } from 'react'
 import type { Todo } from '../types/todo'
 
 interface TaskItemProps {
   todo: Todo
   onToggle: (id: string, completed: boolean) => void
+  onEdit: (id: string, text: string) => void
 }
 
-export default function TaskItem({ todo, onToggle }: TaskItemProps) {
+export default function TaskItem({ todo, onToggle, onEdit }: TaskItemProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleTextClick = () => {
+    setIsEditing(true)
+    setEditText(todo.text)
+  }
+
+  const handleSave = () => {
+    const trimmed = editText.trim()
+    if (trimmed && trimmed !== todo.text) {
+      onEdit(todo.id, trimmed)
+    }
+    setIsEditing(false)
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSave()
+    if (e.key === 'Escape') handleCancel()
+  }
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+      const len = inputRef.current.value.length
+      inputRef.current.setSelectionRange(len, len)
+    }
+  }, [isEditing])
+
   return (
     <li className="flex items-center gap-1 px-1 py-0.5">
       <label className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer shrink-0">
@@ -20,13 +56,35 @@ export default function TaskItem({ todo, onToggle }: TaskItemProps) {
           aria-label={`Mark "${todo.text}" as ${todo.completed ? 'incomplete' : 'complete'}`}
         />
       </label>
-      <span className={`transition-all duration-200 ${
-        todo.completed
-          ? 'line-through text-completed-text'
-          : 'text-text-primary'
-      }`}>
-        {todo.text}
-      </span>
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          type="text"
+          value={editText}
+          onChange={(e) => setEditText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={handleSave}
+          className="flex-1 px-2 py-1 bg-surface-warm border border-border rounded
+                     text-text-primary focus:outline-none focus:border-border-focus
+                     transition-colors duration-150 break-words"
+          aria-label={`Edit task: ${todo.text}`}
+        />
+      ) : (
+        <span
+          onClick={handleTextClick}
+          className={`flex-1 cursor-text break-words transition-all duration-200 ${
+            todo.completed
+              ? 'line-through text-completed-text'
+              : 'text-text-primary'
+          }`}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTextClick() }}
+          aria-label={`Edit task: ${todo.text}`}
+        >
+          {todo.text}
+        </span>
+      )}
     </li>
   )
 }

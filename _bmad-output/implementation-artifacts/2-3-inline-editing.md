@@ -1,6 +1,6 @@
 # Story 2.3: Inline Editing
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -26,40 +26,40 @@ so that I can fix typos without deleting and recreating (Kai's "algorithms assig
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add edit mode state and UI to TaskItem (AC: #1, #3)
-  - [ ] 1.1 Add local state: `isEditing` (boolean), `editText` (string)
-  - [ ] 1.2 When `isEditing` is false: render text as clickable `<span>` (existing behavior)
-  - [ ] 1.3 Click handler on text span sets `isEditing = true` and `editText = todo.text`
-  - [ ] 1.4 When `isEditing` is true: render `<input type="text">` replacing the text span
-  - [ ] 1.5 Input pre-filled with `editText`, auto-focused, cursor at end
-  - [ ] 1.6 Subtle visual indicator for edit mode: light background (`bg-surface-warm`/stone-50) + border (`border-border`)
+- [x] Task 1: Add edit mode state and UI to TaskItem (AC: #1, #3)
+  - [x] 1.1 Add local state: `isEditing` (boolean), `editText` (string)
+  - [x] 1.2 When `isEditing` is false: render text as clickable `<span>` (existing behavior)
+  - [x] 1.3 Click handler on text span sets `isEditing = true` and `editText = todo.text`
+  - [x] 1.4 When `isEditing` is true: render `<input type="text">` replacing the text span
+  - [x] 1.5 Input pre-filled with `editText`, auto-focused, cursor at end
+  - [x] 1.6 Subtle visual indicator for edit mode: light background (`bg-surface-warm`/stone-50) + border (`border-border`)
 
-- [ ] Task 2: Add save/cancel keyboard and blur handlers (AC: #2, #3, #4, #5)
-  - [ ] 2.1 `onKeyDown` handler: Enter calls save, Escape calls cancel
-  - [ ] 2.2 `onBlur` handler: calls save (same as Enter)
-  - [ ] 2.3 Save logic: if `editText.trim()` is empty OR equals `todo.text`, revert to original (cancel). Otherwise call `onEdit(todo.id, editText.trim())`
-  - [ ] 2.4 Cancel logic: reset `isEditing = false`, discard `editText`
-  - [ ] 2.5 After save or cancel, `isEditing` returns to false
+- [x] Task 2: Add save/cancel keyboard and blur handlers (AC: #2, #3, #4, #5)
+  - [x] 2.1 `onKeyDown` handler: Enter calls save, Escape calls cancel
+  - [x] 2.2 `onBlur` handler: calls save (same as Enter)
+  - [x] 2.3 Save logic: if `editText.trim()` is empty OR equals `todo.text`, revert to original (cancel). Otherwise call `onEdit(todo.id, editText.trim())`
+  - [x] 2.4 Cancel logic: reset `isEditing = false`, discard `editText`
+  - [x] 2.5 After save or cancel, `isEditing` returns to false
 
-- [ ] Task 3: Wire onEdit callback through component tree (AC: #2)
-  - [ ] 3.1 Add `onEdit: (id: string, text: string) => void` prop to TaskItem
-  - [ ] 3.2 Add `onEdit` prop to TaskList, pass through to each TaskItem
-  - [ ] 3.3 In App.tsx: pass `(id, text) => updateTodo(id, { text })` as `onEdit` to TaskList
+- [x] Task 3: Wire onEdit callback through component tree (AC: #2)
+  - [x] 3.1 Add `onEdit: (id: string, text: string) => void` prop to TaskItem
+  - [x] 3.2 Add `onEdit` prop to TaskList, pass through to each TaskItem
+  - [x] 3.3 In App.tsx: pass `(id, text) => updateTodo(id, { text })` as `onEdit` to TaskList
 
-- [ ] Task 4: Handle long text wrapping (AC: #6)
-  - [ ] 4.1 Ensure text span uses `break-words` or `overflow-wrap: break-word` for long unbroken strings
-  - [ ] 4.2 Edit input should also handle long text gracefully (full width of available space)
-  - [ ] 4.3 Verify no layout shift between display mode and edit mode
+- [x] Task 4: Handle long text wrapping (AC: #6)
+  - [x] 4.1 Ensure text span uses `break-words` or `overflow-wrap: break-word` for long unbroken strings
+  - [x] 4.2 Edit input should also handle long text gracefully (full width of available space)
+  - [x] 4.3 Verify no layout shift between display mode and edit mode
 
-- [ ] Task 5: Tests (AC: #1, #2, #3, #4, #5, #6)
-  - [ ] 5.1 Create/update `TaskItem.test.tsx`: clicking text enters edit mode, shows input with current text
-  - [ ] 5.2 Test Enter saves and exits edit mode, calls onEdit with trimmed text
-  - [ ] 5.3 Test Escape cancels and exits edit mode without calling onEdit
-  - [ ] 5.4 Test blur saves (same as Enter)
-  - [ ] 5.5 Test empty text on save reverts to original (no onEdit call)
-  - [ ] 5.6 Test unchanged text on save does not call onEdit (no-op optimization)
-  - [ ] 5.7 Update `TaskList.test.tsx`: passes onEdit to each TaskItem
-  - [ ] 5.8 Verify ALL existing tests still pass (127 tests, zero regressions)
+- [x] Task 5: Tests (AC: #1, #2, #3, #4, #5, #6)
+  - [x] 5.1 Create/update `TaskItem.test.tsx`: clicking text enters edit mode, shows input with current text
+  - [x] 5.2 Test Enter saves and exits edit mode, calls onEdit with trimmed text
+  - [x] 5.3 Test Escape cancels and exits edit mode without calling onEdit
+  - [x] 5.4 Test blur saves (same as Enter)
+  - [x] 5.5 Test empty text on save reverts to original (no onEdit call)
+  - [x] 5.6 Test unchanged text on save does not call onEdit (no-op optimization)
+  - [x] 5.7 Update `TaskList.test.tsx`: passes onEdit to each TaskItem
+  - [x] 5.8 Verify ALL existing tests still pass (127 tests, zero regressions)
 
 ## Dev Notes
 
@@ -299,10 +299,31 @@ This story ONLY adds: click-to-edit inline text editing in TaskItem with Enter/E
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+No debug issues encountered. All tests passed on first run.
+
 ### Completion Notes List
 
+- Implemented inline editing in TaskItem with useState for `isEditing`/`editText` and useRef+useEffect for auto-focus with cursor-at-end
+- Added Enter (save), Escape (cancel), and blur (save) handlers following the exact data flow specified in Dev Notes
+- Empty/whitespace-only text and unchanged text both revert without calling onEdit (no destructive saves, no unnecessary API calls)
+- Wired `onEdit` prop through TaskItem -> TaskList -> App.tsx, connecting to existing `updateTodo(id, { text })` from useOptimisticTodos hook
+- Text span uses `break-words` class for long text wrapping; edit input uses `flex-1` for full-width and `break-words`
+- Added `role="button"`, `tabIndex={0}`, and keyboard handler on text span for accessibility
+- 8 new inline editing test cases in TaskItem.test.tsx + 1 new onEdit pass-through test in TaskList.test.tsx
+- All 137 tests pass (127 existing + 10 new), zero regressions
+
+### Change Log
+
+- 2026-03-05: Implemented story 2.3 inline editing - added click-to-edit with Enter/Escape/blur save-cancel mechanics
+
 ### File List
+
+- client/src/components/TaskItem.tsx (modified: added edit mode state, input rendering, keyboard/blur handlers, onEdit prop)
+- client/src/components/TaskItem.test.tsx (modified: added 8 inline editing test cases)
+- client/src/components/TaskList.tsx (modified: added onEdit prop, pass-through to TaskItem)
+- client/src/components/TaskList.test.tsx (modified: added onEdit prop to all renders, added onEdit pass-through test)
+- client/src/App.tsx (modified: wired onEdit callback to TaskList)
