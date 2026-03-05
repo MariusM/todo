@@ -1,10 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
-import { fetchTodos, createTodo } from '../api/todos'
-import type { Todo } from '../types/todo'
+import { fetchTodos, createTodo, updateTodo as apiUpdateTodo, deleteTodo as apiDeleteTodo } from '../api/todos'
+import type { Todo, UpdateTodoRequest } from '../types/todo'
 
 export interface ErrorInfo {
   message: string
   code: string
+}
+
+function extractErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'error' in err) {
+    return (err as { error: { message: string } }).error.message
+  }
+  return fallback
 }
 
 export function useOptimisticTodos() {
@@ -44,13 +51,36 @@ export function useOptimisticTodos() {
 
     createTodo({ id, text: trimmed }).catch((err: unknown) => {
       setTodos((prev) => prev.filter((todo) => todo.id !== id))
-      const message =
-        err && typeof err === 'object' && 'error' in err
-          ? (err as { error: { message: string } }).error.message
-          : 'Failed to create todo'
+      const message = extractErrorMessage(err, 'Failed to create todo')
       setErrors((prevErrors) => [...prevErrors, { message, code: 'CREATE_ERROR' }])
     })
   }, [])
 
-  return { todos, isLoading, errors, addTodo }
+  const updateTodo = useCallback((id: string, fields: UpdateTodoRequest) => {
+    const snapshot = [...todos]
+
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, ...fields } : t))
+    )
+
+    apiUpdateTodo(id, fields).catch((err: unknown) => {
+      setTodos(snapshot)
+      const message = extractErrorMessage(err, 'Failed to update todo')
+      setErrors((prev) => [...prev, { message, code: 'UPDATE_ERROR' }])
+    })
+  }, [todos])
+
+  const removeTodo = useCallback((id: string) => {
+    const snapshot = [...todos]
+
+    setTodos((prev) => prev.filter((t) => t.id !== id))
+
+    apiDeleteTodo(id).catch((err: unknown) => {
+      setTodos(snapshot)
+      const message = extractErrorMessage(err, 'Failed to delete todo')
+      setErrors((prev) => [...prev, { message, code: 'DELETE_ERROR' }])
+    })
+  }, [todos])
+
+  return { todos, isLoading, errors, addTodo, updateTodo, deleteTodo: removeTodo }
 }

@@ -1,4 +1,4 @@
-import type { Todo, CreateTodoRequest, ApiError } from '../types/todo'
+import type { Todo, CreateTodoRequest, UpdateTodoRequest, ApiError } from '../types/todo'
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -27,4 +27,28 @@ export async function createTodo(request: CreateTodoRequest): Promise<Todo> {
     body: JSON.stringify(request),
   })
   return handleResponse<Todo>(response)
+}
+
+export async function updateTodo(id: string, fields: UpdateTodoRequest): Promise<Todo> {
+  const response = await fetch(`/api/todos/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields),
+  })
+  return handleResponse<Todo>(response)
+}
+
+export async function deleteTodo(id: string): Promise<void> {
+  const response = await fetch(`/api/todos/${id}`, { method: 'DELETE' })
+  if (!response.ok) {
+    let body: ApiError
+    try {
+      body = (await response.json()) as ApiError
+    } catch {
+      throw {
+        error: { message: `Server error: ${response.status}`, code: 'INTERNAL_ERROR' },
+      } satisfies ApiError
+    }
+    throw body
+  }
 }

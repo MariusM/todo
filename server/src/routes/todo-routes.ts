@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { validateCreateTodo } from '../middleware/validate-todo.js'
+import { validateCreateTodo, validateTodoId, validateUpdateTodo } from '../middleware/validate-todo.js'
 import { AppError } from '../middleware/error-handler.js'
 import type { createQueries } from '../db/queries.js'
 
@@ -30,6 +30,36 @@ export function createTodoRoutes(queries: ReturnType<typeof createQueries>) {
   router.get('/api/todos', (_req, res) => {
     const todos = queries.getAllTodos()
     res.json(todos)
+  })
+
+  router.patch('/api/todos/:id', validateTodoId, validateUpdateTodo, (req, res) => {
+    const { id } = req.params
+    const fields: { text?: string; completed?: boolean } = {}
+
+    if (req.body.text !== undefined) {
+      fields.text = sanitizeText(req.body.text.trim())
+    }
+    if (req.body.completed !== undefined) {
+      fields.completed = req.body.completed
+    }
+
+    const updated = queries.updateTodo(id, fields)
+    if (!updated) {
+      throw new AppError('Todo not found', 404, 'NOT_FOUND')
+    }
+
+    res.status(200).json(updated)
+  })
+
+  router.delete('/api/todos/:id', validateTodoId, (req, res) => {
+    const { id } = req.params
+
+    const deleted = queries.deleteTodo(id)
+    if (!deleted) {
+      throw new AppError('Todo not found', 404, 'NOT_FOUND')
+    }
+
+    res.status(204).send()
   })
 
   return router

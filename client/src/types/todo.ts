@@ -11,6 +11,11 @@ export interface CreateTodoRequest {
   text: string
 }
 
+export interface UpdateTodoRequest {
+  text?: string
+  completed?: boolean
+}
+
 export interface ApiError {
   error: {
     message: string

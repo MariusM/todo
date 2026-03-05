@@ -143,4 +143,86 @@ describe('useOptimisticTodos', () => {
 
     vi.unstubAllGlobals()
   })
+
+  it('optimistically updates a todo', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+    vi.mocked(todosApi.updateTodo).mockReturnValue(new Promise(() => {}))
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    act(() => {
+      result.current.updateTodo('server-uuid-1', { text: 'Updated milk' })
+    })
+
+    expect(result.current.todos[0].text).toBe('Updated milk')
+    expect(result.current.todos[0].id).toBe('server-uuid-1')
+  })
+
+  it('rolls back update on API failure', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+    vi.mocked(todosApi.updateTodo).mockRejectedValue(
+      { error: { message: 'Update failed', code: 'INTERNAL_ERROR' } }
+    )
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    await act(async () => {
+      result.current.updateTodo('server-uuid-1', { text: 'Will fail' })
+    })
+
+    expect(result.current.todos[0].text).toBe('Buy milk')
+    expect(result.current.errors.length).toBeGreaterThan(0)
+    expect(result.current.errors[0].message).toBe('Update failed')
+    expect(result.current.errors[0].code).toBe('UPDATE_ERROR')
+  })
+
+  it('optimistically removes a todo on delete', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+    vi.mocked(todosApi.deleteTodo).mockReturnValue(new Promise(() => {}))
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    expect(result.current.todos).toHaveLength(1)
+
+    act(() => {
+      result.current.deleteTodo('server-uuid-1')
+    })
+
+    expect(result.current.todos).toHaveLength(0)
+  })
+
+  it('rolls back delete on API failure', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+    vi.mocked(todosApi.deleteTodo).mockRejectedValue(
+      { error: { message: 'Delete failed', code: 'INTERNAL_ERROR' } }
+    )
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    await act(async () => {
+      result.current.deleteTodo('server-uuid-1')
+    })
+
+    expect(result.current.todos).toHaveLength(1)
+    expect(result.current.todos[0].id).toBe('server-uuid-1')
+    expect(result.current.errors.length).toBeGreaterThan(0)
+    expect(result.current.errors[0].message).toBe('Delete failed')
+    expect(result.current.errors[0].code).toBe('DELETE_ERROR')
+  })
 })

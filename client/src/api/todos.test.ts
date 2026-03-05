@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { fetchTodos, createTodo } from './todos'
+import { fetchTodos, createTodo, updateTodo, deleteTodo } from './todos'
 import type { Todo, ApiError } from '../types/todo'
 
 const mockTodo: Todo = {
@@ -100,5 +100,75 @@ describe('createTodo', () => {
     await expect(createTodo({ id: 'test-uuid-1', text: 'Buy milk' })).rejects.toThrow(
       'Failed to fetch'
     )
+  })
+})
+
+describe('updateTodo', () => {
+  it('returns the updated todo on success', async () => {
+    const updatedTodo: Todo = { ...mockTodo, text: 'Updated text' }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(updatedTodo), { status: 200 })
+    )
+
+    const result = await updateTodo('test-uuid-1', { text: 'Updated text' })
+
+    expect(result).toEqual(updatedTodo)
+    expect(fetch).toHaveBeenCalledWith('/api/todos/test-uuid-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: 'Updated text' }),
+    })
+  })
+
+  it('throws a typed ApiError on not found', async () => {
+    const errorBody: ApiError = {
+      error: { message: 'Todo not found', code: 'NOT_FOUND' },
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(errorBody), { status: 404 })
+    )
+
+    await expect(updateTodo('nonexistent', { text: 'Nope' })).rejects.toEqual(errorBody)
+  })
+
+  it('throws on network failure', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'))
+
+    await expect(updateTodo('test-uuid-1', { completed: true })).rejects.toThrow('Failed to fetch')
+  })
+})
+
+describe('deleteTodo', () => {
+  it('resolves on successful 204 response', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(null, { status: 204 })
+    )
+
+    await expect(deleteTodo('test-uuid-1')).resolves.toBeUndefined()
+    expect(fetch).toHaveBeenCalledWith('/api/todos/test-uuid-1', { method: 'DELETE' })
+  })
+
+  it('throws a typed ApiError on 404', async () => {
+    const errorBody: ApiError = {
+      error: { message: 'Todo not found', code: 'NOT_FOUND' },
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(errorBody), { status: 404 })
+    )
+
+    await expect(deleteTodo('nonexistent')).rejects.toEqual(errorBody)
+  })
+
+  it('throws on non-JSON error response', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('<html>Bad Gateway</html>', {
+        status: 502,
+        headers: { 'Content-Type': 'text/html' },
+      })
+    )
+
+    await expect(deleteTodo('test-uuid-1')).rejects.toEqual({
+      error: { message: 'Server error: 502', code: 'INTERNAL_ERROR' },
+    })
   })
 })
