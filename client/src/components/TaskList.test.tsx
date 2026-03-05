@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import TaskList from './TaskList'
@@ -67,7 +68,6 @@ describe('TaskList', () => {
 
   it('passes onToggle to TaskItem components', async () => {
     const onToggle = vi.fn()
-    const { default: userEvent } = await import('@testing-library/user-event')
     const user = userEvent.setup()
     render(<TaskList todos={mockTodos} isLoading={false} onToggle={onToggle} />)
     await user.click(screen.getAllByRole('checkbox')[0])

@@ -1,6 +1,6 @@
 # Story 2.2: Task Completion & Visual Distinction
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -258,12 +258,15 @@ No issues encountered during implementation.
 ### Change Log
 
 - 2026-03-05: Implemented task completion & visual distinction (story 2.2) — TaskItem component, checkbox toggle, completed styling
+- 2026-03-05: Code review fixes — Fixed stale closure race condition in useOptimisticTodos (updateTodo/removeTodo use ref instead of closure-captured todos), added 44×44px touch target via label wrapper on checkbox, fixed inconsistent dynamic import in TaskList.test.tsx, added App-level toggle integration test
 
 ### File List
 
-- `client/src/components/TaskItem.tsx` (new) — TaskItem component with checkbox + completion styling
+- `client/src/components/TaskItem.tsx` (new) — TaskItem component with checkbox + completion styling + 44×44px touch target
 - `client/src/components/TaskItem.test.tsx` (new) — 9 tests for TaskItem component
 - `client/src/components/TaskList.tsx` (modified) — Replaced inline rendering with TaskItem, added onToggle prop
-- `client/src/components/TaskList.test.tsx` (modified) — Updated tests for new onToggle prop, added TaskItem integration tests
+- `client/src/components/TaskList.test.tsx` (modified) — Updated tests for new onToggle prop, fixed dynamic import
 - `client/src/App.tsx` (modified) — Destructure updateTodo from hook, pass onToggle to TaskList
+- `client/src/App.test.tsx` (modified) — Added toggle integration test
+- `client/src/hooks/useOptimisticTodos.ts` (modified) — Fixed stale closure in updateTodo/removeTodo via todosRef
 - `client/src/index.css` (modified) — Added checkbox checked checkmark CSS (::after pseudo-element)

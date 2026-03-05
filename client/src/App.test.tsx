@@ -111,4 +111,38 @@ describe('App', () => {
 
     vi.unstubAllGlobals()
   })
+
+  it('toggles a task to completed via checkbox', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+      {
+        id: 'todo-1',
+        text: 'Buy milk',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      },
+    ])
+    vi.mocked(todosApi.updateTodo).mockResolvedValue({
+      id: 'todo-1',
+      text: 'Buy milk',
+      completed: true,
+      createdAt: '2026-03-05T00:00:00.000Z',
+      updatedAt: '2026-03-05T00:00:00.000Z',
+    })
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    })
+
+    const checkbox = screen.getByRole('checkbox')
+    expect(checkbox).not.toBeChecked()
+
+    await user.click(checkbox)
+
+    expect(checkbox).toBeChecked()
+    expect(todosApi.updateTodo).toHaveBeenCalledWith('todo-1', { completed: true })
+  })
 })

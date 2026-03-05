@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { fetchTodos, createTodo, updateTodo as apiUpdateTodo, deleteTodo as apiDeleteTodo } from '../api/todos'
 import type { Todo, UpdateTodoRequest } from '../types/todo'
 
@@ -18,6 +18,8 @@ export function useOptimisticTodos() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errors, setErrors] = useState<ErrorInfo[]>([])
+  const todosRef = useRef(todos)
+  todosRef.current = todos
 
   useEffect(() => {
     fetchTodos()
@@ -57,7 +59,7 @@ export function useOptimisticTodos() {
   }, [])
 
   const updateTodo = useCallback((id: string, fields: UpdateTodoRequest) => {
-    const original = todos.find((t) => t.id === id)
+    const original = todosRef.current.find((t) => t.id === id)
     if (!original) return
 
     setTodos((prev) =>
@@ -73,10 +75,10 @@ export function useOptimisticTodos() {
       const message = extractErrorMessage(err, 'Failed to update todo')
       setErrors((prev) => [...prev, { message, code: 'UPDATE_ERROR' }])
     })
-  }, [todos])
+  }, [])
 
   const removeTodo = useCallback((id: string) => {
-    const removed = todos.find((t) => t.id === id)
+    const removed = todosRef.current.find((t) => t.id === id)
     if (!removed) return
 
     setTodos((prev) => prev.filter((t) => t.id !== id))
@@ -86,7 +88,7 @@ export function useOptimisticTodos() {
       const message = extractErrorMessage(err, 'Failed to delete todo')
       setErrors((prev) => [...prev, { message, code: 'DELETE_ERROR' }])
     })
-  }, [todos])
+  }, [])
 
   return { todos, isLoading, errors, addTodo, updateTodo, deleteTodo: removeTodo }
 }
