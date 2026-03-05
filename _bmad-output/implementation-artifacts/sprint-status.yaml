@@ -60,7 +60,7 @@ development_status:
   epic-3: in-progress
   3-1-optimistic-ui-with-rollback: done
   3-2-error-banner-user-communication: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: done
 
   # Epic 4: Responsive Design & Accessibility
   epic-4: backlog
