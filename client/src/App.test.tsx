@@ -1,11 +1,77 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import App from './App'
+import * as todosApi from './api/todos'
+
+vi.mock('./api/todos')
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 
 describe('App', () => {
   it('renders the app heading', () => {
+    vi.mocked(todosApi.fetchTodos).mockReturnValue(new Promise(() => {}))
     render(<App />)
     expect(screen.getByText('Todo')).toBeInTheDocument()
+  })
+
+  it('shows loading state then empty state', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+
+    render(<App />)
+
+    // Initially loading
+    expect(screen.getByText('Loading tasks…')).toBeInTheDocument()
+
+    // Then empty state
+    await waitFor(() => {
+      expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+    })
+  })
+
+  it('shows todos after loading', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+      {
+        id: '1',
+        text: 'Existing task',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      },
+    ])
+
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Existing task')).toBeInTheDocument()
+    })
+  })
+
+  it('adds a task optimistically on Enter', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+    vi.mocked(todosApi.createTodo).mockReturnValue(new Promise(() => {}))
+
+    const mockRandomUUID = vi.fn().mockReturnValue('new-uuid-1')
+    vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+    })
+
+    const input = screen.getByLabelText('Add a new task')
+    await user.type(input, 'Buy milk{Enter}')
+
+    expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    expect(screen.queryByText('No tasks yet')).not.toBeInTheDocument()
+    expect(input).toHaveValue('')
+    expect(input).toHaveFocus()
+
+    vi.unstubAllGlobals()
   })
 })

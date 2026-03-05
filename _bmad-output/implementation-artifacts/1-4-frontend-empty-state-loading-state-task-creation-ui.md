@@ -1,6 +1,6 @@
 # Story 1.4: Frontend — Empty State, Loading State & Task Creation UI
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -24,60 +24,60 @@ so that I can capture my first thought in under 5 seconds (Clara's "aha" moment)
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: API client module (AC: #3, #5)
-  - [ ] 1.1 Create `client/src/api/todos.ts` — typed fetch wrapper for POST /api/todos and GET /api/todos
-  - [ ] 1.2 `fetchTodos(): Promise<Todo[]>` — GET /api/todos, parse JSON, return typed array
-  - [ ] 1.3 `createTodo(request: CreateTodoRequest): Promise<Todo>` — POST /api/todos, send JSON, return created todo
-  - [ ] 1.4 Error handling: parse error responses into `ApiError` objects, throw typed errors
-  - [ ] 1.5 Use native `fetch` — NO axios (architecture constraint)
+- [x] Task 1: API client module (AC: #3, #5)
+  - [x] 1.1 Create `client/src/api/todos.ts` — typed fetch wrapper for POST /api/todos and GET /api/todos
+  - [x] 1.2 `fetchTodos(): Promise<Todo[]>` — GET /api/todos, parse JSON, return typed array
+  - [x] 1.3 `createTodo(request: CreateTodoRequest): Promise<Todo>` — POST /api/todos, send JSON, return created todo
+  - [x] 1.4 Error handling: parse error responses into `ApiError` objects, throw typed errors
+  - [x] 1.5 Use native `fetch` — NO axios (architecture constraint)
 
-- [ ] Task 2: useOptimisticTodos hook — initial version (AC: #1, #2, #3, #4, #5)
-  - [ ] 2.1 Create `client/src/hooks/useOptimisticTodos.ts`
-  - [ ] 2.2 State shape: `{ todos: Todo[], isLoading: boolean, errors: ErrorInfo[] }`
-  - [ ] 2.3 On mount: `setIsLoading(true)` → `fetchTodos()` → `setTodos(data)` → `setIsLoading(false)`
-  - [ ] 2.4 `addTodo(text)`: generate UUID via `crypto.randomUUID()`, snapshot state, optimistically add to `todos`, fire `createTodo()` in background, on failure rollback + add error
-  - [ ] 2.5 Client-side validation: if `text.trim()` is empty, silently return (no API call, no error)
-  - [ ] 2.6 Return `{ todos, isLoading, errors, addTodo }` from hook
+- [x] Task 2: useOptimisticTodos hook — initial version (AC: #1, #2, #3, #4, #5)
+  - [x] 2.1 Create `client/src/hooks/useOptimisticTodos.ts`
+  - [x] 2.2 State shape: `{ todos: Todo[], isLoading: boolean, errors: ErrorInfo[] }`
+  - [x] 2.3 On mount: `setIsLoading(true)` → `fetchTodos()` → `setTodos(data)` → `setIsLoading(false)`
+  - [x] 2.4 `addTodo(text)`: generate UUID via `crypto.randomUUID()`, snapshot state, optimistically add to `todos`, fire `createTodo()` in background, on failure rollback + add error
+  - [x] 2.5 Client-side validation: if `text.trim()` is empty, silently return (no API call, no error)
+  - [x] 2.6 Return `{ todos, isLoading, errors, addTodo }` from hook
 
-- [ ] Task 3: EmptyState component (AC: #2)
-  - [ ] 3.1 Create `client/src/components/EmptyState.tsx`
-  - [ ] 3.2 Render: 48px muted checkbox icon at 40% opacity, "No tasks yet" heading (18px, text-secondary, font-weight 500), instruction text (14px, text-secondary)
-  - [ ] 3.3 Center content with 48px vertical padding
-  - [ ] 3.4 No interactive elements — purely informational
+- [x] Task 3: EmptyState component (AC: #2)
+  - [x] 3.1 Create `client/src/components/EmptyState.tsx`
+  - [x] 3.2 Render: 48px muted checkbox icon at 40% opacity, "No tasks yet" heading (18px, text-secondary, font-weight 500), instruction text (14px, text-secondary)
+  - [x] 3.3 Center content with 48px vertical padding
+  - [x] 3.4 No interactive elements — purely informational
 
-- [ ] Task 4: TaskInput component (AC: #3, #4)
-  - [ ] 4.1 Create `client/src/components/TaskInput.tsx`
-  - [ ] 4.2 Always-visible `<input>` with placeholder "What needs to be done?"
-  - [ ] 4.3 `aria-label="Add a new task"` for accessibility
-  - [ ] 4.4 onKeyDown: Enter → call `onAddTodo(text)` if non-empty after trim, clear input, retain focus
-  - [ ] 4.5 Enter on empty/whitespace → silent ignore (no error, no shake)
-  - [ ] 4.6 Auto-focus on mount via `useRef` + `useEffect`
-  - [ ] 4.7 Styling: 1px border, focus ring (2px solid border-focus, 2px offset), full width within container
+- [x] Task 4: TaskInput component (AC: #3, #4)
+  - [x] 4.1 Create `client/src/components/TaskInput.tsx`
+  - [x] 4.2 Always-visible `<input>` with placeholder "What needs to be done?"
+  - [x] 4.3 `aria-label="Add a new task"` for accessibility
+  - [x] 4.4 onKeyDown: Enter → call `onAddTodo(text)` if non-empty after trim, clear input, retain focus
+  - [x] 4.5 Enter on empty/whitespace → silent ignore (no error, no shake)
+  - [x] 4.6 Auto-focus on mount via `useRef` + `useEffect`
+  - [x] 4.7 Styling: 1px border, focus ring (2px solid border-focus, 2px offset), full width within container
 
-- [ ] Task 5: TaskList component (AC: #1, #2, #3, #5)
-  - [ ] 5.1 Create `client/src/components/TaskList.tsx`
-  - [ ] 5.2 Loading state: render a subtle loading indicator when `isLoading` is true
-  - [ ] 5.3 Empty state: render `<EmptyState />` when `todos.length === 0` and not loading
-  - [ ] 5.4 Populated state: render todos in `<ul role="list" aria-label="Task list">` with `<li>` items
-  - [ ] 5.5 Each task item: display task text with checkbox (read-only for now — completion is Epic 2)
-  - [ ] 5.6 Separators: 1px solid border between items (no separator above first / below last)
-  - [ ] 5.7 `aria-live="polite"` on container for screen reader announcements
+- [x] Task 5: TaskList component (AC: #1, #2, #3, #5)
+  - [x] 5.1 Create `client/src/components/TaskList.tsx`
+  - [x] 5.2 Loading state: render a subtle loading indicator when `isLoading` is true
+  - [x] 5.3 Empty state: render `<EmptyState />` when `todos.length === 0` and not loading
+  - [x] 5.4 Populated state: render todos in `<ul role="list" aria-label="Task list">` with `<li>` items
+  - [x] 5.5 Each task item: display task text with checkbox (read-only for now — completion is Epic 2)
+  - [x] 5.6 Separators: 1px solid border between items (no separator above first / below last)
+  - [x] 5.7 `aria-live="polite"` on container for screen reader announcements
 
-- [ ] Task 6: Wire components into App.tsx (AC: #1, #2, #3, #4, #5)
-  - [ ] 6.1 Update `client/src/App.tsx` — import and use `useOptimisticTodos` hook
-  - [ ] 6.2 Render `<TaskInput onAddTodo={addTodo} />` at the top
-  - [ ] 6.3 Render `<TaskList todos={todos} isLoading={isLoading} />` below
-  - [ ] 6.4 Layout: centered container (max 640px), 16px padding on mobile, generous whitespace on desktop
-  - [ ] 6.5 Page title "Todo" as heading
+- [x] Task 6: Wire components into App.tsx (AC: #1, #2, #3, #4, #5)
+  - [x] 6.1 Update `client/src/App.tsx` — import and use `useOptimisticTodos` hook
+  - [x] 6.2 Render `<TaskInput onAddTodo={addTodo} />` at the top
+  - [x] 6.3 Render `<TaskList todos={todos} isLoading={isLoading} />` below
+  - [x] 6.4 Layout: centered container (max 640px), 16px padding on mobile, generous whitespace on desktop
+  - [x] 6.5 Page title "Todo" as heading
 
-- [ ] Task 7: Tests (AC: #1, #2, #3, #4, #5)
-  - [ ] 7.1 Create `client/src/api/todos.test.ts` — test fetchTodos success/error, createTodo success/error, error parsing
-  - [ ] 7.2 Create `client/src/hooks/useOptimisticTodos.test.ts` — test initial fetch sets todos, loading state transitions, addTodo optimistic add, addTodo with empty text ignored, addTodo rollback on API failure
-  - [ ] 7.3 Create `client/src/components/EmptyState.test.tsx` — test renders heading, instruction text, muted icon
-  - [ ] 7.4 Create `client/src/components/TaskInput.test.tsx` — test Enter submits non-empty text, Enter on empty does nothing, input clears after submit, auto-focus on mount, placeholder text
-  - [ ] 7.5 Create `client/src/components/TaskList.test.tsx` — test loading state, empty state, populated state, list semantics (role, aria-label)
-  - [ ] 7.6 Update `client/src/App.test.tsx` — test full integration: loading → empty state → add task → task visible
-  - [ ] 7.7 Verify all existing tests still pass (no regressions)
+- [x] Task 7: Tests (AC: #1, #2, #3, #4, #5)
+  - [x] 7.1 Create `client/src/api/todos.test.ts` — test fetchTodos success/error, createTodo success/error, error parsing
+  - [x] 7.2 Create `client/src/hooks/useOptimisticTodos.test.ts` — test initial fetch sets todos, loading state transitions, addTodo optimistic add, addTodo with empty text ignored, addTodo rollback on API failure
+  - [x] 7.3 Create `client/src/components/EmptyState.test.tsx` — test renders heading, instruction text, muted icon
+  - [x] 7.4 Create `client/src/components/TaskInput.test.tsx` — test Enter submits non-empty text, Enter on empty does nothing, input clears after submit, auto-focus on mount, placeholder text
+  - [x] 7.5 Create `client/src/components/TaskList.test.tsx` — test loading state, empty state, populated state, list semantics (role, aria-label)
+  - [x] 7.6 Update `client/src/App.test.tsx` — test full integration: loading → empty state → add task → task visible
+  - [x] 7.7 Verify all existing tests still pass (no regressions)
 
 ## Dev Notes
 
@@ -289,10 +289,44 @@ App mounts → useOptimisticTodos initializes
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+None — clean implementation with no blocking issues.
+
 ### Completion Notes List
 
+- Implemented typed API client (`todos.ts`) with `fetchTodos()` and `createTodo()` using native fetch. Error responses parsed into typed `ApiError` objects.
+- Created `useOptimisticTodos` hook as single source of truth: manages todos, isLoading, errors state. Optimistic create with snapshot-based rollback on API failure. Empty/whitespace input silently ignored.
+- Built `EmptyState` component with 48px SVG checkbox icon at 40% opacity, heading, and instruction text — centered with vertical padding.
+- Built `TaskInput` component with auto-focus, Enter key submission, input clearing, focus retention, and whitespace validation. Styled with focus ring per design system.
+- Built `TaskList` component with three states: loading indicator, EmptyState, and populated list with proper ARIA semantics (`role="list"`, `aria-label`, `aria-live="polite"`). Read-only checkboxes for now (completion is Epic 2).
+- Wired all components into `App.tsx` with centered max-width layout.
+- Added `@testing-library/user-event` dev dependency for component interaction tests.
+- Full test coverage: 7 API tests, 7 hook tests, 3 EmptyState tests, 8 TaskInput tests, 7 TaskList tests, 4 App integration tests = 36 new client tests.
+- All 79 tests pass (13 test files) with zero regressions.
+
 ### File List
+
+**New files:**
+- `client/src/api/todos.ts` — Typed fetch wrapper for GET/POST /api/todos
+- `client/src/api/todos.test.ts` — API client unit tests (7 tests)
+- `client/src/hooks/useOptimisticTodos.ts` — Core state hook with optimistic create
+- `client/src/hooks/useOptimisticTodos.test.ts` — Hook tests (7 tests)
+- `client/src/components/EmptyState.tsx` — Zero-tasks display component
+- `client/src/components/EmptyState.test.tsx` — EmptyState tests (3 tests)
+- `client/src/components/TaskInput.tsx` — Text input with Enter submission
+- `client/src/components/TaskInput.test.tsx` — TaskInput behavior tests (8 tests)
+- `client/src/components/TaskList.tsx` — Container for loading/empty/populated states
+- `client/src/components/TaskList.test.tsx` — TaskList state tests (7 tests)
+
+**Modified files:**
+- `client/src/App.tsx` — Replaced scaffold with useOptimisticTodos + TaskInput + TaskList
+- `client/src/App.test.tsx` — Updated integration tests (4 tests)
+- `client/package.json` — Added @testing-library/user-event dev dependency
+- `package-lock.json` — Updated lock file
+
+### Change Log
+
+- 2026-03-05: Implemented story 1.4 — Frontend empty state, loading state, and task creation UI. Created API client, useOptimisticTodos hook, EmptyState, TaskInput, TaskList components, wired into App.tsx. 36 new tests added, 79 total pass.
