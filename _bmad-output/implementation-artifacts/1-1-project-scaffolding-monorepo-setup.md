@@ -1,6 +1,6 @@
 # Story 1.1: Project Scaffolding & Monorepo Setup
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -353,6 +353,7 @@ Claude Opus 4.6
 ### Change Log
 
 - 2026-03-04: Initial scaffolding — full monorepo setup with all packages, configs, types, and test infrastructure
+- 2026-03-05: Code review fixes — exported app for testability, fixed test to use real module, removed duplicate vitest configs, added @testing-library/jest-dom, improved assertions, cleaned up stale public/ dir, expanded .gitignore
 
 ### File List
 
@@ -374,7 +375,7 @@ Claude Opus 4.6
 - client/src/types/todo.ts (new)
 - server/package.json (new)
 - server/tsconfig.json (new)
-- server/vitest.config.ts (new)
+- ~~server/vitest.config.ts~~ (removed — duplicate of root config)
 - server/src/index.ts (new)
 - server/src/index.test.ts (new)
 - server/src/types/todo.ts (new)

@@ -1,7 +1,13 @@
 .claude/
 .cursor/
+.windsurf/
 node_modules
 dist
 *.db
+data/
 .env
+.env.local
+.env.*.local
 coverage
+playwright-report/
+test-results/
