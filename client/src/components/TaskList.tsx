@@ -14,6 +14,22 @@ interface TaskListProps {
 export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete }: TaskListProps) {
   const listRef = useRef<HTMLUListElement>(null)
   const deletedIndexRef = useRef<number | null>(null)
+  const hasLoadedRef = useRef(false)
+  const prevTodoIdsRef = useRef<Set<string>>(new Set())
+
+  const newIds = new Set<string>()
+  if (hasLoadedRef.current) {
+    for (const todo of todos) {
+      if (!prevTodoIdsRef.current.has(todo.id)) {
+        newIds.add(todo.id)
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (!isLoading) hasLoadedRef.current = true
+    prevTodoIdsRef.current = new Set(todos.map((t) => t.id))
+  })
 
   const handleDelete = useCallback((id: string) => {
     const index = todos.findIndex((t) => t.id === id)
@@ -52,7 +68,7 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
       ) : (
         <ul ref={listRef} role="list" aria-label="Task list" className="divide-y divide-border">
           {todos.map((todo) => (
-            <TaskItem key={todo.id} todo={todo} onToggle={onToggle} onEdit={onEdit} onDelete={handleDelete} />
+            <TaskItem key={todo.id} todo={todo} onToggle={onToggle} onEdit={onEdit} onDelete={handleDelete} animateEntry={newIds.has(todo.id)} />
           ))}
         </ul>
       )}

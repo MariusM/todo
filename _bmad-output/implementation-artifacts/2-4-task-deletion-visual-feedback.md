@@ -1,6 +1,6 @@
 # Story 2.4: Task Deletion & Visual Feedback
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -175,8 +175,28 @@ No issues encountered. All tests passed on first implementation attempt.
 - Implemented focus management in TaskList: after deletion, focus moves to next task's checkbox; if last task deleted, focuses previous; if list empty, focuses task input
 - Added 14 new tests (151 total, up from 137): delete button render, click, aria-label, animation classes, tab order, focus management, TaskList pass-through, App integration
 
+### Senior Developer Review (AI)
+
+**Reviewed:** 2026-03-05 | **Reviewer:** Code Review Workflow | **Outcome:** Approved with fixes applied
+
+**Issues Found & Fixed (5):**
+
+1. **[HIGH] TypeScript broken - 20 TS2741 errors** - Pre-existing TaskItem tests missing required `onDelete` prop. Fixed: added `onDelete={vi.fn()}` to all 20 renders.
+2. **[HIGH] Entry animation on all tasks at page load** - `task-enter` class was unconditionally applied to every `<li>`, making all existing tasks animate on initial load. Fixed: added `animateEntry` prop to TaskItem, TaskList now tracks which tasks are new (appeared after initial load) and only animates those.
+3. **[MEDIUM] Delete button color mismatch** - Code used `text-text-muted` (#A8A29E) but spec requires `border` (#E7E5E4). Fixed: changed to `text-border`.
+4. **[MEDIUM] No fallback for animationend** - If CSS animations disabled (prefers-reduced-motion), `onDelete` never called. Fixed: added 200ms setTimeout fallback with guard against double-fire.
+5. **[LOW] Added test for animateEntry=false default** - Ensures entry animation doesn't fire without explicit prop.
+
+**Remaining Low-priority items (not fixed):**
+- `document.querySelector` in TaskList focus management couples to TaskInput's aria-label
+- No `prefers-reduced-motion` media query to disable animations
+- No test for focus-to-input when list becomes empty after deletion
+
+**Test results:** 152 passing (was 151), 0 TypeScript errors (was 20)
+
 ### Change Log
 
+- 2026-03-05: Code review fixes - TypeScript errors, conditional entry animation, delete button color, animationend fallback
 - 2026-03-05: Implemented story 2.4 - Task deletion UI, entry/exit animations, focus management, 14 new tests
 
 ### File List

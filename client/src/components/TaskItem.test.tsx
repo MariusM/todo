@@ -23,18 +23,18 @@ const completedTodo: Todo = {
 
 describe('TaskItem', () => {
   it('renders todo text', () => {
-    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     expect(screen.getByText('Buy milk')).toBeInTheDocument()
   })
 
   it('renders checkbox unchecked for active todo', () => {
-    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     const checkbox = screen.getByRole('checkbox')
     expect(checkbox).not.toBeChecked()
   })
 
   it('renders checkbox checked for completed todo', () => {
-    render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+    render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     const checkbox = screen.getByRole('checkbox')
     expect(checkbox).toBeChecked()
   })
@@ -42,7 +42,7 @@ describe('TaskItem', () => {
   it('calls onToggle with correct args when checkbox clicked', async () => {
     const onToggle = vi.fn()
     const user = userEvent.setup()
-    render(<TaskItem todo={activeTodo} onToggle={onToggle} onEdit={vi.fn()} />)
+    render(<TaskItem todo={activeTodo} onToggle={onToggle} onEdit={vi.fn()} onDelete={vi.fn()} />)
     await user.click(screen.getByRole('checkbox'))
     expect(onToggle).toHaveBeenCalledWith('1', true)
   })
@@ -50,33 +50,33 @@ describe('TaskItem', () => {
   it('calls onToggle to uncheck a completed todo', async () => {
     const onToggle = vi.fn()
     const user = userEvent.setup()
-    render(<TaskItem todo={completedTodo} onToggle={onToggle} onEdit={vi.fn()} />)
+    render(<TaskItem todo={completedTodo} onToggle={onToggle} onEdit={vi.fn()} onDelete={vi.fn()} />)
     await user.click(screen.getByRole('checkbox'))
     expect(onToggle).toHaveBeenCalledWith('2', false)
   })
 
   it('applies strikethrough and muted color when completed', () => {
-    render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+    render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     const text = screen.getByText('Walk the dog')
     expect(text).toHaveClass('line-through')
     expect(text).toHaveClass('text-completed-text')
   })
 
   it('does not apply strikethrough when active', () => {
-    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     const text = screen.getByText('Buy milk')
     expect(text).not.toHaveClass('line-through')
     expect(text).toHaveClass('text-text-primary')
   })
 
   it('has accessible label on checkbox', () => {
-    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     const checkbox = screen.getByRole('checkbox')
     expect(checkbox).toHaveAccessibleName(`Mark "Buy milk" as complete`)
   })
 
   it('has accessible label for completed todo', () => {
-    render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+    render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     const checkbox = screen.getByRole('checkbox')
     expect(checkbox).toHaveAccessibleName(`Mark "Walk the dog" as incomplete`)
   })
@@ -84,7 +84,7 @@ describe('TaskItem', () => {
   describe('inline editing', () => {
     it('enters edit mode when text is clicked, showing input with current text', async () => {
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Buy milk'))
       const input = screen.getByRole('textbox')
       expect(input).toBeInTheDocument()
@@ -94,7 +94,7 @@ describe('TaskItem', () => {
     it('saves and exits edit mode on Enter, calling onEdit with trimmed text exactly once', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Buy milk'))
       const input = screen.getByRole('textbox')
       await user.clear(input)
@@ -107,7 +107,7 @@ describe('TaskItem', () => {
     it('cancels edit mode on Escape without calling onEdit', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Buy milk'))
       const input = screen.getByRole('textbox')
       await user.clear(input)
@@ -120,7 +120,7 @@ describe('TaskItem', () => {
     it('saves on blur (same as Enter) exactly once', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Buy milk'))
       const input = screen.getByRole('textbox')
       await user.clear(input)
@@ -133,7 +133,7 @@ describe('TaskItem', () => {
     it('reverts to original text when empty text is saved (no onEdit call)', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Buy milk'))
       const input = screen.getByRole('textbox')
       await user.clear(input)
@@ -146,7 +146,7 @@ describe('TaskItem', () => {
     it('does not call onEdit when text is unchanged', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Buy milk'))
       await user.keyboard('{Enter}')
       expect(onEdit).not.toHaveBeenCalled()
@@ -154,14 +154,14 @@ describe('TaskItem', () => {
 
     it('checkbox click does not trigger edit mode', async () => {
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       await user.click(screen.getByRole('checkbox'))
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     })
 
     it('completed tasks can enter edit mode', async () => {
       const user = userEvent.setup()
-      render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+      render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Walk the dog'))
       const input = screen.getByRole('textbox')
       expect(input).toBeInTheDocument()
@@ -170,7 +170,7 @@ describe('TaskItem', () => {
 
     it('auto-focuses input when entering edit mode', async () => {
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Buy milk'))
       const input = screen.getByRole('textbox')
       expect(input).toHaveFocus()
@@ -178,7 +178,7 @@ describe('TaskItem', () => {
 
     it('enters edit mode via keyboard (Enter on text span)', async () => {
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       const textSpan = screen.getByRole('button', { name: /Edit task: Buy milk/ })
       textSpan.focus()
       await user.keyboard('{Enter}')
@@ -188,7 +188,7 @@ describe('TaskItem', () => {
     it('does not call onEdit when Escape is pressed after editing text', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} onDelete={vi.fn()} />)
       await user.click(screen.getByText('Buy milk'))
       const input = screen.getByRole('textbox')
       await user.clear(input)
@@ -238,10 +238,16 @@ describe('TaskItem', () => {
       expect(deleteBtn).toHaveClass('opacity-0')
     })
 
-    it('has task-enter animation class on render', () => {
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    it('has task-enter animation class when animateEntry is true', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} animateEntry={true} />)
       const li = screen.getByRole('listitem')
       expect(li).toHaveClass('task-enter')
+    })
+
+    it('does not have task-enter class by default', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const li = screen.getByRole('listitem')
+      expect(li).not.toHaveClass('task-enter')
     })
 
     it('tab order: checkbox -> task text -> delete button', async () => {

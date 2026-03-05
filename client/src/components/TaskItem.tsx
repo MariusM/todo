@@ -6,9 +6,10 @@ interface TaskItemProps {
   onToggle: (id: string, completed: boolean) => void
   onEdit: (id: string, text: string) => void
   onDelete: (id: string) => void
+  animateEntry?: boolean
 }
 
-export default function TaskItem({ todo, onToggle, onEdit, onDelete }: TaskItemProps) {
+export default function TaskItem({ todo, onToggle, onEdit, onDelete, animateEntry = false }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState('')
   const [isExiting, setIsExiting] = useState(false)
@@ -19,9 +20,16 @@ export default function TaskItem({ todo, onToggle, onEdit, onDelete }: TaskItemP
   const handleDelete = useCallback(() => {
     setIsExiting(true)
     const el = liRef.current
-    const handler = () => onDelete(todo.id)
+    let called = false
+    const handler = () => {
+      if (called) return
+      called = true
+      onDelete(todo.id)
+    }
     if (el) {
       el.addEventListener('animationend', handler, { once: true })
+      // Fallback in case animationend doesn't fire (e.g., prefers-reduced-motion)
+      setTimeout(handler, 200)
     } else {
       onDelete(todo.id)
     }
@@ -63,7 +71,7 @@ export default function TaskItem({ todo, onToggle, onEdit, onDelete }: TaskItemP
   }, [isEditing])
 
   return (
-    <li ref={liRef} className={`group flex items-center gap-1 px-1 py-0.5 task-enter ${isExiting ? 'task-exit' : ''}`}>
+    <li ref={liRef} className={`group flex items-center gap-1 px-1 py-0.5 ${animateEntry ? 'task-enter' : ''} ${isExiting ? 'task-exit' : ''}`}>
       <label className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer shrink-0">
         <input
           type="checkbox"
@@ -108,7 +116,7 @@ export default function TaskItem({ todo, onToggle, onEdit, onDelete }: TaskItemP
       <button
         onClick={handleDelete}
         className="flex items-center justify-center min-w-[44px] min-h-[44px] shrink-0
-                   text-text-muted hover:text-error-text focus:text-error-text
+                   text-border hover:text-error-text focus:text-error-text
                    opacity-0 group-hover:opacity-100 group-focus-within:opacity-100
                    max-sm:opacity-100
                    transition-colors duration-fast cursor-pointer"
