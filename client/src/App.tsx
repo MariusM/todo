@@ -8,7 +8,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <main className="mx-auto max-w-[var(--max-content-width)] p-4">
+      <main className="mx-auto max-w-[var(--max-content-width)] px-4 pt-8 md:px-6 md:pt-12 lg:px-8">
         <h1 className="mb-6 text-xl font-bold text-text-primary">Todo</h1>
         <TaskInput onAddTodo={addTodo} />
         {errors.length > 0 && <ErrorBanner errors={errors} onDismiss={dismissError} />}

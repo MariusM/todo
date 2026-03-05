@@ -1,6 +1,6 @@
 # Story 4.1: Responsive Layout
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -20,33 +20,33 @@ so that I can manage tasks on any device (Clara's morning mobile check, Priya's 
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Update App.tsx container with responsive spacing (AC: #1, #2, #3, #5)
-  - [ ] 1.1 Change outer container padding from fixed `p-4` to responsive: `px-4 pt-8 md:px-6 md:pt-12 lg:px-8 lg:pt-12`
-  - [ ] 1.2 Keep `max-w-[var(--max-content-width)]` and `mx-auto` (already centered at 640px)
-  - [ ] 1.3 On mobile (default), container is full width with 16px horizontal padding
-  - [ ] 1.4 On tablet (md:), container gets 24px horizontal padding
-  - [ ] 1.5 On desktop (lg:), container gets 32px horizontal padding
-- [ ] Task 2: Update TaskItem responsive behavior (AC: #1, #4, #5)
-  - [ ] 2.1 Verify delete button already uses `max-sm:opacity-100` for mobile visibility (already exists)
-  - [ ] 2.2 Update task row vertical padding from fixed to responsive: `py-3 md:py-3.5`
-  - [ ] 2.3 Verify 44x44px touch targets on checkbox, delete button, and task text tap area on mobile
-  - [ ] 2.4 Verify text wrapping with `break-words` handles narrow mobile widths
-- [ ] Task 3: Verify TaskInput responsive behavior (AC: #1, #4)
-  - [ ] 3.1 Confirm input is `w-full` (full width at all breakpoints)
-  - [ ] 3.2 Confirm font size is 16px (prevents iOS zoom on focus) -- already set via `text-base`
-  - [ ] 3.3 Verify input padding and touch target meet 44px minimum height on mobile
-- [ ] Task 4: Verify ErrorBanner, EmptyState, and TaskList responsiveness (AC: #4, #5)
-  - [ ] 4.1 Confirm ErrorBanner renders correctly at all widths (already uses flex layout with gap)
-  - [ ] 4.2 Confirm EmptyState centers and wraps text at narrow widths
-  - [ ] 4.3 Confirm TaskList container has no fixed-width constraints that break mobile
-- [ ] Task 5: Responsive layout tests (AC: #1-5)
-  - [ ] 5.1 Create `client/src/App.responsive.test.tsx` -- co-located responsive test file
-  - [ ] 5.2 Test: at mobile viewport (375px), container has no max-width constraint (full width)
-  - [ ] 5.3 Test: at tablet viewport (768px), container has max-width 640px and is centered
-  - [ ] 5.4 Test: at desktop viewport (1024px), container has max-width 640px and is centered
-  - [ ] 5.5 Test: all interactive elements (input, checkbox, delete) are present and functional at mobile width
-  - [ ] 5.6 Test: task text wraps correctly for long text at narrow viewport
-  - [ ] 5.7 Test: delete button is visible (not hidden) on mobile viewport
+- [x] Task 1: Update App.tsx container with responsive spacing (AC: #1, #2, #3, #5)
+  - [x] 1.1 Change outer container padding from fixed `p-4` to responsive: `px-4 pt-8 md:px-6 md:pt-12 lg:px-8 lg:pt-12`
+  - [x] 1.2 Keep `max-w-[var(--max-content-width)]` and `mx-auto` (already centered at 640px)
+  - [x] 1.3 On mobile (default), container is full width with 16px horizontal padding
+  - [x] 1.4 On tablet (md:), container gets 24px horizontal padding
+  - [x] 1.5 On desktop (lg:), container gets 32px horizontal padding
+- [x] Task 2: Update TaskItem responsive behavior (AC: #1, #4, #5)
+  - [x] 2.1 Verify delete button already uses `max-sm:opacity-100` for mobile visibility (already exists)
+  - [x] 2.2 Update task row vertical padding from fixed to responsive: `py-3 md:py-3.5`
+  - [x] 2.3 Verify 44x44px touch targets on checkbox, delete button, and task text tap area on mobile
+  - [x] 2.4 Verify text wrapping with `break-words` handles narrow mobile widths
+- [x] Task 3: Verify TaskInput responsive behavior (AC: #1, #4)
+  - [x] 3.1 Confirm input is `w-full` (full width at all breakpoints)
+  - [x] 3.2 Confirm font size is 16px (prevents iOS zoom on focus) -- added explicit `text-base`
+  - [x] 3.3 Verify input padding and touch target meet 44px minimum height on mobile
+- [x] Task 4: Verify ErrorBanner, EmptyState, and TaskList responsiveness (AC: #4, #5)
+  - [x] 4.1 Confirm ErrorBanner renders correctly at all widths (already uses flex layout with gap)
+  - [x] 4.2 Confirm EmptyState centers and wraps text at narrow widths
+  - [x] 4.3 Confirm TaskList container has no fixed-width constraints that break mobile
+- [x] Task 5: Responsive layout tests (AC: #1-5)
+  - [x] 5.1 Create `client/src/App.responsive.test.tsx` -- co-located responsive test file
+  - [x] 5.2 Test: at mobile viewport (375px), container has no max-width constraint (full width)
+  - [x] 5.3 Test: at tablet viewport (768px), container has max-width 640px and is centered
+  - [x] 5.4 Test: at desktop viewport (1024px), container has max-width 640px and is centered
+  - [x] 5.5 Test: all interactive elements (input, checkbox, delete) are present and functional at mobile width
+  - [x] 5.6 Test: task text wraps correctly for long text at narrow viewport
+  - [x] 5.7 Test: delete button is visible (not hidden) on mobile viewport
 
 ## Dev Notes
 
@@ -166,10 +166,31 @@ Find the outer `<li>` or row container div in TaskItem.tsx and update vertical p
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (claude-opus-4-6)
 
 ### Debug Log References
 
+- Discovered pre-existing test setup issue: `vitest.config.ts` root workspace config did not include `setupFiles` for the client project, causing all jest-dom matchers (`toBeInTheDocument`, `toHaveFocus`, etc.) to fail. The `client/vite.config.ts` had the setup but was not used when running via the root workspace. Fixed by adding `setupFiles: ['./src/test-setup.ts']` to the client project in `vitest.config.ts`.
+
 ### Completion Notes List
 
+- Task 1: Updated App.tsx `<main>` container from `p-4` to `px-4 pt-8 md:px-6 md:pt-12 lg:px-8` for responsive spacing per UX breakpoint spec
+- Task 2: Updated TaskItem `<li>` padding from `py-0.5` to `py-3 md:py-3.5`; verified existing mobile features (delete visibility, touch targets, text wrapping)
+- Task 3: Verified TaskInput is full width; added explicit `text-base` class for iOS zoom prevention clarity; adjusted padding from `py-2` to `py-2.5` to ensure 44px minimum touch target height
+- Task 4: Verified ErrorBanner (flex layout with gap, 44px dismiss button), EmptyState (centered flex-col), and TaskList (no fixed-width constraints) all render correctly at all widths
+- Task 5: Created 10 responsive tests in `App.responsive.test.tsx` covering CSS class verification, interactive element presence, touch target assertions, text wrapping, and delete button mobile visibility
+- Bonus: Fixed pre-existing vitest config issue that was preventing all 121 client tests from passing
+
 ### File List
+
+- `client/src/App.tsx` — Modified: responsive padding classes on `<main>` container
+- `client/src/components/TaskItem.tsx` — Modified: responsive vertical padding on `<li>` row
+- `client/src/components/TaskInput.tsx` — Modified: added `text-base` class, adjusted `py-2.5` for 44px touch target
+- `client/src/App.responsive.test.tsx` — New: 10 responsive layout tests
+- `vitest.config.ts` — Modified: added `setupFiles` to client project config (fixed pre-existing test setup issue)
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` — Modified: story status updated
+- `_bmad-output/implementation-artifacts/4-1-responsive-layout.md` — Modified: task checkboxes, dev agent record, status
+
+## Change Log
+
+- 2026-03-05: Implemented responsive layout (Story 4.1) — updated container/row padding per UX breakpoint spec, ensured 44px touch targets on all interactive elements, added 10 responsive tests, fixed pre-existing vitest setupFiles config issue

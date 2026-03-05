@@ -71,7 +71,7 @@ export default function TaskItem({ todo, onToggle, onEdit, onDelete, animateEntr
   }, [isEditing])
 
   return (
-    <li ref={liRef} className={`group flex items-center gap-1 px-1 py-0.5 ${animateEntry ? 'task-enter' : ''} ${isExiting ? 'task-exit' : ''}`}>
+    <li ref={liRef} className={`group flex items-center gap-1 px-1 py-3 md:py-3.5 ${animateEntry ? 'task-enter' : ''} ${isExiting ? 'task-exit' : ''}`}>
       <label className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer shrink-0">
         <input
           type="checkbox"
