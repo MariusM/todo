@@ -91,7 +91,7 @@ describe('TaskItem', () => {
       expect(input).toHaveValue('Buy milk')
     })
 
-    it('saves and exits edit mode on Enter, calling onEdit with trimmed text', async () => {
+    it('saves and exits edit mode on Enter, calling onEdit with trimmed text exactly once', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
       render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
@@ -100,6 +100,7 @@ describe('TaskItem', () => {
       await user.clear(input)
       await user.type(input, 'Buy eggs{Enter}')
       expect(onEdit).toHaveBeenCalledWith('1', 'Buy eggs')
+      expect(onEdit).toHaveBeenCalledTimes(1)
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     })
 
@@ -116,7 +117,7 @@ describe('TaskItem', () => {
       expect(screen.getByText('Buy milk')).toBeInTheDocument()
     })
 
-    it('saves on blur (same as Enter)', async () => {
+    it('saves on blur (same as Enter) exactly once', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
       render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
@@ -126,6 +127,7 @@ describe('TaskItem', () => {
       await user.type(input, 'Buy eggs')
       await user.tab()
       expect(onEdit).toHaveBeenCalledWith('1', 'Buy eggs')
+      expect(onEdit).toHaveBeenCalledTimes(1)
     })
 
     it('reverts to original text when empty text is saved (no onEdit call)', async () => {
@@ -164,6 +166,34 @@ describe('TaskItem', () => {
       const input = screen.getByRole('textbox')
       expect(input).toBeInTheDocument()
       expect(input).toHaveValue('Walk the dog')
+    })
+
+    it('auto-focuses input when entering edit mode', async () => {
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+      await user.click(screen.getByText('Buy milk'))
+      const input = screen.getByRole('textbox')
+      expect(input).toHaveFocus()
+    })
+
+    it('enters edit mode via keyboard (Enter on text span)', async () => {
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} />)
+      const textSpan = screen.getByRole('button', { name: /Edit task: Buy milk/ })
+      textSpan.focus()
+      await user.keyboard('{Enter}')
+      expect(screen.getByRole('textbox')).toBeInTheDocument()
+    })
+
+    it('does not call onEdit when Escape is pressed after editing text', async () => {
+      const onEdit = vi.fn()
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={onEdit} />)
+      await user.click(screen.getByText('Buy milk'))
+      const input = screen.getByRole('textbox')
+      await user.clear(input)
+      await user.type(input, 'Buy eggs{Escape}')
+      expect(onEdit).toHaveBeenCalledTimes(0)
     })
   })
 })

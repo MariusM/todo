@@ -1,6 +1,6 @@
 # Story 2.3: Inline Editing
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -319,11 +319,12 @@ No debug issues encountered. All tests passed on first run.
 ### Change Log
 
 - 2026-03-05: Implemented story 2.3 inline editing - added click-to-edit with Enter/Escape/blur save-cancel mechanics
+- 2026-03-05: Code review fixes - added skipBlurRef guard to prevent double-fire on Enter/Escape, fixed layout shift with matching invisible padding on text span, removed dead break-words from input, added toHaveBeenCalledTimes assertions and 3 new tests (auto-focus, keyboard entry, Escape guard)
 
 ### File List
 
-- client/src/components/TaskItem.tsx (modified: added edit mode state, input rendering, keyboard/blur handlers, onEdit prop)
-- client/src/components/TaskItem.test.tsx (modified: added 8 inline editing test cases)
+- client/src/components/TaskItem.tsx (modified: added edit mode state, input rendering, keyboard/blur handlers, onEdit prop; review fix: skipBlurRef guard, layout shift fix, removed dead break-words)
+- client/src/components/TaskItem.test.tsx (modified: added 11 inline editing test cases including auto-focus, keyboard entry, and Escape guard tests)
 - client/src/components/TaskList.tsx (modified: added onEdit prop, pass-through to TaskItem)
 - client/src/components/TaskList.test.tsx (modified: added onEdit prop to all renders, added onEdit pass-through test)
 - client/src/App.tsx (modified: wired onEdit callback to TaskList)

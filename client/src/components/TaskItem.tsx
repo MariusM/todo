@@ -11,6 +11,7 @@ export default function TaskItem({ todo, onToggle, onEdit }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const skipBlurRef = useRef(false)
 
   const handleTextClick = () => {
     setIsEditing(true)
@@ -30,8 +31,13 @@ export default function TaskItem({ todo, onToggle, onEdit }: TaskItemProps) {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSave()
-    if (e.key === 'Escape') handleCancel()
+    if (e.key === 'Enter') { skipBlurRef.current = true; handleSave() }
+    if (e.key === 'Escape') { skipBlurRef.current = true; handleCancel() }
+  }
+
+  const handleBlur = () => {
+    if (skipBlurRef.current) { skipBlurRef.current = false; return }
+    handleSave()
   }
 
   useEffect(() => {
@@ -63,16 +69,16 @@ export default function TaskItem({ todo, onToggle, onEdit }: TaskItemProps) {
           value={editText}
           onChange={(e) => setEditText(e.target.value)}
           onKeyDown={handleKeyDown}
-          onBlur={handleSave}
+          onBlur={handleBlur}
           className="flex-1 px-2 py-1 bg-surface-warm border border-border rounded
                      text-text-primary focus:outline-none focus:border-border-focus
-                     transition-colors duration-150 break-words"
+                     transition-colors duration-150"
           aria-label={`Edit task: ${todo.text}`}
         />
       ) : (
         <span
           onClick={handleTextClick}
-          className={`flex-1 cursor-text break-words transition-all duration-200 ${
+          className={`flex-1 cursor-text break-words px-2 py-1 border border-transparent rounded transition-all duration-200 ${
             todo.completed
               ? 'line-through text-completed-text'
               : 'text-text-primary'
