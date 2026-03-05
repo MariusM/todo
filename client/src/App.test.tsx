@@ -146,6 +146,141 @@ describe('App', () => {
     expect(todosApi.updateTodo).toHaveBeenCalledWith('todo-1', { completed: true })
   })
 
+  it('rolls back toggle completion on API failure', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+      {
+        id: 'todo-1',
+        text: 'Buy milk',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      },
+    ])
+
+    let rejectUpdate: (reason: unknown) => void
+    vi.mocked(todosApi.updateTodo).mockImplementation(
+      () => new Promise((_resolve, reject) => { rejectUpdate = reject })
+    )
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    })
+
+    const checkbox = screen.getByRole('checkbox')
+    expect(checkbox).not.toBeChecked()
+
+    // Toggle
+    await user.click(checkbox)
+    expect(checkbox).toBeChecked()
+
+    // Reject the API call
+    await act(async () => {
+      rejectUpdate({ error: { message: 'Update failed', code: 'INTERNAL_ERROR' } })
+    })
+
+    // Checkbox reverts
+    await waitFor(() => {
+      expect(checkbox).not.toBeChecked()
+    })
+  })
+
+  it('rolls back edit text on API failure', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+      {
+        id: 'todo-1',
+        text: 'Buy milk',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      },
+    ])
+
+    let rejectUpdate: (reason: unknown) => void
+    vi.mocked(todosApi.updateTodo).mockImplementation(
+      () => new Promise((_resolve, reject) => { rejectUpdate = reject })
+    )
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    })
+
+    // Enter edit mode
+    const textSpan = screen.getByRole('button', { name: 'Edit task: Buy milk' })
+    await user.click(textSpan)
+
+    const editInput = screen.getByLabelText('Edit task: Buy milk')
+    await user.clear(editInput)
+    await user.type(editInput, 'Buy eggs{Enter}')
+
+    // Text changed optimistically
+    await waitFor(() => {
+      expect(screen.getByText('Buy eggs')).toBeInTheDocument()
+    })
+
+    // Reject the API call
+    await act(async () => {
+      rejectUpdate({ error: { message: 'Update failed', code: 'INTERNAL_ERROR' } })
+    })
+
+    // Text reverts
+    await waitFor(() => {
+      expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Buy eggs')).not.toBeInTheDocument()
+  })
+
+  it('rolls back delete on API failure - task reappears', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+      {
+        id: 'todo-1',
+        text: 'Buy milk',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      },
+    ])
+
+    let rejectDelete: (reason: unknown) => void
+    vi.mocked(todosApi.deleteTodo).mockImplementation(
+      () => new Promise((_resolve, reject) => { rejectDelete = reject })
+    )
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    })
+
+    const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+    await user.click(deleteBtn)
+
+    // Trigger animationend for the delete animation
+    const li = deleteBtn.closest('li')!
+    li.dispatchEvent(new Event('animationend'))
+
+    // Task should be removed optimistically
+    await waitFor(() => {
+      expect(screen.queryByText('Buy milk')).not.toBeInTheDocument()
+    })
+
+    // Reject the API call
+    await act(async () => {
+      rejectDelete({ error: { message: 'Delete failed', code: 'INTERNAL_ERROR' } })
+    })
+
+    // Task reappears
+    await waitFor(() => {
+      expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    })
+  })
+
   it('deletes a task and calls API', async () => {
     vi.mocked(todosApi.fetchTodos).mockResolvedValue([
       {

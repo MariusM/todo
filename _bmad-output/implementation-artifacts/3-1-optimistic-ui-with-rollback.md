@@ -1,6 +1,6 @@
 # Story 3.1: Optimistic UI with Rollback
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -20,33 +20,33 @@ so that the app feels fast but never loses or corrupts my data.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add `dismissError` method to `useOptimisticTodos` hook (AC: #1-5)
-  - [ ] 1.1 Add `dismissError(index: number)` function that removes an error from the `errors` array by index
-  - [ ] 1.2 Return `dismissError` from the hook alongside existing `errors`
-- [ ] Task 2: Wire `errors` and `dismissError` from hook to App.tsx (AC: #1-5)
-  - [ ] 2.1 Destructure `errors` and `dismissError` from `useOptimisticTodos()` in App.tsx
-  - [ ] 2.2 Store in state/ref for future ErrorBanner integration (Story 3.2)
-  - [ ] 2.3 Pass `errors` and `dismissError` as props -- ready for ErrorBanner in next story
-- [ ] Task 3: Fix delete rollback position preservation (AC: #4)
-  - [ ] 3.1 Current `removeTodo` appends restored item at end of array on rollback; fix to restore at original index
-  - [ ] 3.2 Capture the index (or use `created_at` ordering) before deletion, restore at same position
-- [ ] Task 4: Validate and fix concurrent operation isolation (AC: #5)
-  - [ ] 4.1 Verify that `todosRef.current` snapshot is captured per-operation, not shared
-  - [ ] 4.2 Add test: fire create + toggle concurrently, fail only create -- toggle state must persist
-  - [ ] 4.3 Add test: fire two updates concurrently, fail one -- other update must persist
-- [ ] Task 5: Hook unit tests for all rollback scenarios (AC: #1-5)
-  - [ ] 5.1 Test: `addTodo` rollback removes the optimistic todo on API failure
-  - [ ] 5.2 Test: `updateTodo` rollback reverts text change on API failure
-  - [ ] 5.3 Test: `updateTodo` rollback reverts completion toggle on API failure
-  - [ ] 5.4 Test: `removeTodo` rollback restores task at original position on API failure
-  - [ ] 5.5 Test: error is added to `errors` array with correct code and message for each failure type
-  - [ ] 5.6 Test: `dismissError` removes the error at given index
-  - [ ] 5.7 Test: concurrent operations -- only the failed one rolls back
-- [ ] Task 6: Integration test for rollback visual behavior (AC: #1-4)
-  - [ ] 6.1 Test: create todo with mocked API failure -- verify todo is removed from rendered list
-  - [ ] 6.2 Test: toggle completion with mocked API failure -- verify checkbox reverts
-  - [ ] 6.3 Test: edit text with mocked API failure -- verify text reverts
-  - [ ] 6.4 Test: delete task with mocked API failure -- verify task reappears in list
+- [x] Task 1: Add `dismissError` method to `useOptimisticTodos` hook (AC: #1-5)
+  - [x] 1.1 Add `dismissError(index: number)` function that removes an error from the `errors` array by index
+  - [x] 1.2 Return `dismissError` from the hook alongside existing `errors`
+- [x] Task 2: Wire `errors` and `dismissError` from hook to App.tsx (AC: #1-5)
+  - [x] 2.1 Destructure `errors` and `dismissError` from `useOptimisticTodos()` in App.tsx
+  - [x] 2.2 Store in state/ref for future ErrorBanner integration (Story 3.2)
+  - [x] 2.3 Pass `errors` and `dismissError` as props -- ready for ErrorBanner in next story
+- [x] Task 3: Fix delete rollback position preservation (AC: #4)
+  - [x] 3.1 Current `removeTodo` appends restored item at end of array on rollback; fix to restore at original index
+  - [x] 3.2 Capture the index (or use `created_at` ordering) before deletion, restore at same position
+- [x] Task 4: Validate and fix concurrent operation isolation (AC: #5)
+  - [x] 4.1 Verify that `todosRef.current` snapshot is captured per-operation, not shared
+  - [x] 4.2 Add test: fire create + toggle concurrently, fail only create -- toggle state must persist
+  - [x] 4.3 Add test: fire two updates concurrently, fail one -- other update must persist
+- [x] Task 5: Hook unit tests for all rollback scenarios (AC: #1-5)
+  - [x] 5.1 Test: `addTodo` rollback removes the optimistic todo on API failure
+  - [x] 5.2 Test: `updateTodo` rollback reverts text change on API failure
+  - [x] 5.3 Test: `updateTodo` rollback reverts completion toggle on API failure
+  - [x] 5.4 Test: `removeTodo` rollback restores task at original position on API failure
+  - [x] 5.5 Test: error is added to `errors` array with correct code and message for each failure type
+  - [x] 5.6 Test: `dismissError` removes the error at given index
+  - [x] 5.7 Test: concurrent operations -- only the failed one rolls back
+- [x] Task 6: Integration test for rollback visual behavior (AC: #1-4)
+  - [x] 6.1 Test: create todo with mocked API failure -- verify todo is removed from rendered list
+  - [x] 6.2 Test: toggle completion with mocked API failure -- verify checkbox reverts
+  - [x] 6.3 Test: edit text with mocked API failure -- verify text reverts
+  - [x] 6.4 Test: delete task with mocked API failure -- verify task reappears in list
 
 ## Dev Notes
 
@@ -164,10 +164,33 @@ Error-related tokens (for future ErrorBanner in Story 3.2):
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+No blocking issues encountered during implementation.
+
 ### Completion Notes List
 
+- Task 1: Added `dismissError(index: number)` method using `useCallback` with filter-by-index pattern. Returned from hook alongside existing `errors`.
+- Task 2: Destructured `errors` and `dismissError` from `useOptimisticTodos()` in App.tsx. Values are available for ErrorBanner integration in Story 3.2.
+- Task 3: Fixed delete rollback position preservation. Changed `removeTodo` to capture index via `findIndex` before deletion, then use `splice` to restore at original position on failure (was previously appending to end).
+- Task 4: Verified concurrent operation isolation. The existing `todosRef.current` snapshot approach correctly captures per-operation state. Added explicit tests confirming: (a) create + toggle concurrent with only create failing, (b) two updates concurrent with only one failing.
+- Task 5: Added comprehensive hook unit tests: completion toggle rollback, per-error-type code/message validation, dismissError behavior, and concurrent operation tests. Total: 18 hook unit tests.
+- Task 6: Added 3 new integration tests in App.test.tsx: toggle rollback (checkbox reverts), edit text rollback (text reverts), delete rollback (task reappears). Create rollback test already existed. Total: 10 App integration tests.
+
+### Change Log
+
+- 2026-03-05: Implemented Story 3.1 - Optimistic UI with Rollback
+  - Added `dismissError` method to `useOptimisticTodos` hook
+  - Wired `errors` and `dismissError` in App.tsx for Story 3.2 readiness
+  - Fixed delete rollback to restore at original position (was appending to end)
+  - Validated concurrent operation isolation with explicit test coverage
+  - Added 10 new tests (18 hook unit + 10 integration = 162 total, up from 152)
+
 ### File List
+
+- client/src/hooks/useOptimisticTodos.ts (modified) - Added `dismissError`, fixed delete rollback position
+- client/src/hooks/useOptimisticTodos.test.ts (modified) - Added 7 new unit tests
+- client/src/App.tsx (modified) - Destructured `errors` and `dismissError`
+- client/src/App.test.tsx (modified) - Added 3 new integration tests

@@ -3,7 +3,7 @@ import TaskInput from './components/TaskInput'
 import TaskList from './components/TaskList'
 
 export default function App() {
-  const { todos, isLoading, addTodo, updateTodo, deleteTodo } = useOptimisticTodos()
+  const { todos, isLoading, errors, addTodo, updateTodo, deleteTodo, dismissError } = useOptimisticTodos()
 
   return (
     <div className="min-h-screen bg-surface-secondary">

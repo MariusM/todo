@@ -78,17 +78,27 @@ export function useOptimisticTodos() {
   }, [])
 
   const removeTodo = useCallback((id: string) => {
-    const removed = todosRef.current.find((t) => t.id === id)
-    if (!removed) return
+    const currentTodos = todosRef.current
+    const removedIndex = currentTodos.findIndex((t) => t.id === id)
+    if (removedIndex === -1) return
+    const removed = currentTodos[removedIndex]
 
     setTodos((prev) => prev.filter((t) => t.id !== id))
 
     apiDeleteTodo(id).catch((err: unknown) => {
-      setTodos((prev) => [...prev, removed])
+      setTodos((prev) => {
+        const restored = [...prev]
+        restored.splice(removedIndex, 0, removed)
+        return restored
+      })
       const message = extractErrorMessage(err, 'Failed to delete todo')
       setErrors((prev) => [...prev, { message, code: 'DELETE_ERROR' }])
     })
   }, [])
 
-  return { todos, isLoading, errors, addTodo, updateTodo, deleteTodo: removeTodo }
+  const dismissError = useCallback((index: number) => {
+    setErrors((prev) => prev.filter((_, i) => i !== index))
+  }, [])
+
+  return { todos, isLoading, errors, addTodo, updateTodo, deleteTodo: removeTodo, dismissError }
 }
