@@ -44,9 +44,9 @@ describe('TaskList', () => {
   })
 
   it('has aria-live for screen reader announcements', () => {
-    render(<TaskList todos={mockTodos} isLoading={false} />)
-    const container = screen.getByRole('list', { name: 'Task list' }).parentElement
-    expect(container).toHaveAttribute('aria-live', 'polite')
+    const { container } = render(<TaskList todos={mockTodos} isLoading={false} />)
+    const liveRegion = container.firstElementChild
+    expect(liveRegion).toHaveAttribute('aria-live', 'polite')
   })
 
   it('does not render EmptyState when loading', () => {

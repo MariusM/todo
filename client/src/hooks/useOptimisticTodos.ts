@@ -27,28 +27,28 @@ export function useOptimisticTodos() {
   }, [])
 
   const addTodo = useCallback((text: string) => {
-    if (!text.trim()) return
+    const trimmed = text.trim()
+    if (!trimmed) return
 
     const id = crypto.randomUUID()
+    const now = new Date().toISOString()
     const newTodo: Todo = {
       id,
-      text,
+      text: trimmed,
       completed: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
     }
 
-    setTodos((prev) => {
-      const snapshot = prev
-      createTodo({ id, text }).catch((err: unknown) => {
-        setTodos(snapshot)
-        const message =
-          err && typeof err === 'object' && 'error' in err
-            ? (err as { error: { message: string } }).error.message
-            : 'Failed to create todo'
-        setErrors((prevErrors) => [...prevErrors, { message, code: 'CREATE_ERROR' }])
-      })
-      return [...prev, newTodo]
+    setTodos((prev) => [...prev, newTodo])
+
+    createTodo({ id, text: trimmed }).catch((err: unknown) => {
+      setTodos((prev) => prev.filter((todo) => todo.id !== id))
+      const message =
+        err && typeof err === 'object' && 'error' in err
+          ? (err as { error: { message: string } }).error.message
+          : 'Failed to create todo'
+      setErrors((prevErrors) => [...prevErrors, { message, code: 'CREATE_ERROR' }])
     })
   }, [])
 

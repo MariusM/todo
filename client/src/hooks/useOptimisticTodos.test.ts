@@ -114,7 +114,7 @@ describe('useOptimisticTodos', () => {
     expect(todosApi.createTodo).not.toHaveBeenCalled()
   })
 
-  it('rolls back and adds error on API failure', async () => {
+  it('rolls back only the failed todo and adds error on API failure', async () => {
     vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
     vi.mocked(todosApi.createTodo).mockRejectedValue(
       { error: { message: 'Server error', code: 'INTERNAL_ERROR' } }
@@ -135,10 +135,11 @@ describe('useOptimisticTodos', () => {
       result.current.addTodo('Will fail')
     })
 
-    // Should rollback to original todos (just mockTodo)
+    // Should remove only the failed todo, keeping the original
     expect(result.current.todos).toHaveLength(1)
     expect(result.current.todos[0].id).toBe('server-uuid-1')
     expect(result.current.errors.length).toBeGreaterThan(0)
+    expect(result.current.errors[0].message).toBe('Server error')
 
     vi.unstubAllGlobals()
   })

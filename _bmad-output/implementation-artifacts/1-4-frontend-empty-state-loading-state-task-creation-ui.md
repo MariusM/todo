@@ -1,6 +1,6 @@
 # Story 1.4: Frontend — Empty State, Loading State & Task Creation UI
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -330,3 +330,4 @@ None — clean implementation with no blocking issues.
 ### Change Log
 
 - 2026-03-05: Implemented story 1.4 — Frontend empty state, loading state, and task creation UI. Created API client, useOptimisticTodos hook, EmptyState, TaskInput, TaskList components, wired into App.tsx. 36 new tests added, 79 total pass.
+- 2026-03-05: Code review fixes — Moved API side effect out of setState updater (H1), fixed rollback to filter by ID instead of snapshot restore (H2), added non-JSON error handling in API client (M1), wrapped all TaskList states in aria-live region (M2), added rollback integration test (M3), trimmed text in hook before storing/sending (M4), single timestamp for createdAt/updatedAt (L1). 81 total tests pass.

@@ -2,7 +2,14 @@ import type { Todo, CreateTodoRequest, ApiError } from '../types/todo'
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const body = (await response.json()) as ApiError
+    let body: ApiError
+    try {
+      body = (await response.json()) as ApiError
+    } catch {
+      throw {
+        error: { message: `Server error: ${response.status}`, code: 'INTERNAL_ERROR' },
+      } satisfies ApiError
+    }
     throw body
   }
   return response.json() as Promise<T>

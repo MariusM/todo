@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
@@ -71,6 +71,43 @@ describe('App', () => {
     expect(screen.queryByText('No tasks yet')).not.toBeInTheDocument()
     expect(input).toHaveValue('')
     expect(input).toHaveFocus()
+
+    vi.unstubAllGlobals()
+  })
+
+  it('rolls back optimistic add on API failure', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+
+    let rejectCreate: (reason: unknown) => void
+    vi.mocked(todosApi.createTodo).mockImplementation(
+      () => new Promise((_resolve, reject) => { rejectCreate = reject })
+    )
+
+    const mockRandomUUID = vi.fn().mockReturnValue('fail-uuid-1')
+    vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+    })
+
+    const input = screen.getByLabelText('Add a new task')
+    await user.type(input, 'Will fail{Enter}')
+
+    // Task appears optimistically
+    expect(screen.getByText('Will fail')).toBeInTheDocument()
+
+    // Reject the API call
+    await act(async () => {
+      rejectCreate({ error: { message: 'Server error', code: 'INTERNAL_ERROR' } })
+    })
+
+    // After API rejection, task is rolled back
+    await waitFor(() => {
+      expect(screen.queryByText('Will fail')).not.toBeInTheDocument()
+    })
 
     vi.unstubAllGlobals()
   })

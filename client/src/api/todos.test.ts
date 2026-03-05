@@ -52,6 +52,19 @@ describe('fetchTodos', () => {
 
     await expect(fetchTodos()).rejects.toThrow('Failed to fetch')
   })
+
+  it('throws a typed error for non-JSON error responses', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('<html>Bad Gateway</html>', {
+        status: 502,
+        headers: { 'Content-Type': 'text/html' },
+      })
+    )
+
+    await expect(fetchTodos()).rejects.toEqual({
+      error: { message: 'Server error: 502', code: 'INTERNAL_ERROR' },
+    })
+  })
 })
 
 describe('createTodo', () => {
