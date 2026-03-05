@@ -57,26 +57,32 @@ export function useOptimisticTodos() {
   }, [])
 
   const updateTodo = useCallback((id: string, fields: UpdateTodoRequest) => {
-    const snapshot = [...todos]
+    const original = todos.find((t) => t.id === id)
+    if (!original) return
 
     setTodos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...fields } : t))
+      prev.map((t) =>
+        t.id === id ? { ...t, ...fields, updatedAt: new Date().toISOString() } : t
+      )
     )
 
     apiUpdateTodo(id, fields).catch((err: unknown) => {
-      setTodos(snapshot)
+      setTodos((prev) =>
+        prev.map((t) => (t.id === id ? original : t))
+      )
       const message = extractErrorMessage(err, 'Failed to update todo')
       setErrors((prev) => [...prev, { message, code: 'UPDATE_ERROR' }])
     })
   }, [todos])
 
   const removeTodo = useCallback((id: string) => {
-    const snapshot = [...todos]
+    const removed = todos.find((t) => t.id === id)
+    if (!removed) return
 
     setTodos((prev) => prev.filter((t) => t.id !== id))
 
     apiDeleteTodo(id).catch((err: unknown) => {
-      setTodos(snapshot)
+      setTodos((prev) => [...prev, removed])
       const message = extractErrorMessage(err, 'Failed to delete todo')
       setErrors((prev) => [...prev, { message, code: 'DELETE_ERROR' }])
     })

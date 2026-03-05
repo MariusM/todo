@@ -203,11 +203,12 @@ describe('PATCH /api/todos/:id', () => {
 
   it('refreshes updated_at on update', async () => {
     const timestampId = '550e8400-e29b-41d4-a716-446655440021'
-    await fetch(url('/api/todos'), {
+    const createRes = await fetch(url('/api/todos'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: timestampId, text: 'Timestamp test' }),
     })
+    const originalTodo = await createRes.json()
 
     // Small delay to ensure different timestamp (SQLite has 1-second granularity)
     await new Promise((r) => setTimeout(r, 1100))
@@ -220,8 +221,9 @@ describe('PATCH /api/todos/:id', () => {
 
     const todoAfter = await res.json()
     expect(todoAfter.updatedAt).toBeDefined()
-    // updatedAt should be a valid ISO timestamp
-    expect(() => new Date(todoAfter.updatedAt)).not.toThrow()
+    expect(new Date(todoAfter.updatedAt).getTime()).toBeGreaterThan(
+      new Date(originalTodo.updatedAt).getTime()
+    )
   })
 
   it('returns camelCase fields', async () => {

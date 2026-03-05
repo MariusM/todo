@@ -28,6 +28,10 @@ export function validateTodoId(req: Request, _res: Response, next: NextFunction)
 }
 
 export function validateUpdateTodo(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+    throw new AppError('Request body is required', 400, 'VALIDATION_ERROR')
+  }
+
   const { text, completed } = req.body
 
   const hasText = text !== undefined

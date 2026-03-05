@@ -50,7 +50,7 @@ development_status:
 
   # Epic 2: Complete Task Management
   epic-2: in-progress
-  2-1-todo-rest-api-update-delete: review
+  2-1-todo-rest-api-update-delete: done
   2-2-task-completion-visual-distinction: backlog
   2-3-inline-editing: backlog
   2-4-task-deletion-visual-feedback: backlog

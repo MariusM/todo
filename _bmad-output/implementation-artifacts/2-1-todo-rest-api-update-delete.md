@@ -1,6 +1,6 @@
 # Story 2.1: Todo REST API — Update & Delete
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -306,6 +306,7 @@ Claude Opus 4.6
 ### Change Log
 
 - 2026-03-05: Implemented story 2.1 — PATCH and DELETE endpoints, validation middleware, API client functions, hook methods, and comprehensive tests
+- 2026-03-05: Code review fixes — refactored hook updateTodo/removeTodo to use item-level functional rollback with optimistic updatedAt refresh; fixed updated_at test to assert actual timestamp change; added req.body guard in validateUpdateTodo
 
 ### File List
 
