@@ -1,12 +1,13 @@
 import { describe, it, expect, afterAll } from 'vitest'
 import { type Server } from 'http'
-import { app } from './index.js'
+import { app, db } from './index.js'
 
 describe('Server', () => {
   let server: Server
 
   afterAll(() => {
     if (server) server.close()
+    if (db) db.close()
   })
 
   it('responds to health check', async () => {
@@ -20,5 +21,9 @@ describe('Server', () => {
     expect(response.status).toBe(200)
     expect(data.status).toBe('ok')
     expect(data.timestamp).toBeDefined()
+  })
+
+  it('exports database instance', () => {
+    expect(db).toBeDefined()
   })
 })

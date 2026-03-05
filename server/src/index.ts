@@ -1,13 +1,16 @@
 import express from 'express'
+import { initDatabase } from './db/init.js'
+import { healthRoutes } from './routes/health-routes.js'
+import { errorHandler } from './middleware/error-handler.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
 
-app.use(express.json())
+const db = initDatabase()
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
-})
+app.use(express.json())
+app.use(healthRoutes)
+app.use(errorHandler)
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
@@ -15,4 +18,4 @@ if (process.env.NODE_ENV !== 'test') {
   })
 }
 
-export { app }
+export { app, db }

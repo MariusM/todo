@@ -1,6 +1,6 @@
 # Story 1.2: Database & Health Check API
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -22,43 +22,43 @@ so that the system is ready to store my tasks and I can verify it's running.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Database initialization module (AC: #1, #3)
-  - [ ] 1.1 Create `server/src/db/init.ts` — initialize better-sqlite3, create `todos` table with `CREATE TABLE IF NOT EXISTS`, read `DATABASE_PATH` from env (default: `./data/todos.db`)
-  - [ ] 1.2 Ensure `data/` directory is created if it doesn't exist (use `path.dirname` + `mkdirSync`)
-  - [ ] 1.3 Export the database instance for use by route handlers
-  - [ ] 1.4 Enable WAL mode for better concurrent read performance: `db.pragma('journal_mode = WAL')`
+- [x] Task 1: Database initialization module (AC: #1, #3)
+  - [x] 1.1 Create `server/src/db/init.ts` — initialize better-sqlite3, create `todos` table with `CREATE TABLE IF NOT EXISTS`, read `DATABASE_PATH` from env (default: `./data/todos.db`)
+  - [x] 1.2 Ensure `data/` directory is created if it doesn't exist (use `path.dirname` + `mkdirSync`)
+  - [x] 1.3 Export the database instance for use by route handlers
+  - [x] 1.4 Enable WAL mode for better concurrent read performance: `db.pragma('journal_mode = WAL')`
 
-- [ ] Task 2: Database query module (AC: #1)
-  - [ ] 2.1 Create `server/src/db/queries.ts` with prepared statements for all CRUD operations
-  - [ ] 2.2 Implement `getAllTodos()` — `SELECT * FROM todos ORDER BY created_at`
-  - [ ] 2.3 Implement `getTodoById(id)` — `SELECT * FROM todos WHERE id = ?`
-  - [ ] 2.4 Implement `createTodo(id, text)` — `INSERT INTO todos (id, text, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))`
-  - [ ] 2.5 Implement `updateTodo(id, fields)` — dynamic PATCH with `updated_at = datetime('now')`
-  - [ ] 2.6 Implement `deleteTodo(id)` — `DELETE FROM todos WHERE id = ?`
-  - [ ] 2.7 All functions return camelCase objects (transform at query boundary using a `toTodo()` mapper)
+- [x] Task 2: Database query module (AC: #1)
+  - [x] 2.1 Create `server/src/db/queries.ts` with prepared statements for all CRUD operations
+  - [x] 2.2 Implement `getAllTodos()` — `SELECT * FROM todos ORDER BY created_at`
+  - [x] 2.3 Implement `getTodoById(id)` — `SELECT * FROM todos WHERE id = ?`
+  - [x] 2.4 Implement `createTodo(id, text)` — `INSERT INTO todos (id, text, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))`
+  - [x] 2.5 Implement `updateTodo(id, fields)` — dynamic PATCH with `updated_at = datetime('now')`
+  - [x] 2.6 Implement `deleteTodo(id)` — `DELETE FROM todos WHERE id = ?`
+  - [x] 2.7 All functions return camelCase objects (transform at query boundary using a `toTodo()` mapper)
 
-- [ ] Task 3: Global error handling middleware (AC: #4)
-  - [ ] 3.1 Create `server/src/middleware/error-handler.ts` — Express error middleware (4 params: err, req, res, next)
-  - [ ] 3.2 Format all errors as `{ error: { message, code } }` — never expose stack traces, SQL, or internal paths
-  - [ ] 3.3 Map error types: validation → 400 VALIDATION_ERROR, not found → 404 NOT_FOUND, everything else → 500 INTERNAL_ERROR
-  - [ ] 3.4 Log errors server-side with `console.error` (full details) while sending safe response to client
+- [x] Task 3: Global error handling middleware (AC: #4)
+  - [x] 3.1 Create `server/src/middleware/error-handler.ts` — Express error middleware (4 params: err, req, res, next)
+  - [x] 3.2 Format all errors as `{ error: { message, code } }` — never expose stack traces, SQL, or internal paths
+  - [x] 3.3 Map error types: validation → 400 VALIDATION_ERROR, not found → 404 NOT_FOUND, everything else → 500 INTERNAL_ERROR
+  - [x] 3.4 Log errors server-side with `console.error` (full details) while sending safe response to client
 
-- [ ] Task 4: Health check route refactor (AC: #2)
-  - [ ] 4.1 Create `server/src/routes/health-routes.ts` — extract health endpoint from `index.ts` into dedicated route module
-  - [ ] 4.2 Health response: `{ status: "ok", timestamp: "<ISO 8601>" }`
-  - [ ] 4.3 Optional: include database connectivity check (query `SELECT 1`) for production readiness
+- [x] Task 4: Health check route refactor (AC: #2)
+  - [x] 4.1 Create `server/src/routes/health-routes.ts` — extract health endpoint from `index.ts` into dedicated route module
+  - [x] 4.2 Health response: `{ status: "ok", timestamp: "<ISO 8601>" }`
+  - [x] 4.3 Optional: include database connectivity check (query `SELECT 1`) for production readiness
 
-- [ ] Task 5: Wire up Express app (AC: #1, #2, #3, #4)
-  - [ ] 5.1 Update `server/src/index.ts` — import and call db init on startup, register health routes, register error handler middleware last
-  - [ ] 5.2 Middleware order: `express.json()` → routes → error handler (Helmet + CORS come in Story 5.3)
-  - [ ] 5.3 Ensure the app export is preserved for test usage
+- [x] Task 5: Wire up Express app (AC: #1, #2, #3, #4)
+  - [x] 5.1 Update `server/src/index.ts` — import and call db init on startup, register health routes, register error handler middleware last
+  - [x] 5.2 Middleware order: `express.json()` → routes → error handler (Helmet + CORS come in Story 5.3)
+  - [x] 5.3 Ensure the app export is preserved for test usage
 
-- [ ] Task 6: Tests (AC: #1, #2, #3, #4)
-  - [ ] 6.1 Create `server/src/db/init.test.ts` — verify table creation, verify column structure, verify idempotency (running init twice doesn't error)
-  - [ ] 6.2 Create `server/src/db/queries.test.ts` — test all CRUD operations with a real in-memory or temp SQLite database
-  - [ ] 6.3 Create `server/src/middleware/error-handler.test.ts` — verify error format, verify no stack trace leakage
-  - [ ] 6.4 Create `server/src/routes/health-routes.test.ts` — verify 200 response with correct shape
-  - [ ] 6.5 Update `server/src/index.test.ts` — verify the health endpoint still works after refactoring
+- [x] Task 6: Tests (AC: #1, #2, #3, #4)
+  - [x] 6.1 Create `server/src/db/init.test.ts` — verify table creation, verify column structure, verify idempotency (running init twice doesn't error)
+  - [x] 6.2 Create `server/src/db/queries.test.ts` — test all CRUD operations with a real in-memory or temp SQLite database
+  - [x] 6.3 Create `server/src/middleware/error-handler.test.ts` — verify error format, verify no stack trace leakage
+  - [x] 6.4 Create `server/src/routes/health-routes.test.ts` — verify 200 response with correct shape
+  - [x] 6.5 Update `server/src/index.test.ts` — verify the health endpoint still works after refactoring
 
 ## Dev Notes
 
@@ -191,10 +191,34 @@ Define a `TodoRow` interface for the raw DB shape and use the existing `Todo` in
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+- WAL mode returns "memory" for :memory: databases — used file-based temp DB for WAL test instead
+
 ### Completion Notes List
 
+- Task 1: Created `init.ts` with better-sqlite3 initialization, CREATE TABLE IF NOT EXISTS, DATABASE_PATH env var support, directory creation, WAL mode
+- Task 2: Created `queries.ts` with all CRUD operations using prepared statements, `toTodo()` mapper for snake_case→camelCase transformation, `TodoRow` interface for DB shape
+- Task 3: Created `error-handler.ts` with `AppError` class, 4-param Express error middleware, maps error types to proper HTTP status/codes, never exposes internals
+- Task 4: Extracted health endpoint from `index.ts` into `health-routes.ts` using Express Router
+- Task 5: Updated `index.ts` to import db init, health routes, and error handler in correct middleware order. Exports both `app` and `db`
+- Task 6: All tests written co-located with source files. 22 server tests total (4 init, 12 queries, 3 error-handler, 1 health-routes, 2 index). All pass with zero regressions (23 total including 1 client test)
+- Note: Task 4.3 (DB connectivity check in health route) was optional — skipped as the health route works correctly without it and DB connectivity is implicitly verified by the app starting successfully
+
 ### File List
+
+New files:
+- server/src/db/init.ts
+- server/src/db/init.test.ts
+- server/src/db/queries.ts
+- server/src/db/queries.test.ts
+- server/src/middleware/error-handler.ts
+- server/src/middleware/error-handler.test.ts
+- server/src/routes/health-routes.ts
+- server/src/routes/health-routes.test.ts
+
+Modified files:
+- server/src/index.ts
+- server/src/index.test.ts

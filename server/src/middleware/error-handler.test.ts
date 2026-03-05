@@ -1,0 +1,70 @@
+import { describe, it, expect } from 'vitest'
+import express from 'express'
+import { errorHandler, AppError } from './error-handler.js'
+
+function createTestApp() {
+  const app = express()
+
+  app.get('/throw-validation', () => {
+    throw new AppError('Invalid input', 400, 'VALIDATION_ERROR')
+  })
+
+  app.get('/throw-not-found', () => {
+    throw new AppError('Item not found', 404, 'NOT_FOUND')
+  })
+
+  app.get('/throw-generic', () => {
+    throw new Error('Something broke')
+  })
+
+  app.use(errorHandler)
+  return app
+}
+
+async function request(app: express.Express, path: string) {
+  const server = app.listen(0)
+  const address = server.address()
+  const port = typeof address === 'object' && address ? address.port : 0
+
+  try {
+    const response = await fetch(`http://localhost:${port}${path}`)
+    const data = await response.json()
+    return { status: response.status, data }
+  } finally {
+    server.close()
+  }
+}
+
+describe('Error handler middleware', () => {
+  it('formats validation errors as { error: { message, code } }', async () => {
+    const app = createTestApp()
+    const { status, data } = await request(app, '/throw-validation')
+
+    expect(status).toBe(400)
+    expect(data).toEqual({
+      error: { message: 'Invalid input', code: 'VALIDATION_ERROR' },
+    })
+  })
+
+  it('formats not found errors', async () => {
+    const app = createTestApp()
+    const { status, data } = await request(app, '/throw-not-found')
+
+    expect(status).toBe(404)
+    expect(data).toEqual({
+      error: { message: 'Item not found', code: 'NOT_FOUND' },
+    })
+  })
+
+  it('formats unknown errors as 500 INTERNAL_ERROR without stack traces', async () => {
+    const app = createTestApp()
+    const { status, data } = await request(app, '/throw-generic')
+
+    expect(status).toBe(500)
+    expect(data).toEqual({
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    })
+    expect(JSON.stringify(data)).not.toContain('stack')
+    expect(JSON.stringify(data)).not.toContain('Something broke')
+  })
+})
