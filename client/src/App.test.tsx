@@ -145,4 +145,38 @@ describe('App', () => {
     expect(checkbox).toBeChecked()
     expect(todosApi.updateTodo).toHaveBeenCalledWith('todo-1', { completed: true })
   })
+
+  it('deletes a task and calls API', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+      {
+        id: 'todo-1',
+        text: 'Buy milk',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      },
+    ])
+    vi.mocked(todosApi.deleteTodo).mockResolvedValue(undefined)
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Buy milk')).toBeInTheDocument()
+    })
+
+    const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+    await user.click(deleteBtn)
+
+    // Simulate animationend
+    const li = deleteBtn.closest('li')!
+    li.dispatchEvent(new Event('animationend'))
+
+    // Task should be removed optimistically
+    await waitFor(() => {
+      expect(screen.queryByText('Buy milk')).not.toBeInTheDocument()
+    })
+    expect(todosApi.deleteTodo).toHaveBeenCalledWith('todo-1')
+    expect(todosApi.deleteTodo).toHaveBeenCalledTimes(1)
+  })
 })

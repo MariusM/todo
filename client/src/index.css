@@ -35,6 +35,36 @@
   --duration-normal: 200ms;
 }
 
+@keyframes task-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes task-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+.task-enter {
+  animation: task-enter var(--duration-fast) ease-out;
+}
+
+.task-exit {
+  animation: task-exit var(--duration-fast) ease-in forwards;
+}
+
 input[type="checkbox"]:checked::after {
   content: '';
   display: block;

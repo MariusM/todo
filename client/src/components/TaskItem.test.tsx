@@ -196,4 +196,63 @@ describe('TaskItem', () => {
       expect(onEdit).toHaveBeenCalledTimes(0)
     })
   })
+
+  describe('delete button', () => {
+    it('renders a delete button with correct aria-label', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+      expect(deleteBtn).toBeInTheDocument()
+    })
+
+    it('calls onDelete with todo id after exit animation', async () => {
+      const onDelete = vi.fn()
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={onDelete} />)
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+      await user.click(deleteBtn)
+      // Simulate animationend event since JSDOM doesn't run CSS animations
+      const li = deleteBtn.closest('li')!
+      li.dispatchEvent(new Event('animationend'))
+      expect(onDelete).toHaveBeenCalledWith('1')
+      expect(onDelete).toHaveBeenCalledTimes(1)
+    })
+
+    it('has correct aria-label for completed todo', () => {
+      render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Walk the dog' })
+      expect(deleteBtn).toBeInTheDocument()
+    })
+
+    it('applies task-exit class when delete is clicked', async () => {
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+      await user.click(deleteBtn)
+      const li = deleteBtn.closest('li')!
+      expect(li).toHaveClass('task-exit')
+    })
+
+    it('has opacity-0 class by default (hidden until hover)', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+      expect(deleteBtn).toHaveClass('opacity-0')
+    })
+
+    it('has task-enter animation class on render', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const li = screen.getByRole('listitem')
+      expect(li).toHaveClass('task-enter')
+    })
+
+    it('tab order: checkbox -> task text -> delete button', async () => {
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      await user.tab()
+      expect(screen.getByRole('checkbox')).toHaveFocus()
+      await user.tab()
+      expect(screen.getByRole('button', { name: /Edit task/ })).toHaveFocus()
+      await user.tab()
+      expect(screen.getByRole('button', { name: /Delete task/ })).toHaveFocus()
+    })
+  })
 })

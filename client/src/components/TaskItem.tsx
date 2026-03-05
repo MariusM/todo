@@ -1,17 +1,31 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Todo } from '../types/todo'
 
 interface TaskItemProps {
   todo: Todo
   onToggle: (id: string, completed: boolean) => void
   onEdit: (id: string, text: string) => void
+  onDelete: (id: string) => void
 }
 
-export default function TaskItem({ todo, onToggle, onEdit }: TaskItemProps) {
+export default function TaskItem({ todo, onToggle, onEdit, onDelete }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState('')
+  const [isExiting, setIsExiting] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const liRef = useRef<HTMLLIElement>(null)
   const skipBlurRef = useRef(false)
+
+  const handleDelete = useCallback(() => {
+    setIsExiting(true)
+    const el = liRef.current
+    const handler = () => onDelete(todo.id)
+    if (el) {
+      el.addEventListener('animationend', handler, { once: true })
+    } else {
+      onDelete(todo.id)
+    }
+  }, [onDelete, todo.id])
 
   const handleTextClick = () => {
     setIsEditing(true)
@@ -49,7 +63,7 @@ export default function TaskItem({ todo, onToggle, onEdit }: TaskItemProps) {
   }, [isEditing])
 
   return (
-    <li className="flex items-center gap-1 px-1 py-0.5">
+    <li ref={liRef} className={`group flex items-center gap-1 px-1 py-0.5 task-enter ${isExiting ? 'task-exit' : ''}`}>
       <label className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer shrink-0">
         <input
           type="checkbox"
@@ -91,6 +105,17 @@ export default function TaskItem({ todo, onToggle, onEdit }: TaskItemProps) {
           {todo.text}
         </span>
       )}
+      <button
+        onClick={handleDelete}
+        className="flex items-center justify-center min-w-[44px] min-h-[44px] shrink-0
+                   text-text-muted hover:text-error-text focus:text-error-text
+                   opacity-0 group-hover:opacity-100 group-focus-within:opacity-100
+                   max-sm:opacity-100
+                   transition-colors duration-fast cursor-pointer"
+        aria-label={`Delete task: ${todo.text}`}
+      >
+        &times;
+      </button>
     </li>
   )
 }
