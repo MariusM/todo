@@ -1,6 +1,6 @@
 # Story 2.2: Task Completion & Visual Distinction
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -22,31 +22,31 @@ so that I can track my progress at a glance (Kai's daily use).
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create TaskItem component (AC: #1, #2, #4)
-  - [ ] 1.1 Create `client/src/components/TaskItem.tsx` with props: `todo: Todo`, `onToggle: (id: string, completed: boolean) => void`
-  - [ ] 1.2 Render checkbox (`<input type="checkbox">`) + task text `<span>`
-  - [ ] 1.3 Checkbox `onChange` calls `onToggle(todo.id, !todo.completed)`
-  - [ ] 1.4 When `todo.completed` is true: apply strikethrough (`line-through`) + muted text color (`text-completed-text` / #A8A29E)
-  - [ ] 1.5 When `todo.completed` is false: normal text styling (`text-text-primary` / #1C1917)
-  - [ ] 1.6 Checkbox when checked: accent blue fill (`bg-checkbox-fill` / #2563EB) with white checkmark
-  - [ ] 1.7 Add ~200ms CSS transition on text color, text-decoration, and checkbox background (`transition-all duration-200`)
-  - [ ] 1.8 Checkbox must be a custom-styled element (not browser default) — use Tailwind's `appearance-none` + custom checked styles
+- [x] Task 1: Create TaskItem component (AC: #1, #2, #4)
+  - [x] 1.1 Create `client/src/components/TaskItem.tsx` with props: `todo: Todo`, `onToggle: (id: string, completed: boolean) => void`
+  - [x] 1.2 Render checkbox (`<input type="checkbox">`) + task text `<span>`
+  - [x] 1.3 Checkbox `onChange` calls `onToggle(todo.id, !todo.completed)`
+  - [x] 1.4 When `todo.completed` is true: apply strikethrough (`line-through`) + muted text color (`text-completed-text` / #A8A29E)
+  - [x] 1.5 When `todo.completed` is false: normal text styling (`text-text-primary` / #1C1917)
+  - [x] 1.6 Checkbox when checked: accent blue fill (`bg-checkbox-fill` / #2563EB) with white checkmark
+  - [x] 1.7 Add ~200ms CSS transition on text color, text-decoration, and checkbox background (`transition-all duration-200`)
+  - [x] 1.8 Checkbox must be a custom-styled element (not browser default) — use Tailwind's `appearance-none` + custom checked styles
 
-- [ ] Task 2: Integrate TaskItem into TaskList (AC: #1, #2, #4)
-  - [ ] 2.1 Refactor `TaskList.tsx`: replace inline todo rendering with `<TaskItem>` component
-  - [ ] 2.2 Pass `onToggle` prop through TaskList that calls `updateTodo(id, { completed })`
-  - [ ] 2.3 Remove the `readOnly` checkbox and inline span from TaskList
-  - [ ] 2.4 Preserve existing list structure (`<ul>` with `<li>` items)
+- [x] Task 2: Integrate TaskItem into TaskList (AC: #1, #2, #4)
+  - [x] 2.1 Refactor `TaskList.tsx`: replace inline todo rendering with `<TaskItem>` component
+  - [x] 2.2 Pass `onToggle` prop through TaskList that calls `updateTodo(id, { completed })`
+  - [x] 2.3 Remove the `readOnly` checkbox and inline span from TaskList
+  - [x] 2.4 Preserve existing list structure (`<ul>` with `<li>` items)
 
-- [ ] Task 3: Wire updateTodo in App.tsx (AC: #1, #2, #3)
-  - [ ] 3.1 Destructure `updateTodo` from `useOptimisticTodos()` in App.tsx
-  - [ ] 3.2 Pass `updateTodo` to TaskList as `onUpdateTodo` prop
-  - [ ] 3.3 TaskList passes toggle handler to each TaskItem
+- [x] Task 3: Wire updateTodo in App.tsx (AC: #1, #2, #3)
+  - [x] 3.1 Destructure `updateTodo` from `useOptimisticTodos()` in App.tsx
+  - [x] 3.2 Pass `updateTodo` to TaskList as `onUpdateTodo` prop
+  - [x] 3.3 TaskList passes toggle handler to each TaskItem
 
-- [ ] Task 4: Tests (AC: #1, #2, #3, #4)
-  - [ ] 4.1 Create `client/src/components/TaskItem.test.tsx`: renders text, renders checkbox checked/unchecked, calls onToggle on click, applies completed styles (strikethrough + muted), applies active styles (no strikethrough + primary color)
-  - [ ] 4.2 Update `client/src/components/TaskList.test.tsx`: renders TaskItem for each todo, passes onToggle to TaskItem
-  - [ ] 4.3 Verify ALL existing tests still pass (no regressions)
+- [x] Task 4: Tests (AC: #1, #2, #3, #4)
+  - [x] 4.1 Create `client/src/components/TaskItem.test.tsx`: renders text, renders checkbox checked/unchecked, calls onToggle on click, applies completed styles (strikethrough + muted), applies active styles (no strikethrough + primary color)
+  - [x] 4.2 Update `client/src/components/TaskList.test.tsx`: renders TaskItem for each todo, passes onToggle to TaskItem
+  - [x] 4.3 Verify ALL existing tests still pass (no regressions)
 
 ## Dev Notes
 
@@ -239,10 +239,31 @@ This story ONLY adds: checkbox toggle + completed visual styling + TaskItem comp
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+No issues encountered during implementation.
+
 ### Completion Notes List
 
+- Created TaskItem component with custom-styled checkbox (appearance-none + checked styles), strikethrough + muted text for completed state, ~200ms CSS transitions
+- Added CSS ::after pseudo-element for white SVG checkmark on checked checkbox
+- Refactored TaskList to use TaskItem component, added onToggle prop
+- Wired updateTodo from useOptimisticTodos hook through App.tsx → TaskList → TaskItem
+- Added 9 TaskItem tests (text rendering, checked/unchecked state, onToggle callback, completed/active styles, accessible labels)
+- Updated 2 TaskList tests (checkbox rendering, onToggle propagation)
+- All 127 tests pass (up from 116), zero regressions
+
+### Change Log
+
+- 2026-03-05: Implemented task completion & visual distinction (story 2.2) — TaskItem component, checkbox toggle, completed styling
+
 ### File List
+
+- `client/src/components/TaskItem.tsx` (new) — TaskItem component with checkbox + completion styling
+- `client/src/components/TaskItem.test.tsx` (new) — 9 tests for TaskItem component
+- `client/src/components/TaskList.tsx` (modified) — Replaced inline rendering with TaskItem, added onToggle prop
+- `client/src/components/TaskList.test.tsx` (modified) — Updated tests for new onToggle prop, added TaskItem integration tests
+- `client/src/App.tsx` (modified) — Destructure updateTodo from hook, pass onToggle to TaskList
+- `client/src/index.css` (modified) — Added checkbox checked checkmark CSS (::after pseudo-element)

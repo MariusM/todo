@@ -1,12 +1,14 @@
 import type { Todo } from '../types/todo'
 import EmptyState from './EmptyState'
+import TaskItem from './TaskItem'
 
 interface TaskListProps {
   todos: Todo[]
   isLoading: boolean
+  onToggle: (id: string, completed: boolean) => void
 }
 
-export default function TaskList({ todos, isLoading }: TaskListProps) {
+export default function TaskList({ todos, isLoading, onToggle }: TaskListProps) {
   return (
     <div aria-live="polite">
       {isLoading ? (
@@ -18,16 +20,7 @@ export default function TaskList({ todos, isLoading }: TaskListProps) {
       ) : (
         <ul role="list" aria-label="Task list" className="divide-y divide-border">
           {todos.map((todo) => (
-            <li key={todo.id} className="flex items-center gap-3 px-3 py-3">
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                readOnly
-                aria-label={`Task: ${todo.text}`}
-                className="h-4 w-4 rounded border-border text-checkbox-fill"
-              />
-              <span className="text-text-primary">{todo.text}</span>
-            </li>
+            <TaskItem key={todo.id} todo={todo} onToggle={onToggle} />
           ))}
         </ul>
       )}
