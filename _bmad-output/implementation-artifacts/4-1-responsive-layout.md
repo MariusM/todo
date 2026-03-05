@@ -1,6 +1,6 @@
 # Story 4.1: Responsive Layout
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -178,8 +178,10 @@ Claude Opus 4.6 (claude-opus-4-6)
 - Task 2: Updated TaskItem `<li>` padding from `py-0.5` to `py-3 md:py-3.5`; verified existing mobile features (delete visibility, touch targets, text wrapping)
 - Task 3: Verified TaskInput is full width; added explicit `text-base` class for iOS zoom prevention clarity; adjusted padding from `py-2` to `py-2.5` to ensure 44px minimum touch target height
 - Task 4: Verified ErrorBanner (flex layout with gap, 44px dismiss button), EmptyState (centered flex-col), and TaskList (no fixed-width constraints) all render correctly at all widths
-- Task 5: Created 10 responsive tests in `App.responsive.test.tsx` covering CSS class verification, interactive element presence, touch target assertions, text wrapping, and delete button mobile visibility
+- Task 5: Created 11 responsive tests in `App.responsive.test.tsx` covering CSS class verification, interactive element presence, touch target assertions, text wrapping, delete button mobile visibility, ErrorBanner/EmptyState responsive behavior, and single-column layout assertion
 - Bonus: Fixed pre-existing vitest config issue that was preventing all 121 client tests from passing
+- Code Review Fix: Replaced undefined `bg-surface-warm` with `bg-surface` in TaskItem edit input (pre-existing bug from story 2.3)
+- Code Review Fix: Rewrote responsive tests with shared helpers (DRY), added ErrorBanner/EmptyState coverage, added layout structure assertion
 
 ### File List
 
@@ -194,3 +196,4 @@ Claude Opus 4.6 (claude-opus-4-6)
 ## Change Log
 
 - 2026-03-05: Implemented responsive layout (Story 4.1) — updated container/row padding per UX breakpoint spec, ensured 44px touch targets on all interactive elements, added 10 responsive tests, fixed pre-existing vitest setupFiles config issue
+- 2026-03-05: Code review fixes — fixed undefined `bg-surface-warm` color token in TaskItem edit input, rewrote responsive tests with shared helpers and added ErrorBanner/EmptyState/layout-structure coverage (10 tests -> 11 tests)

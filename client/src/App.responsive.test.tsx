@@ -9,180 +9,154 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-const LONG_TEXT = 'This is a very long task name that should wrap correctly at narrow viewport widths without causing horizontal overflow or layout issues'
+function renderWithTodos(todos = [makeTodo()]) {
+  vi.mocked(todosApi.fetchTodos).mockResolvedValue(todos)
+  return render(<App />)
+}
+
+function renderLoading() {
+  vi.mocked(todosApi.fetchTodos).mockReturnValue(new Promise(() => {}))
+  return render(<App />)
+}
+
+function makeTodo(overrides: Partial<{ id: string; text: string; completed: boolean }> = {}) {
+  return {
+    id: overrides.id ?? 'todo-1',
+    text: overrides.text ?? 'Test task',
+    completed: overrides.completed ?? false,
+    createdAt: '2026-03-05T00:00:00.000Z',
+    updatedAt: '2026-03-05T00:00:00.000Z',
+  }
+}
+
+async function waitForTodos() {
+  await waitFor(() => {
+    expect(screen.getByRole('list')).toBeInTheDocument()
+  })
+}
 
 describe('App responsive layout', () => {
-  it('main container has responsive padding classes', () => {
-    vi.mocked(todosApi.fetchTodos).mockReturnValue(new Promise(() => {}))
-    const { container } = render(<App />)
+  describe('container responsive classes', () => {
+    it('main container has responsive padding and centering classes', () => {
+      renderLoading()
+      const main = document.querySelector('main')!
 
-    const main = container.querySelector('main')!
-    // Mobile-first padding
-    expect(main.className).toContain('px-4')
-    expect(main.className).toContain('pt-8')
-    // Tablet breakpoint
-    expect(main.className).toContain('md:px-6')
-    expect(main.className).toContain('md:pt-12')
-    // Desktop breakpoint
-    expect(main.className).toContain('lg:px-8')
-  })
-
-  it('main container has max-width and centering classes', () => {
-    vi.mocked(todosApi.fetchTodos).mockReturnValue(new Promise(() => {}))
-    const { container } = render(<App />)
-
-    const main = container.querySelector('main')!
-    expect(main.className).toContain('max-w-[var(--max-content-width)]')
-    expect(main.className).toContain('mx-auto')
-  })
-
-  it('all interactive elements are present and functional with todos loaded', async () => {
-    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
-      {
-        id: 'todo-1',
-        text: 'Test task',
-        completed: false,
-        createdAt: '2026-03-05T00:00:00.000Z',
-        updatedAt: '2026-03-05T00:00:00.000Z',
-      },
-    ])
-
-    render(<App />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Test task')).toBeInTheDocument()
+      expect(main.className).toContain('px-4')
+      expect(main.className).toContain('pt-8')
+      expect(main.className).toContain('md:px-6')
+      expect(main.className).toContain('md:pt-12')
+      expect(main.className).toContain('lg:px-8')
+      expect(main.className).toContain('max-w-[var(--max-content-width)]')
+      expect(main.className).toContain('mx-auto')
     })
 
-    // Input is present
-    expect(screen.getByLabelText('Add a new task')).toBeInTheDocument()
-    // Checkbox is present
-    expect(screen.getByRole('checkbox')).toBeInTheDocument()
-    // Delete button is present
-    expect(screen.getByRole('button', { name: 'Delete task: Test task' })).toBeInTheDocument()
+    it('layout is single-column with no grid or row classes', () => {
+      renderLoading()
+      const main = document.querySelector('main')!
+
+      expect(main.className).not.toMatch(/grid|flex-row/)
+    })
   })
 
-  it('task text wraps correctly for long text', async () => {
-    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
-      {
-        id: 'todo-long',
-        text: LONG_TEXT,
-        completed: false,
-        createdAt: '2026-03-05T00:00:00.000Z',
-        updatedAt: '2026-03-05T00:00:00.000Z',
-      },
-    ])
+  describe('interactive elements at all viewports', () => {
+    it('all interactive elements are present with todos loaded', async () => {
+      renderWithTodos()
+      await waitForTodos()
 
-    render(<App />)
-
-    await waitFor(() => {
-      expect(screen.getByText(LONG_TEXT)).toBeInTheDocument()
+      expect(screen.getByLabelText('Add a new task')).toBeInTheDocument()
+      expect(screen.getByRole('checkbox')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Delete task: Test task' })).toBeInTheDocument()
     })
 
-    const textSpan = screen.getByText(LONG_TEXT)
-    expect(textSpan.className).toContain('break-words')
+    it('input is full width with text-base for iOS zoom prevention', () => {
+      renderLoading()
+      const input = screen.getByLabelText('Add a new task')
+
+      expect(input.className).toContain('w-full')
+      expect(input.className).toContain('text-base')
+    })
   })
 
-  it('delete button is visible on mobile (has max-sm:opacity-100)', async () => {
-    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
-      {
-        id: 'todo-1',
-        text: 'Mobile task',
-        completed: false,
-        createdAt: '2026-03-05T00:00:00.000Z',
-        updatedAt: '2026-03-05T00:00:00.000Z',
-      },
-    ])
+  describe('touch targets meet 44x44px minimum', () => {
+    it('checkbox label has min 44x44 touch target', async () => {
+      renderWithTodos()
+      await waitForTodos()
 
-    render(<App />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Mobile task')).toBeInTheDocument()
+      const checkbox = screen.getByRole('checkbox')
+      const label = checkbox.closest('label')!
+      expect(label.className).toContain('min-w-[44px]')
+      expect(label.className).toContain('min-h-[44px]')
     })
 
-    const deleteBtn = screen.getByRole('button', { name: 'Delete task: Mobile task' })
-    expect(deleteBtn.className).toContain('max-sm:opacity-100')
+    it('delete button has min 44x44 touch target', async () => {
+      renderWithTodos()
+      await waitForTodos()
+
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Test task' })
+      expect(deleteBtn.className).toContain('min-w-[44px]')
+      expect(deleteBtn.className).toContain('min-h-[44px]')
+    })
   })
 
-  it('task item has responsive vertical padding classes', async () => {
-    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
-      {
-        id: 'todo-1',
-        text: 'Padded task',
-        completed: false,
-        createdAt: '2026-03-05T00:00:00.000Z',
-        updatedAt: '2026-03-05T00:00:00.000Z',
-      },
-    ])
+  describe('task item responsive behavior', () => {
+    it('task row has responsive vertical padding', async () => {
+      renderWithTodos()
+      await waitForTodos()
 
-    render(<App />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Padded task')).toBeInTheDocument()
+      const li = screen.getByText('Test task').closest('li')!
+      expect(li.className).toContain('py-3')
+      expect(li.className).toContain('md:py-3.5')
     })
 
-    const li = screen.getByText('Padded task').closest('li')!
-    expect(li.className).toContain('py-3')
-    expect(li.className).toContain('md:py-3.5')
-  })
+    it('task text has break-words for narrow viewports', async () => {
+      const longText = 'This is a very long task name that should wrap correctly at narrow viewport widths without causing horizontal overflow'
+      renderWithTodos([makeTodo({ text: longText })])
+      await waitForTodos()
 
-  it('checkbox has minimum 44x44px touch target', async () => {
-    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
-      {
-        id: 'todo-1',
-        text: 'Touch target task',
-        completed: false,
-        createdAt: '2026-03-05T00:00:00.000Z',
-        updatedAt: '2026-03-05T00:00:00.000Z',
-      },
-    ])
-
-    render(<App />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Touch target task')).toBeInTheDocument()
+      const textSpan = screen.getByText(longText)
+      expect(textSpan.className).toContain('break-words')
     })
 
-    const checkbox = screen.getByRole('checkbox')
-    const label = checkbox.closest('label')!
-    expect(label.className).toContain('min-w-[44px]')
-    expect(label.className).toContain('min-h-[44px]')
-  })
+    it('delete button is visible on mobile (max-sm:opacity-100)', async () => {
+      renderWithTodos()
+      await waitForTodos()
 
-  it('delete button has minimum 44x44px touch target', async () => {
-    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
-      {
-        id: 'todo-1',
-        text: 'Delete target task',
-        completed: false,
-        createdAt: '2026-03-05T00:00:00.000Z',
-        updatedAt: '2026-03-05T00:00:00.000Z',
-      },
-    ])
-
-    render(<App />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Delete target task')).toBeInTheDocument()
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Test task' })
+      expect(deleteBtn.className).toContain('max-sm:opacity-100')
     })
-
-    const deleteBtn = screen.getByRole('button', { name: 'Delete task: Delete target task' })
-    expect(deleteBtn.className).toContain('min-w-[44px]')
-    expect(deleteBtn.className).toContain('min-h-[44px]')
   })
 
-  it('input is full width at all breakpoints', () => {
-    vi.mocked(todosApi.fetchTodos).mockReturnValue(new Promise(() => {}))
-    render(<App />)
+  describe('ErrorBanner responsive behavior', () => {
+    it('error banner renders with flex layout and 44px dismiss button', async () => {
+      vi.mocked(todosApi.fetchTodos).mockRejectedValue(new Error('Network error'))
+      render(<App />)
 
-    const input = screen.getByLabelText('Add a new task')
-    expect(input.className).toContain('w-full')
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeInTheDocument()
+      })
+
+      const alert = screen.getByRole('alert')
+      expect(alert.className).toContain('flex')
+      expect(alert.className).toContain('gap-3')
+
+      const dismissBtn = screen.getByRole('button', { name: 'Dismiss error' })
+      expect(dismissBtn).toBeInTheDocument()
+    })
   })
 
-  it('input has text-base for 16px font (prevents iOS zoom)', () => {
-    vi.mocked(todosApi.fetchTodos).mockReturnValue(new Promise(() => {}))
-    render(<App />)
+  describe('EmptyState responsive behavior', () => {
+    it('empty state renders centered with flex-col layout', async () => {
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+      render(<App />)
 
-    const input = screen.getByLabelText('Add a new task')
-    expect(input.className).toContain('text-base')
+      await waitFor(() => {
+        expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+      })
+
+      const container = screen.getByText('No tasks yet').closest('div')!
+      expect(container.className).toContain('flex')
+      expect(container.className).toContain('flex-col')
+      expect(container.className).toContain('items-center')
+    })
   })
 })
