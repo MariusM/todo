@@ -19,58 +19,74 @@ function toTodo(row: TodoRow): Todo {
   }
 }
 
-export function getAllTodos(db: Database.Database): Todo[] {
-  const rows = db.prepare('SELECT * FROM todos ORDER BY created_at').all() as TodoRow[]
-  return rows.map(toTodo)
-}
-
-export function getTodoById(db: Database.Database, id: string): Todo | undefined {
-  const row = db.prepare('SELECT * FROM todos WHERE id = ?').get(id) as TodoRow | undefined
-  return row ? toTodo(row) : undefined
-}
-
-export function createTodo(db: Database.Database, id: string, text: string): Todo {
-  db.prepare(
-    "INSERT INTO todos (id, text, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))"
-  ).run(id, text)
-
-  return getTodoById(db, id)!
-}
-
-export function updateTodo(
-  db: Database.Database,
-  id: string,
-  fields: { text?: string; completed?: boolean }
-): Todo | undefined {
-  const setClauses: string[] = []
-  const values: (string | number)[] = []
-
-  if (fields.text !== undefined) {
-    setClauses.push('text = ?')
-    values.push(fields.text)
+export function createQueries(db: Database.Database) {
+  const stmts = {
+    getAll: db.prepare('SELECT * FROM todos ORDER BY created_at'),
+    getById: db.prepare('SELECT * FROM todos WHERE id = ?'),
+    create: db.prepare(
+      "INSERT INTO todos (id, text, created_at, updated_at) VALUES (?, ?, datetime('now'), datetime('now'))"
+    ),
+    delete: db.prepare('DELETE FROM todos WHERE id = ?'),
+    updateText: db.prepare(
+      "UPDATE todos SET text = ?, updated_at = datetime('now') WHERE id = ?"
+    ),
+    updateCompleted: db.prepare(
+      "UPDATE todos SET completed = ?, updated_at = datetime('now') WHERE id = ?"
+    ),
+    updateBoth: db.prepare(
+      "UPDATE todos SET text = ?, completed = ?, updated_at = datetime('now') WHERE id = ?"
+    ),
   }
 
-  if (fields.completed !== undefined) {
-    setClauses.push('completed = ?')
-    values.push(fields.completed ? 1 : 0)
+  function getAllTodos(): Todo[] {
+    const rows = stmts.getAll.all() as TodoRow[]
+    return rows.map(toTodo)
   }
 
-  if (setClauses.length === 0) {
-    return getTodoById(db, id)
+  function getTodoById(id: string): Todo | undefined {
+    const row = stmts.getById.get(id) as TodoRow | undefined
+    return row ? toTodo(row) : undefined
   }
 
-  setClauses.push("updated_at = datetime('now')")
-  values.push(id)
+  function createTodo(id: string, text: string): Todo {
+    stmts.create.run(id, text)
 
-  const result = db.prepare(
-    `UPDATE todos SET ${setClauses.join(', ')} WHERE id = ?`
-  ).run(...values)
+    const todo = getTodoById(id)
+    if (!todo) {
+      throw new Error(`Failed to read back created todo with id ${id}`)
+    }
+    return todo
+  }
 
-  if (result.changes === 0) return undefined
-  return getTodoById(db, id)
-}
+  function updateTodo(
+    id: string,
+    fields: { text?: string; completed?: boolean }
+  ): Todo | undefined {
+    const hasText = fields.text !== undefined
+    const hasCompleted = fields.completed !== undefined
 
-export function deleteTodo(db: Database.Database, id: string): boolean {
-  const result = db.prepare('DELETE FROM todos WHERE id = ?').run(id)
-  return result.changes > 0
+    if (!hasText && !hasCompleted) {
+      return getTodoById(id)
+    }
+
+    let result: Database.RunResult
+
+    if (hasText && hasCompleted) {
+      result = stmts.updateBoth.run(fields.text, fields.completed ? 1 : 0, id)
+    } else if (hasText) {
+      result = stmts.updateText.run(fields.text, id)
+    } else {
+      result = stmts.updateCompleted.run(fields.completed ? 1 : 0, id)
+    }
+
+    if (result.changes === 0) return undefined
+    return getTodoById(id)
+  }
+
+  function deleteTodo(id: string): boolean {
+    const result = stmts.delete.run(id)
+    return result.changes > 0
+  }
+
+  return { getAllTodos, getTodoById, createTodo, updateTodo, deleteTodo }
 }

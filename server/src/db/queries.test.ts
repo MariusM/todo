@@ -1,19 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import type Database from 'better-sqlite3'
 import { initDatabase } from './init.js'
-import {
-  getAllTodos,
-  getTodoById,
-  createTodo,
-  updateTodo,
-  deleteTodo,
-} from './queries.js'
+import { createQueries } from './queries.js'
 
 describe('Database queries', () => {
   let db: Database.Database
+  let queries: ReturnType<typeof createQueries>
 
   beforeEach(() => {
     db = initDatabase(':memory:')
+    queries = createQueries(db)
   })
 
   afterEach(() => {
@@ -22,7 +18,7 @@ describe('Database queries', () => {
 
   describe('createTodo', () => {
     it('creates a todo and returns it with camelCase fields', () => {
-      const todo = createTodo(db, '550e8400-e29b-41d4-a716-446655440000', 'Buy groceries')
+      const todo = queries.createTodo('550e8400-e29b-41d4-a716-446655440000', 'Buy groceries')
 
       expect(todo.id).toBe('550e8400-e29b-41d4-a716-446655440000')
       expect(todo.text).toBe('Buy groceries')
@@ -34,23 +30,23 @@ describe('Database queries', () => {
 
   describe('getAllTodos', () => {
     it('returns empty array when no todos exist', () => {
-      const todos = getAllTodos(db)
+      const todos = queries.getAllTodos()
       expect(todos).toEqual([])
     })
 
     it('returns all todos ordered by created_at', () => {
-      createTodo(db, 'id-1', 'First')
-      createTodo(db, 'id-2', 'Second')
+      queries.createTodo('id-1', 'First')
+      queries.createTodo('id-2', 'Second')
 
-      const todos = getAllTodos(db)
+      const todos = queries.getAllTodos()
       expect(todos).toHaveLength(2)
       expect(todos[0].text).toBe('First')
       expect(todos[1].text).toBe('Second')
     })
 
     it('returns todos with camelCase fields', () => {
-      createTodo(db, 'id-1', 'Test')
-      const todos = getAllTodos(db)
+      queries.createTodo('id-1', 'Test')
+      const todos = queries.getAllTodos()
 
       expect(todos[0]).toHaveProperty('createdAt')
       expect(todos[0]).toHaveProperty('updatedAt')
@@ -61,8 +57,8 @@ describe('Database queries', () => {
 
   describe('getTodoById', () => {
     it('returns a todo by id', () => {
-      createTodo(db, 'id-1', 'Test')
-      const todo = getTodoById(db, 'id-1')
+      queries.createTodo('id-1', 'Test')
+      const todo = queries.getTodoById('id-1')
 
       expect(todo).not.toBeUndefined()
       expect(todo!.id).toBe('id-1')
@@ -70,52 +66,71 @@ describe('Database queries', () => {
     })
 
     it('returns undefined for non-existent id', () => {
-      const todo = getTodoById(db, 'non-existent')
+      const todo = queries.getTodoById('non-existent')
       expect(todo).toBeUndefined()
     })
   })
 
   describe('updateTodo', () => {
     it('updates text field', () => {
-      createTodo(db, 'id-1', 'Original')
-      const updated = updateTodo(db, 'id-1', { text: 'Updated' })
+      queries.createTodo('id-1', 'Original')
+      const updated = queries.updateTodo('id-1', { text: 'Updated' })
 
       expect(updated).not.toBeUndefined()
       expect(updated!.text).toBe('Updated')
     })
 
     it('updates completed field', () => {
-      createTodo(db, 'id-1', 'Test')
-      const updated = updateTodo(db, 'id-1', { completed: true })
+      queries.createTodo('id-1', 'Test')
+      const updated = queries.updateTodo('id-1', { completed: true })
 
       expect(updated!.completed).toBe(true)
     })
 
-    it('updates updated_at timestamp', () => {
-      createTodo(db, 'id-1', 'Test')
-      const original = getTodoById(db, 'id-1')
+    it('updates both text and completed simultaneously', () => {
+      queries.createTodo('id-1', 'Original')
+      const updated = queries.updateTodo('id-1', { text: 'Changed', completed: true })
 
-      const updated = updateTodo(db, 'id-1', { text: 'Changed' })
+      expect(updated!.text).toBe('Changed')
+      expect(updated!.completed).toBe(true)
+    })
+
+    it('sets updated_at to a valid timestamp on update', () => {
+      queries.createTodo('id-1', 'Test')
+
+      const updated = queries.updateTodo('id-1', { text: 'Changed' })
+
       expect(updated!.updatedAt).toBeDefined()
+      expect(new Date(updated!.updatedAt).toISOString()).toContain(
+        new Date().toISOString().slice(0, 10)
+      )
+    })
+
+    it('returns existing todo when no fields provided', () => {
+      queries.createTodo('id-1', 'Test')
+      const result = queries.updateTodo('id-1', {})
+
+      expect(result).not.toBeUndefined()
+      expect(result!.text).toBe('Test')
     })
 
     it('returns undefined for non-existent id', () => {
-      const result = updateTodo(db, 'non-existent', { text: 'Test' })
+      const result = queries.updateTodo('non-existent', { text: 'Test' })
       expect(result).toBeUndefined()
     })
   })
 
   describe('deleteTodo', () => {
     it('deletes a todo and returns true', () => {
-      createTodo(db, 'id-1', 'Test')
-      const result = deleteTodo(db, 'id-1')
+      queries.createTodo('id-1', 'Test')
+      const result = queries.deleteTodo('id-1')
 
       expect(result).toBe(true)
-      expect(getTodoById(db, 'id-1')).toBeUndefined()
+      expect(queries.getTodoById('id-1')).toBeUndefined()
     })
 
     it('returns false for non-existent id', () => {
-      const result = deleteTodo(db, 'non-existent')
+      const result = queries.deleteTodo('non-existent')
       expect(result).toBe(false)
     })
   })

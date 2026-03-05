@@ -1,6 +1,6 @@
 # Story 1.2: Database & Health Check API
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -222,3 +222,21 @@ New files:
 Modified files:
 - server/src/index.ts
 - server/src/index.test.ts
+
+### Code Review Record
+
+**Reviewed by:** Marius (AI-assisted adversarial review)
+**Date:** 2026-03-05
+**Outcome:** Approved with fixes applied
+
+**Issues Found & Fixed:**
+- [x] [HIGH] init.test.ts idempotency test was testing two separate :memory: DBs, not same DB — fixed to use file-based DB
+- [x] [HIGH] index.ts initialized real DB at module load during tests — fixed to use :memory: when NODE_ENV=test
+- [x] [MEDIUM] queries.ts recreated prepared statements on every call — refactored to factory pattern with cached statements
+- [x] [MEDIUM] queries.test.ts "updates updated_at" test didn't verify anything meaningful — rewritten with actual validation
+- [x] [MEDIUM] error-handler.test.ts and health-routes.test.ts server.close() not awaited — fixed with proper async close
+- [x] [MEDIUM] queries.test.ts missing edge cases for empty fields and both-fields update — added 2 new tests
+- [x] [LOW] queries.ts createTodo used non-null assertion — replaced with explicit error throw
+- [x] [LOW] init.test.ts leaked second db connection — fixed by properly closing
+
+**Test Results:** 25 tests passing (up from 23, +2 new edge case tests)

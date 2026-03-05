@@ -18,7 +18,7 @@ async function request(app: express.Express, path: string) {
     const data = await response.json()
     return { status: response.status, data }
   } finally {
-    server.close()
+    await new Promise<void>((resolve) => server.close(() => resolve()))
   }
 }
 

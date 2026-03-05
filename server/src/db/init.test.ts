@@ -48,9 +48,19 @@ describe('Database initialization', () => {
     expect(updatedAtCol.notnull).toBe(1)
   })
 
-  it('is idempotent — running init twice does not error', () => {
-    db = initDatabase(':memory:')
-    expect(() => initDatabase(':memory:')).not.toThrow()
+  it('is idempotent — running init twice on the same database does not error', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'todo-idempotent-'))
+    const dbPath = path.join(tmpDir, 'idempotent.db')
+
+    db = initDatabase(dbPath)
+    const db2 = initDatabase(dbPath)
+    db2.close()
+
+    // Verify table still exists and is functional
+    const rows = db.prepare('SELECT * FROM todos').all()
+    expect(rows).toEqual([])
+
+    fs.rmSync(tmpDir, { recursive: true })
   })
 
   it('enables WAL mode for file-based databases', () => {
