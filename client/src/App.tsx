@@ -3,7 +3,8 @@ import TaskInput from './components/TaskInput'
 import TaskList from './components/TaskList'
 
 export default function App() {
-  const { todos, isLoading, errors, addTodo, updateTodo, deleteTodo, dismissError } = useOptimisticTodos()
+  // errors and dismissError will be passed to ErrorBanner in Story 3.2
+  const { todos, isLoading, errors: _errors, addTodo, updateTodo, deleteTodo, dismissError: _dismissError } = useOptimisticTodos()
 
   return (
     <div className="min-h-screen bg-surface-secondary">

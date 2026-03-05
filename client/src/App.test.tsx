@@ -1,7 +1,6 @@
 import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import '@testing-library/jest-dom/vitest'
 import App from './App'
 import * as todosApi from './api/todos'
 

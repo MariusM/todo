@@ -53,7 +53,8 @@ describe('useOptimisticTodos', () => {
     })
 
     expect(result.current.todos).toEqual([])
-    expect(result.current.errors.length).toBe(1)
+    expect(result.current.errors).toHaveLength(1)
+    expect(result.current.errors[0]).toEqual({ message: 'Network error', code: 'FETCH_ERROR' })
   })
 
   it('optimistically adds a todo before API responds', async () => {

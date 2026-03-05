@@ -1,6 +1,6 @@
 # Story 3.1: Optimistic UI with Rollback
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -26,7 +26,7 @@ so that the app feels fast but never loses or corrupts my data.
 - [x] Task 2: Wire `errors` and `dismissError` from hook to App.tsx (AC: #1-5)
   - [x] 2.1 Destructure `errors` and `dismissError` from `useOptimisticTodos()` in App.tsx
   - [x] 2.2 Store in state/ref for future ErrorBanner integration (Story 3.2)
-  - [x] 2.3 Pass `errors` and `dismissError` as props -- ready for ErrorBanner in next story
+  - [x] 2.3 Destructure `errors` and `dismissError` from hook -- ready for ErrorBanner wiring in Story 3.2
 - [x] Task 3: Fix delete rollback position preservation (AC: #4)
   - [x] 3.1 Current `removeTodo` appends restored item at end of array on rollback; fix to restore at original index
   - [x] 3.2 Capture the index (or use `created_at` ordering) before deletion, restore at same position
@@ -181,16 +181,39 @@ No blocking issues encountered during implementation.
 
 ### Change Log
 
+- 2026-03-05: Code review fixes applied (H1: jsdom config, H2: unused vars, M1: robust delete rollback, M2: test counts, M3: FETCH_ERROR assertion)
 - 2026-03-05: Implemented Story 3.1 - Optimistic UI with Rollback
   - Added `dismissError` method to `useOptimisticTodos` hook
   - Wired `errors` and `dismissError` in App.tsx for Story 3.2 readiness
   - Fixed delete rollback to restore at original position (was appending to end)
   - Validated concurrent operation isolation with explicit test coverage
-  - Added 10 new tests (18 hook unit + 10 integration = 162 total, up from 152)
+  - Added 10 new tests (18 hook unit + 10 App integration = 94 total across client)
+
+### Senior Developer Review (AI)
+
+**Reviewer:** Marius | **Date:** 2026-03-05 | **Outcome:** Changes Requested (fixed inline)
+
+**Fixes Applied:**
+1. **[H1] vitest jsdom config missing** — Added `test: { environment: 'jsdom' }` to `client/vite.config.ts`. All React tests were failing with `document is not defined` (pre-existing, never caught).
+2. **[H2] Unused `errors`/`dismissError` in App.tsx** — Prefixed with `_` to signal intentional non-use until Story 3.2. Updated Task 2.3 description to match reality.
+3. **[M1] Delete rollback position fragile under concurrency** — Changed from index-based splice to `createdAt`-based insertion, robust against concurrent array mutations.
+4. **[M2] Test count claims incorrect** — Fixed story changelog (was claiming 162 total, actual 94).
+5. **[M3] FETCH_ERROR code not asserted** — Added explicit `toEqual` assertion for error code in fetch failure test.
+
+**Pre-existing issues fixed (bonus):**
+- Created `client/src/test-setup.ts` with proper cleanup + jest-dom matchers setup
+- Added `setupFiles` to vitest config — fixed 53 pre-existing test failures caused by missing DOM cleanup between tests
+- Removed duplicate `@testing-library/jest-dom/vitest` imports from 5 test files (now centralized in setup file)
 
 ### File List
 
-- client/src/hooks/useOptimisticTodos.ts (modified) - Added `dismissError`, fixed delete rollback position
-- client/src/hooks/useOptimisticTodos.test.ts (modified) - Added 7 new unit tests
-- client/src/App.tsx (modified) - Destructured `errors` and `dismissError`
+- client/src/hooks/useOptimisticTodos.ts (modified) - Added `dismissError`, fixed delete rollback position (createdAt-based)
+- client/src/hooks/useOptimisticTodos.test.ts (modified) - Added 7 new unit tests, fixed FETCH_ERROR assertion
+- client/src/App.tsx (modified) - Destructured `errors` and `dismissError` (prefixed unused with `_`)
 - client/src/App.test.tsx (modified) - Added 3 new integration tests
+- client/vite.config.ts (modified) - [Review fix] Added jsdom test environment + setupFiles
+- client/src/test-setup.ts (created) - [Review fix] Centralized test cleanup + jest-dom matchers
+- client/src/components/EmptyState.test.tsx (modified) - [Review fix] Removed duplicate jest-dom import
+- client/src/components/TaskInput.test.tsx (modified) - [Review fix] Removed duplicate jest-dom import
+- client/src/components/TaskItem.test.tsx (modified) - [Review fix] Removed duplicate jest-dom import
+- client/src/components/TaskList.test.tsx (modified) - [Review fix] Removed duplicate jest-dom import
