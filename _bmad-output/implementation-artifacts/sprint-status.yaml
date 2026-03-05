@@ -46,7 +46,7 @@ development_status:
   1-2-database-health-check-api: done
   1-3-todo-rest-api-create-read: done
   1-4-frontend-empty-state-loading-state-task-creation-ui: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   # Epic 2: Complete Task Management
   epic-2: backlog
