@@ -1,6 +1,6 @@
 # Story 1.3: Todo REST API — Create & Read
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -24,28 +24,28 @@ so that my tasks are stored and retrievable.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Input validation middleware (AC: #3, #4)
-  - [ ] 1.1 Create `server/src/middleware/validate-todo.ts` — validate POST body for `id` (valid UUID) and `text` (non-empty after trim)
-  - [ ] 1.2 Validate UUID format using regex: `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i`
-  - [ ] 1.3 Validate text is present and non-empty after `.trim()` — reject whitespace-only strings
-  - [ ] 1.4 Throw `AppError` with 400 status and `VALIDATION_ERROR` code for all validation failures
-  - [ ] 1.5 Export as Express middleware function `validateCreateTodo` that can be used on individual routes
+- [x] Task 1: Input validation middleware (AC: #3, #4)
+  - [x] 1.1 Create `server/src/middleware/validate-todo.ts` — validate POST body for `id` (valid UUID) and `text` (non-empty after trim)
+  - [x] 1.2 Validate UUID format using regex: `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i`
+  - [x] 1.3 Validate text is present and non-empty after `.trim()` — reject whitespace-only strings
+  - [x] 1.4 Throw `AppError` with 400 status and `VALIDATION_ERROR` code for all validation failures
+  - [x] 1.5 Export as Express middleware function `validateCreateTodo` that can be used on individual routes
 
-- [ ] Task 2: Todo routes — Create & Read (AC: #1, #2, #5)
-  - [ ] 2.1 Create `server/src/routes/todo-routes.ts` using Express `Router()`
-  - [ ] 2.2 Implement `POST /api/todos` — call `validateCreateTodo` middleware, then `createTodo(id, text)` from queries, return 201 with created todo
-  - [ ] 2.3 Implement `GET /api/todos` — call `getAllTodos()` from queries, return 200 with array
-  - [ ] 2.4 Route handlers use `AppError` for errors (e.g., duplicate ID → 400) — never send error responses directly
-  - [ ] 2.5 All responses use camelCase fields (already handled by `toTodo()` in queries.ts)
+- [x] Task 2: Todo routes — Create & Read (AC: #1, #2, #5)
+  - [x] 2.1 Create `server/src/routes/todo-routes.ts` using Express `Router()`
+  - [x] 2.2 Implement `POST /api/todos` — call `validateCreateTodo` middleware, then `createTodo(id, text)` from queries, return 201 with created todo
+  - [x] 2.3 Implement `GET /api/todos` — call `getAllTodos()` from queries, return 200 with array
+  - [x] 2.4 Route handlers use `AppError` for errors (e.g., duplicate ID → 400) — never send error responses directly
+  - [x] 2.5 All responses use camelCase fields (already handled by `toTodo()` in queries.ts)
 
-- [ ] Task 3: Wire routes into Express app (AC: #1, #2)
-  - [ ] 3.1 Update `server/src/index.ts` — import and register `todoRoutes` between healthRoutes and errorHandler
-  - [ ] 3.2 Middleware order must be: `express.json()` → healthRoutes → todoRoutes → errorHandler
+- [x] Task 3: Wire routes into Express app (AC: #1, #2)
+  - [x] 3.1 Update `server/src/index.ts` — import and register `todoRoutes` between healthRoutes and errorHandler
+  - [x] 3.2 Middleware order must be: `express.json()` → healthRoutes → todoRoutes → errorHandler
 
-- [ ] Task 4: Tests (AC: #1, #2, #3, #4, #5)
-  - [ ] 4.1 Create `server/src/middleware/validate-todo.test.ts` — test valid UUID accepted, invalid UUID rejected, empty text rejected, whitespace-only rejected, valid text accepted, missing fields rejected
-  - [ ] 4.2 Create `server/src/routes/todo-routes.test.ts` — test POST creates todo (201), POST with empty text returns 400, POST with invalid UUID returns 400, GET returns all todos as array, GET returns empty array when none exist, GET returns todos ordered by created_at, created todo has ISO 8601 timestamp, duplicate ID returns error
-  - [ ] 4.3 Verify existing tests still pass (no regressions on health route, queries, error handler)
+- [x] Task 4: Tests (AC: #1, #2, #3, #4, #5)
+  - [x] 4.1 Create `server/src/middleware/validate-todo.test.ts` — test valid UUID accepted, invalid UUID rejected, empty text rejected, whitespace-only rejected, valid text accepted, missing fields rejected
+  - [x] 4.2 Create `server/src/routes/todo-routes.test.ts` — test POST creates todo (201), POST with empty text returns 400, POST with invalid UUID returns 400, GET returns all todos as array, GET returns empty array when none exist, GET returns todos ordered by created_at, created todo has ISO 8601 timestamp, duplicate ID returns error
+  - [x] 4.3 Verify existing tests still pass (no regressions on health route, queries, error handler)
 
 ## Dev Notes
 
@@ -220,10 +220,30 @@ Option 1 is cleaner and prevents leaking SQLite error details.
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+None — clean implementation with no blocking issues.
+
 ### Completion Notes List
 
+- Task 1: Created `validateCreateTodo` middleware with UUID regex validation and non-empty text validation. Throws `AppError` for all validation failures. 8 unit tests passing.
+- Task 2: Created `createTodoRoutes` factory function following existing `healthRoutes` pattern. POST /api/todos validates input, checks duplicate ID, trims text, returns 201. GET /api/todos returns all todos as array. 9 integration tests passing.
+- Task 3: Wired todo routes into `index.ts` between healthRoutes and errorHandler. Created queries instance from db via `createQueries(db)` factory.
+- Task 4: All 17 new tests pass (8 middleware unit + 9 route integration). Full suite: 42 tests across 8 files, zero regressions.
+
+### Change Log
+
+- 2026-03-05: Implemented story 1.3 — Todo REST API Create & Read (POST /api/todos, GET /api/todos)
+
 ### File List
+
+New files:
+- server/src/middleware/validate-todo.ts
+- server/src/middleware/validate-todo.test.ts
+- server/src/routes/todo-routes.ts
+- server/src/routes/todo-routes.test.ts
+
+Modified files:
+- server/src/index.ts

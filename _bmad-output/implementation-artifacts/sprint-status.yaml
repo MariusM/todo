@@ -44,7 +44,7 @@ development_status:
   epic-1: in-progress
   1-1-project-scaffolding-monorepo-setup: done
   1-2-database-health-check-api: done
-  1-3-todo-rest-api-create-read: ready-for-dev
+  1-3-todo-rest-api-create-read: review
   1-4-frontend-empty-state-loading-state-task-creation-ui: backlog
   epic-1-retrospective: optional
 
