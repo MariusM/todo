@@ -54,7 +54,7 @@ development_status:
   2-2-task-completion-visual-distinction: done
   2-3-inline-editing: done
   2-4-task-deletion-visual-feedback: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
   # Epic 3: Error Handling & Resilience
   epic-3: backlog
