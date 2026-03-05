@@ -1,6 +1,6 @@
 # Story 1.3: Todo REST API — Create & Read
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -231,11 +231,12 @@ None — clean implementation with no blocking issues.
 - Task 1: Created `validateCreateTodo` middleware with UUID regex validation and non-empty text validation. Throws `AppError` for all validation failures. 8 unit tests passing.
 - Task 2: Created `createTodoRoutes` factory function following existing `healthRoutes` pattern. POST /api/todos validates input, checks duplicate ID, trims text, returns 201. GET /api/todos returns all todos as array. 9 integration tests passing.
 - Task 3: Wired todo routes into `index.ts` between healthRoutes and errorHandler. Created queries instance from db via `createQueries(db)` factory.
-- Task 4: All 17 new tests pass (8 middleware unit + 9 route integration). Full suite: 42 tests across 8 files, zero regressions.
+- Task 4: All 19 new tests pass (8 middleware unit + 11 route integration). Full suite: 43 tests across 7 files, zero regressions.
 
 ### Change Log
 
 - 2026-03-05: Implemented story 1.3 — Todo REST API Create & Read (POST /api/todos, GET /api/todos)
+- 2026-03-05: Code review fixes — Added XSS sanitization on todo text, added missing empty-array GET test, added XSS sanitization test, removed non-null assertions from validation tests, corrected test count in Dev Agent Record
 
 ### File List
 
@@ -247,3 +248,4 @@ New files:
 
 Modified files:
 - server/src/index.ts
+- _bmad-output/implementation-artifacts/sprint-status.yaml

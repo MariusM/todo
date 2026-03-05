@@ -92,6 +92,20 @@ describe('POST /api/todos', () => {
     expect(todo.text).toBe('Buy eggs')
   })
 
+  it('sanitizes HTML in text to prevent XSS', async () => {
+    const id = '550e8400-e29b-41d4-a716-446655440011'
+    const res = await fetch(url('/api/todos'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, text: '<script>alert("xss")</script>' }),
+    })
+
+    expect(res.status).toBe(201)
+    const todo = await res.json()
+    expect(todo.text).not.toContain('<script>')
+    expect(todo.text).toContain('&lt;script&gt;')
+  })
+
   it('returns error for duplicate ID', async () => {
     const id = '550e8400-e29b-41d4-a716-446655440002'
     await fetch(url('/api/todos'), {
@@ -126,6 +140,28 @@ describe('POST /api/todos', () => {
 })
 
 describe('GET /api/todos', () => {
+  it('returns empty array when no todos exist', async () => {
+    const emptyDb = initDatabase(':memory:')
+    const emptyQueries = createQueries(emptyDb)
+    const emptyApp = express()
+    emptyApp.use(express.json())
+    emptyApp.use(createTodoRoutes(emptyQueries))
+    emptyApp.use(errorHandler)
+
+    const emptyServer = emptyApp.listen(0)
+    const emptyAddress = emptyServer.address()
+    const emptyPort = typeof emptyAddress === 'object' && emptyAddress ? emptyAddress.port : 0
+
+    const res = await fetch(`http://localhost:${emptyPort}/api/todos`)
+    expect(res.status).toBe(200)
+    const todos = await res.json()
+    expect(Array.isArray(todos)).toBe(true)
+    expect(todos.length).toBe(0)
+
+    await new Promise<void>((resolve) => emptyServer.close(() => resolve()))
+    emptyDb.close()
+  })
+
   it('returns all todos as array', async () => {
     const res = await fetch(url('/api/todos'))
 

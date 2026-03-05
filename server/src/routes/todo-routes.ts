@@ -3,6 +3,15 @@ import { validateCreateTodo } from '../middleware/validate-todo.js'
 import { AppError } from '../middleware/error-handler.js'
 import type { createQueries } from '../db/queries.js'
 
+function sanitizeText(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 export function createTodoRoutes(queries: ReturnType<typeof createQueries>) {
   const router = Router()
 
@@ -14,7 +23,7 @@ export function createTodoRoutes(queries: ReturnType<typeof createQueries>) {
       throw new AppError('Todo with this ID already exists', 400, 'VALIDATION_ERROR')
     }
 
-    const todo = queries.createTodo(id, text.trim())
+    const todo = queries.createTodo(id, sanitizeText(text.trim()))
     res.status(201).json(todo)
   })
 
