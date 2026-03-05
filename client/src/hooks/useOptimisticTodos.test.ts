@@ -54,7 +54,8 @@ describe('useOptimisticTodos', () => {
 
     expect(result.current.todos).toEqual([])
     expect(result.current.errors).toHaveLength(1)
-    expect(result.current.errors[0]).toEqual({ message: 'Network error', code: 'FETCH_ERROR' })
+    expect(result.current.errors[0]).toEqual(expect.objectContaining({ message: 'Network error', code: 'FETCH_ERROR' }))
+    expect(result.current.errors[0].id).toBeDefined()
   })
 
   it('optimistically adds a todo before API responds', async () => {
@@ -204,7 +205,7 @@ describe('useOptimisticTodos', () => {
     expect(result.current.todos).toHaveLength(0)
   })
 
-  it('dismissError removes the error at given index', async () => {
+  it('dismissError removes the error with given id', async () => {
     vi.mocked(todosApi.fetchTodos).mockRejectedValue(
       new Error('Network error')
     )
@@ -216,15 +217,16 @@ describe('useOptimisticTodos', () => {
     })
 
     expect(result.current.errors).toHaveLength(1)
+    const errorId = result.current.errors[0].id
 
     act(() => {
-      result.current.dismissError(0)
+      result.current.dismissError(errorId)
     })
 
     expect(result.current.errors).toHaveLength(0)
   })
 
-  it('dismissError removes only the error at specified index', async () => {
+  it('dismissError removes only the error with specified id', async () => {
     // Create two errors: fetch error + create error
     vi.mocked(todosApi.fetchTodos).mockRejectedValue(
       new Error('Fetch failed')
@@ -251,9 +253,10 @@ describe('useOptimisticTodos', () => {
     expect(result.current.errors[0].message).toBe('Fetch failed')
     expect(result.current.errors[1].message).toBe('Create failed')
 
-    // Dismiss the first error
+    // Dismiss the first error by its id
+    const firstErrorId = result.current.errors[0].id
     act(() => {
-      result.current.dismissError(0)
+      result.current.dismissError(firstErrorId)
     })
 
     expect(result.current.errors).toHaveLength(1)
@@ -306,7 +309,7 @@ describe('useOptimisticTodos', () => {
       result.current.addTodo('Will fail')
     })
 
-    expect(result.current.errors[0]).toEqual({ message: 'Create server error', code: 'CREATE_ERROR' })
+    expect(result.current.errors[0]).toEqual(expect.objectContaining({ message: 'Create server error', code: 'CREATE_ERROR' }))
 
     // Test UPDATE_ERROR
     vi.mocked(todosApi.updateTodo).mockRejectedValue(
@@ -317,7 +320,7 @@ describe('useOptimisticTodos', () => {
       result.current.updateTodo('server-uuid-1', { text: 'Fail' })
     })
 
-    expect(result.current.errors[1]).toEqual({ message: 'Update server error', code: 'UPDATE_ERROR' })
+    expect(result.current.errors[1]).toEqual(expect.objectContaining({ message: 'Update server error', code: 'UPDATE_ERROR' }))
 
     // Test DELETE_ERROR
     vi.mocked(todosApi.deleteTodo).mockRejectedValue(
@@ -328,7 +331,7 @@ describe('useOptimisticTodos', () => {
       result.current.deleteTodo('server-uuid-1')
     })
 
-    expect(result.current.errors[2]).toEqual({ message: 'Delete server error', code: 'DELETE_ERROR' })
+    expect(result.current.errors[2]).toEqual(expect.objectContaining({ message: 'Delete server error', code: 'DELETE_ERROR' }))
 
     vi.unstubAllGlobals()
   })

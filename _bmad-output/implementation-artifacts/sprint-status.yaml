@@ -59,7 +59,7 @@ development_status:
   # Epic 3: Error Handling & Resilience
   epic-3: in-progress
   3-1-optimistic-ui-with-rollback: done
-  3-2-error-banner-user-communication: review
+  3-2-error-banner-user-communication: done
   epic-3-retrospective: optional
 
   # Epic 4: Responsive Design & Accessibility

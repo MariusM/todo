@@ -1,6 +1,6 @@
 # Story 3.2: Error Banner & User Communication
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -210,6 +210,7 @@ No issues encountered. All tests passed on first run.
 ### Change Log
 
 - 2026-03-05: Implemented ErrorBanner component and wired into App.tsx. Added 17 tests (12 unit + 5 integration). Total tests: 110 passing.
+- 2026-03-05: Code review fixes — added exit animation with banner-exit class and animationend/timeout fallback; added stable `id` to ErrorInfo to fix key={index} anti-pattern; changed dismissError from index-based to id-based; replaced "x" with × on dismiss button; strengthened multiple-errors integration test to verify warm message content; added timeout fallback unit test. Total tests: 111 passing.
 
 ### File List
 
@@ -218,3 +219,5 @@ No issues encountered. All tests passed on first run.
 - client/src/App.tsx (MODIFIED)
 - client/src/App.test.tsx (MODIFIED)
 - client/src/index.css (MODIFIED)
+- client/src/hooks/useOptimisticTodos.ts (MODIFIED — added id to ErrorInfo, id-based dismissError)
+- client/src/hooks/useOptimisticTodos.test.ts (MODIFIED — updated for id-based ErrorInfo and dismissError)

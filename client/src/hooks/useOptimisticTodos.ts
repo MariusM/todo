@@ -3,9 +3,12 @@ import { fetchTodos, createTodo, updateTodo as apiUpdateTodo, deleteTodo as apiD
 import type { Todo, UpdateTodoRequest } from '../types/todo'
 
 export interface ErrorInfo {
+  id: string
   message: string
   code: string
 }
+
+let nextErrorId = 0
 
 function extractErrorMessage(err: unknown, fallback: string): string {
   if (err && typeof err === 'object' && 'error' in err) {
@@ -28,7 +31,7 @@ export function useOptimisticTodos() {
       })
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : 'Failed to load todos'
-        setErrors((prev) => [...prev, { message, code: 'FETCH_ERROR' }])
+        setErrors((prev) => [...prev, { id: String(++nextErrorId), message, code: 'FETCH_ERROR' }])
       })
       .finally(() => {
         setIsLoading(false)
@@ -54,7 +57,7 @@ export function useOptimisticTodos() {
     createTodo({ id, text: trimmed }).catch((err: unknown) => {
       setTodos((prev) => prev.filter((todo) => todo.id !== id))
       const message = extractErrorMessage(err, 'Failed to create todo')
-      setErrors((prevErrors) => [...prevErrors, { message, code: 'CREATE_ERROR' }])
+      setErrors((prevErrors) => [...prevErrors, { id: String(++nextErrorId), message, code: 'CREATE_ERROR' }])
     })
   }, [])
 
@@ -73,7 +76,7 @@ export function useOptimisticTodos() {
         prev.map((t) => (t.id === id ? original : t))
       )
       const message = extractErrorMessage(err, 'Failed to update todo')
-      setErrors((prev) => [...prev, { message, code: 'UPDATE_ERROR' }])
+      setErrors((prev) => [...prev, { id: String(++nextErrorId), message, code: 'UPDATE_ERROR' }])
     })
   }, [])
 
@@ -96,12 +99,12 @@ export function useOptimisticTodos() {
         return restored
       })
       const message = extractErrorMessage(err, 'Failed to delete todo')
-      setErrors((prev) => [...prev, { message, code: 'DELETE_ERROR' }])
+      setErrors((prev) => [...prev, { id: String(++nextErrorId), message, code: 'DELETE_ERROR' }])
     })
   }, [])
 
-  const dismissError = useCallback((index: number) => {
-    setErrors((prev) => prev.filter((_, i) => i !== index))
+  const dismissError = useCallback((id: string) => {
+    setErrors((prev) => prev.filter((e) => e.id !== id))
   }, [])
 
   return { todos, isLoading, errors, addTodo, updateTodo, deleteTodo: removeTodo, dismissError }

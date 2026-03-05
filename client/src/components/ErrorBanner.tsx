@@ -1,3 +1,4 @@
+import { useState, useRef, useCallback } from 'react'
 import type { ErrorInfo } from '../hooks/useOptimisticTodos'
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -9,19 +10,49 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 interface ErrorBannerProps {
   errors: ErrorInfo[]
-  onDismiss: (index: number) => void
+  onDismiss: (id: string) => void
 }
 
 export default function ErrorBanner({ errors, onDismiss }: ErrorBannerProps) {
+  const [exitingIds, setExitingIds] = useState<Set<string>>(new Set())
+  const bannerRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+
+  const handleDismiss = useCallback((id: string) => {
+    setExitingIds((prev) => new Set(prev).add(id))
+    const el = bannerRefs.current.get(id)
+    let called = false
+    const finish = () => {
+      if (called) return
+      called = true
+      setExitingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+      onDismiss(id)
+    }
+    if (el) {
+      el.addEventListener('animationend', finish, { once: true })
+      // Fallback in case animationend doesn't fire (e.g., prefers-reduced-motion)
+      setTimeout(finish, 200)
+    } else {
+      onDismiss(id)
+    }
+  }, [onDismiss])
+
   if (errors.length === 0) return null
 
   return (
     <div className="mt-4 flex flex-col gap-2">
-      {errors.map((error, index) => (
+      {errors.map((error) => (
         <div
-          key={index}
+          key={error.id}
+          ref={(el) => {
+            if (el) bannerRefs.current.set(error.id, el)
+            else bannerRefs.current.delete(error.id)
+          }}
           role="alert"
-          className="banner-enter flex items-center gap-3 rounded-lg border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text"
+          className={`${exitingIds.has(error.id) ? 'banner-exit' : 'banner-enter'} flex items-center gap-3 rounded-lg border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text`}
         >
           <span className="shrink-0" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -31,11 +62,11 @@ export default function ErrorBanner({ errors, onDismiss }: ErrorBannerProps) {
           <span className="flex-1">{ERROR_MESSAGES[error.code] ?? error.message}</span>
           <button
             type="button"
-            onClick={() => onDismiss(index)}
+            onClick={() => handleDismiss(error.id)}
             className="flex h-[44px] w-[44px] shrink-0 items-center justify-center text-error-text"
             aria-label="Dismiss error"
           >
-            x
+            &times;
           </button>
         </div>
       ))}

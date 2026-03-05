@@ -179,6 +179,13 @@ describe('App', () => {
     const dismissBtn = screen.getByRole('button', { name: 'Dismiss error' })
     await user.click(dismissBtn)
 
+    // Banner should have exit animation class
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveClass('banner-exit')
+
+    // Fire animationend to complete dismiss
+    alert.dispatchEvent(new Event('animationend'))
+
     // Banner is removed
     await waitFor(() => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
@@ -290,11 +297,14 @@ describe('App', () => {
       rejectCreate2({ error: { message: 'Error 2', code: 'INTERNAL_ERROR' } })
     })
 
-    // Should see two error banners
+    // Should see two error banners with warm messages
     await waitFor(() => {
       const alerts = screen.getAllByRole('alert')
       expect(alerts).toHaveLength(2)
     })
+    // Both should display the warm CREATE_ERROR message
+    const warmMessages = screen.getAllByText("Adding that task didn't go through -- try again?")
+    expect(warmMessages).toHaveLength(2)
 
     vi.unstubAllGlobals()
   })
