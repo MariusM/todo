@@ -63,8 +63,8 @@ development_status:
   epic-3-retrospective: done
 
   # Epic 4: Responsive Design & Accessibility
-  epic-4: backlog
-  4-1-responsive-layout: backlog
+  epic-4: in-progress
+  4-1-responsive-layout: ready-for-dev
   4-2-keyboard-navigation-focus-management: backlog
   4-3-screen-reader-support-aria: backlog
   4-4-color-contrast-visual-accessibility: backlog
