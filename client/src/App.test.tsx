@@ -111,6 +111,194 @@ describe('App', () => {
     vi.unstubAllGlobals()
   })
 
+  it('shows error banner with warm message after failed create', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+
+    let rejectCreate: (reason: unknown) => void
+    vi.mocked(todosApi.createTodo).mockImplementation(
+      () => new Promise((_resolve, reject) => { rejectCreate = reject })
+    )
+
+    const mockRandomUUID = vi.fn().mockReturnValue('err-uuid-1')
+    vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+    })
+
+    const input = screen.getByLabelText('Add a new task')
+    await user.type(input, 'Will fail{Enter}')
+
+    await act(async () => {
+      rejectCreate({ error: { message: 'Server error', code: 'INTERNAL_ERROR' } })
+    })
+
+    // Error banner shows warm message, not raw error
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(screen.getByText("Adding that task didn't go through -- try again?")).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Server error')).not.toBeInTheDocument()
+
+    vi.unstubAllGlobals()
+  })
+
+  it('dismiss button removes the specific error banner', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+
+    let rejectCreate: (reason: unknown) => void
+    vi.mocked(todosApi.createTodo).mockImplementation(
+      () => new Promise((_resolve, reject) => { rejectCreate = reject })
+    )
+
+    const mockRandomUUID = vi.fn().mockReturnValue('err-uuid-2')
+    vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+    })
+
+    const input = screen.getByLabelText('Add a new task')
+    await user.type(input, 'Fail task{Enter}')
+
+    await act(async () => {
+      rejectCreate({ error: { message: 'Server error', code: 'INTERNAL_ERROR' } })
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+    })
+
+    // Click dismiss
+    const dismissBtn = screen.getByRole('button', { name: 'Dismiss error' })
+    await user.click(dismissBtn)
+
+    // Banner is removed
+    await waitFor(() => {
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    vi.unstubAllGlobals()
+  })
+
+  it('error banner does not block task list interactions', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+      {
+        id: 'todo-1',
+        text: 'Existing task',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      },
+    ])
+
+    let rejectCreate: (reason: unknown) => void
+    vi.mocked(todosApi.createTodo).mockImplementation(
+      () => new Promise((_resolve, reject) => { rejectCreate = reject })
+    )
+    vi.mocked(todosApi.updateTodo).mockResolvedValue({
+      id: 'todo-1',
+      text: 'Existing task',
+      completed: true,
+      createdAt: '2026-03-05T00:00:00.000Z',
+      updatedAt: '2026-03-05T00:00:00.000Z',
+    })
+
+    const mockRandomUUID = vi.fn().mockReturnValue('err-uuid-3')
+    vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Existing task')).toBeInTheDocument()
+    })
+
+    // Trigger an error
+    const input = screen.getByLabelText('Add a new task')
+    await user.type(input, 'Fail task{Enter}')
+
+    await act(async () => {
+      rejectCreate({ error: { message: 'Server error', code: 'INTERNAL_ERROR' } })
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+    })
+
+    // Can still interact with task list while banner is visible
+    const checkbox = screen.getByRole('checkbox')
+    await user.click(checkbox)
+    expect(checkbox).toBeChecked()
+    expect(todosApi.updateTodo).toHaveBeenCalledWith('todo-1', { completed: true })
+    expect(todosApi.updateTodo).toHaveBeenCalledTimes(1)
+
+    vi.unstubAllGlobals()
+  })
+
+  it('multiple errors display multiple banners', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+      {
+        id: 'todo-1',
+        text: 'Task one',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      },
+    ])
+
+    let rejectCreate1: (reason: unknown) => void
+    let rejectCreate2: (reason: unknown) => void
+    let callCount = 0
+    vi.mocked(todosApi.createTodo).mockImplementation(
+      () => new Promise((_resolve, reject) => {
+        callCount++
+        if (callCount === 1) rejectCreate1 = reject
+        else rejectCreate2 = reject
+      })
+    )
+
+    const mockRandomUUID = vi.fn()
+      .mockReturnValueOnce('err-uuid-4')
+      .mockReturnValueOnce('err-uuid-5')
+    vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+    const user = userEvent.setup()
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Task one')).toBeInTheDocument()
+    })
+
+    const input = screen.getByLabelText('Add a new task')
+
+    // First failed create
+    await user.type(input, 'Fail 1{Enter}')
+    await act(async () => {
+      rejectCreate1({ error: { message: 'Error 1', code: 'INTERNAL_ERROR' } })
+    })
+
+    // Second failed create
+    await user.type(input, 'Fail 2{Enter}')
+    await act(async () => {
+      rejectCreate2({ error: { message: 'Error 2', code: 'INTERNAL_ERROR' } })
+    })
+
+    // Should see two error banners
+    await waitFor(() => {
+      const alerts = screen.getAllByRole('alert')
+      expect(alerts).toHaveLength(2)
+    })
+
+    vi.unstubAllGlobals()
+  })
+
   it('toggles a task to completed via checkbox', async () => {
     vi.mocked(todosApi.fetchTodos).mockResolvedValue([
       {
