@@ -1,6 +1,6 @@
 # Story 5.1: Unit & Integration Tests
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -271,9 +271,11 @@ Claude Opus 4.6
 - Error handler tests expanded from 3 to 6: added thrown string, thrown object, and path exposure verification tests
 - Database query tests expanded from 15 to 19: added emoji, unicode, very long text, and boolean conversion edge cases
 - Validation middleware tests expanded from 16 to 22: added array body, null body, tab/newline whitespace, partial UUID, extra char UUID, uppercase UUID tests
-- Hook tests expanded from 18 to 23: added extractErrorMessage fallback tests, non-existent ID guard tests for update/delete
-- All existing 232 tests pass with zero regressions; 24 new tests added for total of 256
-- Coverage: Statements 97.08%, Branches 93.92%, Functions 98.01%, Lines 97.60% — all well above 70% threshold
+- Hook tests expanded from 18 to 25: added extractErrorMessage fallback tests, non-existent ID guard tests, non-Error fetch rejection fallback, rapid add-then-delete
+- API client tests expanded from 15 to 17: added AbortError/timeout scenario, non-204 success delete
+- ErrorBanner tests expanded from 16 to 17: added exitingIds cleanup verification after animation
+- All existing 232 tests pass with zero regressions; 29 new tests added for total of 261
+- Coverage: Statements 97.88%, Branches 94.47%, Functions 99%, Lines 98.50% — all well above 70% threshold
 - Zero unhandled errors in CRUD paths confirmed via audit of server routes, client API, and hook error handling
 - No production source code was modified — testing-only changes
 - No `__tests__/` directories created — all tests co-located with source files
@@ -281,14 +283,18 @@ Claude Opus 4.6
 ### Change Log
 
 - 2026-03-07: Implemented story 5.1 — installed coverage tooling, added 24 tests covering server/client edge cases, achieved 97%+ coverage across all metrics
+- 2026-03-07: Code review fixes — added 5 tests (API timeout/edge cases, hook fetch fallback, rapid operations, ErrorBanner cleanup), fixed test isolation in index.test.ts
 
 ### File List
 
 - `package.json` — Added `@vitest/coverage-v8` dev dependency, `test:coverage` script
+- `package-lock.json` — Updated lockfile for new dev dependency
 - `vitest.config.ts` — Added coverage configuration (provider, thresholds, include/exclude)
-- `server/src/index.test.ts` — Expanded from 2 to 5 tests (middleware stack, route mounting, error handler)
+- `server/src/index.test.ts` — Expanded from 2 to 5 tests (middleware stack, route mounting, error handler); fixed test isolation cleanup
 - `server/src/routes/todo-routes.test.ts` — Added 2 sanitization edge case tests (nested HTML, entity encoding)
 - `server/src/middleware/error-handler.test.ts` — Added 3 tests (thrown strings, thrown objects, path exposure)
 - `server/src/middleware/validate-todo.test.ts` — Added 6 tests (array/null body, whitespace, partial/extra/uppercase UUID)
 - `server/src/db/queries.test.ts` — Added 4 tests (emoji, unicode, long text, boolean conversion)
-- `client/src/hooks/useOptimisticTodos.test.ts` — Added 5 tests (fallback error messages, non-existent ID guards)
+- `client/src/hooks/useOptimisticTodos.test.ts` — Added 7 tests (fallback error messages, non-existent ID guards, non-Error fetch fallback, rapid add-then-delete)
+- `client/src/api/todos.test.ts` — Added 2 tests (AbortError/timeout scenario, non-204 success delete)
+- `client/src/components/ErrorBanner.test.tsx` — Added 1 test (exitingIds cleanup after animation)

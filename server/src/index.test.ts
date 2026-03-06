@@ -29,15 +29,19 @@ describe('Server', () => {
   })
 
   it('applies JSON body parser middleware (accepts JSON requests)', async () => {
+    const testId = '550e8400-e29b-41d4-a716-446655440000'
     const response = await fetch(`http://localhost:${port}/api/todos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: '550e8400-e29b-41d4-a716-446655440000', text: 'Test middleware' }),
+      body: JSON.stringify({ id: testId, text: 'Test middleware' }),
     })
 
     expect(response.status).toBe(201)
     const data = await response.json()
     expect(data.text).toBe('Test middleware')
+
+    // Clean up: delete the created todo to avoid polluting other tests
+    await fetch(`http://localhost:${port}/api/todos/${testId}`, { method: 'DELETE' })
   })
 
   it('mounts todo routes under /api/todos', async () => {

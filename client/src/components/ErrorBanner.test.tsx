@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import ErrorBanner from './ErrorBanner'
@@ -181,6 +181,37 @@ describe('ErrorBanner', () => {
 
     expect(onDismiss).toHaveBeenCalledWith('e1')
     expect(onDismiss).toHaveBeenCalledTimes(1)
+  })
+
+  it('cleans up exiting state after dismiss animation completes', () => {
+    vi.useFakeTimers()
+    // onDismiss intentionally does NOT remove the error, so the banner persists
+    // and we can verify the exitingIds cleanup (banner-exit → banner-enter)
+    const onDismiss = vi.fn()
+    const errors: ErrorInfo[] = [{ id: 'e1', message: 'Error', code: 'CREATE_ERROR' }]
+    render(<ErrorBanner errors={errors} onDismiss={onDismiss} />)
+
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveClass('banner-enter')
+
+    const button = screen.getByRole('button', { name: 'Dismiss error' })
+    fireEvent.click(button)
+
+    // After click, banner should have exit animation class
+    expect(alert).toHaveClass('banner-exit')
+
+    // Fire animationend to complete the dismiss flow — wrap in act to flush state updates
+    act(() => {
+      alert.dispatchEvent(new Event('animationend'))
+    })
+
+    // Since onDismiss doesn't remove the error, the banner is still rendered
+    // and exitingIds cleanup should restore banner-enter class
+    expect(alert).toHaveClass('banner-enter')
+    expect(alert).not.toHaveClass('banner-exit')
+    expect(onDismiss).toHaveBeenCalledWith('e1')
+
+    vi.useRealTimers()
   })
 
   it('calls onDismiss via timeout fallback when animationend does not fire', () => {

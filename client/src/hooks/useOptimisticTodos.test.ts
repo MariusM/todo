@@ -436,6 +436,20 @@ describe('useOptimisticTodos', () => {
     vi.unstubAllGlobals()
   })
 
+  it('uses fallback message when fetch rejects with non-Error value', async () => {
+    vi.mocked(todosApi.fetchTodos).mockRejectedValue('string rejection')
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    expect(result.current.errors).toHaveLength(1)
+    expect(result.current.errors[0].message).toBe('Failed to load todos')
+    expect(result.current.errors[0].code).toBe('FETCH_ERROR')
+  })
+
   it('uses fallback error message when API error lacks error.message structure', async () => {
     vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
     vi.mocked(todosApi.createTodo).mockRejectedValue(new Error('plain error'))
@@ -529,6 +543,48 @@ describe('useOptimisticTodos', () => {
 
     expect(result.current.errors).toHaveLength(1)
     expect(result.current.errors[0].message).toBe('Failed to update todo')
+  })
+
+  it('handles rapid add then delete before API resolves', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+
+    let resolveCreate: (value: Todo) => void
+    vi.mocked(todosApi.createTodo).mockImplementation(
+      () => new Promise((resolve) => { resolveCreate = resolve })
+    )
+    vi.mocked(todosApi.deleteTodo).mockResolvedValue(undefined)
+
+    const mockRandomUUID = vi.fn().mockReturnValue('rapid-uuid-1')
+    vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    // Rapidly add then immediately delete before create resolves
+    act(() => {
+      result.current.addTodo('Rapid task')
+    })
+
+    expect(result.current.todos).toHaveLength(1)
+
+    await act(async () => {
+      result.current.deleteTodo('rapid-uuid-1')
+    })
+
+    // Todo should be removed optimistically
+    expect(result.current.todos).toHaveLength(0)
+
+    // Now resolve the create — it should not resurrect the deleted todo
+    await act(async () => {
+      resolveCreate!({ id: 'rapid-uuid-1', text: 'Rapid task', completed: false, createdAt: '2026-03-07T00:00:00.000Z', updatedAt: '2026-03-07T00:00:00.000Z' })
+    })
+
+    expect(result.current.todos).toHaveLength(0)
+
+    vi.unstubAllGlobals()
   })
 
   it('concurrent updates: only the failed update rolls back, other persists', async () => {

@@ -65,6 +65,12 @@ describe('fetchTodos', () => {
       error: { message: 'Server error: 502', code: 'INTERNAL_ERROR' },
     })
   })
+
+  it('throws AbortError when fetch is aborted (timeout scenario)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new DOMException('The operation was aborted', 'AbortError'))
+
+    await expect(fetchTodos()).rejects.toThrow('The operation was aborted')
+  })
 })
 
 describe('createTodo', () => {
@@ -170,5 +176,13 @@ describe('deleteTodo', () => {
     await expect(deleteTodo('test-uuid-1')).rejects.toEqual({
       error: { message: 'Server error: 502', code: 'INTERNAL_ERROR' },
     })
+  })
+
+  it('resolves without body on 200 OK (non-204 success)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(null, { status: 200 })
+    )
+
+    await expect(deleteTodo('test-uuid-1')).resolves.toBeUndefined()
   })
 })
