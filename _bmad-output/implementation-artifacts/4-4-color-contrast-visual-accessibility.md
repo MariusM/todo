@@ -1,6 +1,6 @@
 # Story 4.4: Color Contrast & Visual Accessibility
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -269,14 +269,16 @@ Claude Opus 4.6
 - Verified accent blue #2563EB passes 4.5:1 AA minimum (~4.56:1)
 - Verified error banner uses triple indicator: color + icon + text (not color alone)
 - Added `max-sm:text-text-secondary` to delete button for mobile contrast compliance
-- Wrote 7 WCAG contrast ratio verification tests with full relative luminance calculations
+- Wrote 6 WCAG contrast ratio verification tests with full relative luminance calculations
+- Added 1 axe-core accessibility audit test (AC #5) with zero critical/serious violations
 - Added 10 additional component-level tests verifying correct CSS class application
-- Total: 165 tests passing (148 baseline + 17 new), zero regressions
-- No new runtime dependencies added. No axe-core installed (npm permissions issue; manual tests used instead)
+- Total: 232 tests passing (216 baseline + 16 new), zero regressions
+- axe-core added as dev dependency for comprehensive WCAG audit testing
 
 ### Change Log
 
 - 2026-03-07: Implemented story 4.4 — WCAG AA color contrast fixes and visual accessibility tests
+- 2026-03-07: Code review fixes — Added axe-core audit test (AC #5), fixed test count documentation, reorganized misplaced tests, removed no-op focus ring test
 
 ### File List
 

@@ -114,6 +114,45 @@ describe('TaskItem', () => {
     expect(checkbox).toBeChecked()
   })
 
+  describe('visual contrast & accessibility (AC #1, #4)', () => {
+    it('checked checkbox uses accent fill color for contrast compliance (AC #4)', () => {
+      render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const checkbox = screen.getByRole('checkbox')
+      expect(checkbox).toHaveClass('checked:bg-checkbox-fill')
+      expect(checkbox).toHaveClass('checked:border-checkbox-fill')
+    })
+
+    it('text span is keyboard-accessible with role="button" and tabIndex=0', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const textSpan = screen.getByRole('button', { name: /Edit task/ })
+      expect(textSpan.tagName).toBe('SPAN')
+      expect(textSpan).toHaveAttribute('tabindex', '0')
+    })
+
+    it('tab order: checkbox -> task text -> delete button', async () => {
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      await user.tab()
+      expect(screen.getByRole('checkbox')).toHaveFocus()
+      await user.tab()
+      expect(screen.getByRole('button', { name: /Edit task/ })).toHaveFocus()
+      await user.tab()
+      expect(screen.getByRole('button', { name: /Delete task/ })).toHaveFocus()
+    })
+
+    it('has task-enter animation class when animateEntry is true', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} animateEntry={true} />)
+      const li = screen.getByRole('listitem')
+      expect(li).toHaveClass('task-enter')
+    })
+
+    it('does not have task-enter class by default', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const li = screen.getByRole('listitem')
+      expect(li).not.toHaveClass('task-enter')
+    })
+  })
+
   describe('inline editing', () => {
     it('enters edit mode when text is clicked, showing input with current text', async () => {
       const user = userEvent.setup()
@@ -218,6 +257,15 @@ describe('TaskItem', () => {
       expect(screen.getByRole('textbox')).toBeInTheDocument()
     })
 
+    it('Space key activates edit mode on text span', async () => {
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const textSpan = screen.getByRole('button', { name: /Edit task/ })
+      textSpan.focus()
+      await user.keyboard(' ')
+      expect(screen.getByRole('textbox')).toBeInTheDocument()
+    })
+
     it('does not call onEdit when Escape is pressed after editing text', async () => {
       const onEdit = vi.fn()
       const user = userEvent.setup()
@@ -265,37 +313,10 @@ describe('TaskItem', () => {
       expect(li).toHaveClass('task-exit')
     })
 
-    it('checked checkbox uses accent fill color for contrast compliance (AC #4)', () => {
-      render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-      const checkbox = screen.getByRole('checkbox')
-      expect(checkbox).toHaveClass('checked:bg-checkbox-fill')
-      expect(checkbox).toHaveClass('checked:border-checkbox-fill')
-    })
-
-    it('focus ring uses border-focus color for UI component contrast (AC #4)', () => {
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-      const editInput = screen.getByRole('button', { name: /Edit task/ })
-      // The global :focus-visible style in index.css uses --color-border-focus
-      // which is #2563EB (~4.56:1 on white), passing 3:1 for UI components
-      expect(editInput).toBeInTheDocument()
-    })
-
     it('has opacity-0 class by default (hidden until hover)', () => {
       render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
       expect(deleteBtn).toHaveClass('opacity-0')
-    })
-
-    it('has task-enter animation class when animateEntry is true', () => {
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} animateEntry={true} />)
-      const li = screen.getByRole('listitem')
-      expect(li).toHaveClass('task-enter')
-    })
-
-    it('does not have task-enter class by default', () => {
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-      const li = screen.getByRole('listitem')
-      expect(li).not.toHaveClass('task-enter')
     })
 
     it('delete button has hover/focus error color class for contrast', () => {
@@ -308,35 +329,7 @@ describe('TaskItem', () => {
     it('delete button has mobile-specific contrast-compliant color (AC #1)', () => {
       render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
-      // On mobile (max-sm), delete button is always visible so needs sufficient contrast
       expect(deleteBtn).toHaveClass('max-sm:text-text-secondary')
-    })
-
-    it('text span is keyboard-accessible with role="button" and tabIndex=0', () => {
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-      const textSpan = screen.getByRole('button', { name: /Edit task/ })
-      expect(textSpan.tagName).toBe('SPAN')
-      expect(textSpan).toHaveAttribute('tabindex', '0')
-    })
-
-    it('Space key activates edit mode on text span', async () => {
-      const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-      const textSpan = screen.getByRole('button', { name: /Edit task/ })
-      textSpan.focus()
-      await user.keyboard(' ')
-      expect(screen.getByRole('textbox')).toBeInTheDocument()
-    })
-
-    it('tab order: checkbox -> task text -> delete button', async () => {
-      const user = userEvent.setup()
-      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-      await user.tab()
-      expect(screen.getByRole('checkbox')).toHaveFocus()
-      await user.tab()
-      expect(screen.getByRole('button', { name: /Edit task/ })).toHaveFocus()
-      await user.tab()
-      expect(screen.getByRole('button', { name: /Delete task/ })).toHaveFocus()
     })
   })
 })

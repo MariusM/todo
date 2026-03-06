@@ -761,19 +761,44 @@ describe('App', () => {
       expect(contrastRatio(ERROR_TEXT, ERROR_BG)).toBeGreaterThanOrEqual(4.5)
     })
 
-    it('documents all color contrast ratios for audit trail', () => {
-      const ratios = {
-        'text-primary on white': contrastRatio(TEXT_PRIMARY, WHITE),
-        'text-secondary on white': contrastRatio(TEXT_SECONDARY, WHITE),
-        'text-muted on white': contrastRatio(TEXT_MUTED, WHITE),
-        'completed-text on white': contrastRatio(COMPLETED_TEXT, WHITE),
-        'accent on white': contrastRatio(ACCENT, WHITE),
-        'error-text on error-bg': contrastRatio(ERROR_TEXT, ERROR_BG),
-      }
-      // All must pass WCAG AA 4.5:1
-      for (const [name, ratio] of Object.entries(ratios)) {
-        expect(ratio, `${name} contrast ratio ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5)
-      }
+  })
+
+  describe('axe-core accessibility audit (AC #5)', () => {
+    it('has no critical or serious WCAG AA violations', async () => {
+      const axe = await import('axe-core')
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+        {
+          id: 'axe-1',
+          text: 'Test task',
+          completed: false,
+          createdAt: '2026-03-05T00:00:00.000Z',
+          updatedAt: '2026-03-05T00:00:00.000Z',
+        },
+        {
+          id: 'axe-2',
+          text: 'Completed task',
+          completed: true,
+          createdAt: '2026-03-05T01:00:00.000Z',
+          updatedAt: '2026-03-05T01:00:00.000Z',
+        },
+      ])
+
+      const { container } = render(<App />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Test task')).toBeInTheDocument()
+      })
+
+      const results = await axe.default.run(container, {
+        runOnly: ['wcag2a', 'wcag2aa'],
+      })
+      const critical = results.violations.filter(
+        (v) => v.impact === 'critical' || v.impact === 'serious'
+      )
+      expect(
+        critical,
+        critical.map((v) => `${v.id}: ${v.description} (${v.nodes.length} nodes)`).join('\n')
+      ).toHaveLength(0)
     })
   })
 
