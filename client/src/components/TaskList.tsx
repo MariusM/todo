@@ -17,6 +17,7 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
   const hasLoadedRef = useRef(false)
   const prevTodosRef = useRef<Todo[]>([])
   const [announcement, setAnnouncement] = useState('')
+  const repeatTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
   const newIds = new Set<string>()
   if (hasLoadedRef.current) {
@@ -28,6 +29,23 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
     }
   }
 
+  const announce = useCallback((message: string) => {
+    clearTimeout(repeatTimerRef.current)
+    setAnnouncement((prev) => {
+      if (prev === message) {
+        // Same message repeated — clear first, then re-set after a tick
+        // so screen readers detect the DOM text change
+        repeatTimerRef.current = setTimeout(() => setAnnouncement(message), 50)
+        return ''
+      }
+      return message
+    })
+  }, [])
+
+  useEffect(() => {
+    return () => clearTimeout(repeatTimerRef.current)
+  }, [])
+
   useEffect(() => {
     if (!hasLoadedRef.current) {
       if (!isLoading) hasLoadedRef.current = true
@@ -38,11 +56,12 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
     const prevTodos = prevTodosRef.current
     const prevIds = new Set(prevTodos.map((t) => t.id))
     const currentIds = new Set(todos.map((t) => t.id))
+    const prevById = new Map(prevTodos.map((t) => [t.id, t]))
 
     // Check for added todos
     for (const todo of todos) {
       if (!prevIds.has(todo.id)) {
-        setAnnouncement(`Task added: ${todo.text}`)
+        announce(`Task added: ${todo.text}`)
         prevTodosRef.current = todos
         return
       }
@@ -51,7 +70,7 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
     // Check for deleted todos
     for (const prev of prevTodos) {
       if (!currentIds.has(prev.id)) {
-        setAnnouncement(`Task deleted: ${prev.text}`)
+        announce(`Task deleted: ${prev.text}`)
         prevTodosRef.current = todos
         return
       }
@@ -59,9 +78,9 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
 
     // Check for completion status changes
     for (const todo of todos) {
-      const prev = prevTodos.find((t) => t.id === todo.id)
+      const prev = prevById.get(todo.id)
       if (prev && prev.completed !== todo.completed) {
-        setAnnouncement(
+        announce(
           todo.completed
             ? `Task completed: ${todo.text}`
             : `Task marked incomplete: ${todo.text}`
@@ -72,7 +91,7 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
     }
 
     prevTodosRef.current = todos
-  })
+  }, [todos, isLoading, announce])
 
   const handleDelete = useCallback((id: string) => {
     const index = todos.findIndex((t) => t.id === id)

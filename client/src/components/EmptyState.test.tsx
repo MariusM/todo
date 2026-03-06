@@ -30,8 +30,15 @@ describe('EmptyState', () => {
   })
 
   it('instruction text is readable by screen readers', () => {
-    render(<EmptyState />)
+    const { container } = render(<EmptyState />)
     const instruction = screen.getByText('Type a task above and press Enter to get started.')
     expect(instruction).toBeVisible()
+    // Verify no aria-hidden on instruction or its ancestors within the component
+    let el: HTMLElement | null = instruction
+    const root = container.firstElementChild
+    while (el && el !== root) {
+      expect(el).not.toHaveAttribute('aria-hidden')
+      el = el.parentElement
+    }
   })
 })

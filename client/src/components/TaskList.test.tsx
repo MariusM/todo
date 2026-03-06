@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import TaskList from './TaskList'
 import type { Todo } from '../types/todo'
 
@@ -177,6 +177,49 @@ describe('TaskList', () => {
       )
       const liveRegion = container.querySelector('[aria-live="polite"]')
       expect(liveRegion).toHaveTextContent('')
+    })
+
+    it('re-announces when identical announcement is repeated', () => {
+      vi.useFakeTimers()
+      try {
+        const todo3: Todo = {
+          id: '3',
+          text: 'Buy milk',
+          completed: false,
+          createdAt: '2026-03-05T02:00:00.000Z',
+          updatedAt: '2026-03-05T02:00:00.000Z',
+        }
+        const todo4: Todo = {
+          id: '4',
+          text: 'Buy milk',
+          completed: false,
+          createdAt: '2026-03-05T03:00:00.000Z',
+          updatedAt: '2026-03-05T03:00:00.000Z',
+        }
+        const { container, rerender } = render(
+          <TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+        )
+        const liveRegion = container.querySelector('[aria-live="polite"]')
+
+        // First add: "Task added: Buy milk"
+        rerender(
+          <TaskList todos={[...mockTodos, todo3]} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+        )
+        expect(liveRegion).toHaveTextContent('Task added: Buy milk')
+
+        // Second add with same name: clears first, then re-sets after timeout
+        rerender(
+          <TaskList todos={[...mockTodos, todo3, todo4]} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+        )
+        // Immediately after, the live region is cleared to force DOM change
+        expect(liveRegion).toHaveTextContent('')
+
+        // After timeout, the announcement is re-set
+        act(() => { vi.advanceTimersByTime(50) })
+        expect(liveRegion).toHaveTextContent('Task added: Buy milk')
+      } finally {
+        vi.useRealTimers()
+      }
     })
   })
 

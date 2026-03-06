@@ -1,6 +1,6 @@
 # Story 4.3: Screen Reader Support & ARIA
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -264,4 +264,5 @@ None — implementation completed without issues.
 - `_bmad-output/implementation-artifacts/4-3-screen-reader-support-aria.md` — Modified: Updated tasks, status, dev agent record, file list, change log
 
 ## Change Log
+- 2026-03-07: Code review fixes — Fixed repeated identical announcement bug (screen reader wouldn't re-announce same message), added dependency array to announcement useEffect, replaced O(n²) completion diffing with Map lookup, strengthened EmptyState screen reader test to verify no aria-hidden on ancestors. 1 new test added, 216 total passing.
 - 2026-03-06: Implemented story 4.3 — Screen Reader Support & ARIA. Added live region announcements for task add/delete/complete/uncomplete, form semantics for TaskInput, aria-atomic on ErrorBanner, fixed contradictory SVG attributes on EmptyState, verified aria-checked on checkboxes. 18 new tests added, 215 total passing.
