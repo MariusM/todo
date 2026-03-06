@@ -249,6 +249,22 @@ describe('TaskItem', () => {
       expect(li).not.toHaveClass('task-enter')
     })
 
+    it('text span is keyboard-accessible with role="button" and tabIndex=0', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const textSpan = screen.getByRole('button', { name: /Edit task/ })
+      expect(textSpan.tagName).toBe('SPAN')
+      expect(textSpan).toHaveAttribute('tabindex', '0')
+    })
+
+    it('Space key activates edit mode on text span', async () => {
+      const user = userEvent.setup()
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const textSpan = screen.getByRole('button', { name: /Edit task/ })
+      textSpan.focus()
+      await user.keyboard(' ')
+      expect(screen.getByRole('textbox')).toBeInTheDocument()
+    })
+
     it('tab order: checkbox -> task text -> delete button', async () => {
       const user = userEvent.setup()
       render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)

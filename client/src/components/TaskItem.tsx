@@ -93,7 +93,7 @@ export default function TaskItem({ todo, onToggle, onEdit, onDelete, animateEntr
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           className="flex-1 px-2 py-1 bg-surface border border-border rounded
-                     text-text-primary focus:outline-none focus:border-border-focus
+                     text-text-primary focus:border-border-focus
                      transition-colors duration-150"
           aria-label={`Edit task: ${todo.text}`}
         />

@@ -478,6 +478,130 @@ describe('App', () => {
     })
   })
 
+  describe('keyboard navigation', () => {
+    it('tab moves focus from input to first task checkbox', async () => {
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+        {
+          id: 'todo-1',
+          text: 'Buy milk',
+          completed: false,
+          createdAt: '2026-03-05T00:00:00.000Z',
+          updatedAt: '2026-03-05T00:00:00.000Z',
+        },
+      ])
+
+      const user = userEvent.setup()
+      render(<App />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Buy milk')).toBeInTheDocument()
+      })
+
+      const input = screen.getByLabelText('Add a new task')
+      expect(input).toHaveFocus()
+
+      await user.tab()
+      expect(screen.getByRole('checkbox')).toHaveFocus()
+    })
+
+    it('tab moves through full task: checkbox -> text -> delete', async () => {
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+        {
+          id: 'todo-1',
+          text: 'Buy milk',
+          completed: false,
+          createdAt: '2026-03-05T00:00:00.000Z',
+          updatedAt: '2026-03-05T00:00:00.000Z',
+        },
+      ])
+
+      const user = userEvent.setup()
+      render(<App />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Buy milk')).toBeInTheDocument()
+      })
+
+      // Tab from input to checkbox
+      await user.tab()
+      expect(screen.getByRole('checkbox')).toHaveFocus()
+
+      // Tab to text span
+      await user.tab()
+      expect(screen.getByRole('button', { name: /Edit task/ })).toHaveFocus()
+
+      // Tab to delete button
+      await user.tab()
+      expect(screen.getByRole('button', { name: /Delete task/ })).toHaveFocus()
+    })
+
+    it('tab moves from last element of task 1 to checkbox of task 2', async () => {
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+        {
+          id: 'todo-1',
+          text: 'Buy milk',
+          completed: false,
+          createdAt: '2026-03-05T00:00:00.000Z',
+          updatedAt: '2026-03-05T00:00:00.000Z',
+        },
+        {
+          id: 'todo-2',
+          text: 'Walk the dog',
+          completed: false,
+          createdAt: '2026-03-05T01:00:00.000Z',
+          updatedAt: '2026-03-05T01:00:00.000Z',
+        },
+      ])
+
+      const user = userEvent.setup()
+      render(<App />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Walk the dog')).toBeInTheDocument()
+      })
+
+      // Tab from input through first task
+      await user.tab() // checkbox 1
+      await user.tab() // text 1
+      await user.tab() // delete 1
+      await user.tab() // checkbox 2
+
+      const checkboxes = screen.getAllByRole('checkbox')
+      expect(checkboxes[1]).toHaveFocus()
+    })
+
+    it('focus moves to input after deleting only task', async () => {
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([
+        {
+          id: 'todo-1',
+          text: 'Buy milk',
+          completed: false,
+          createdAt: '2026-03-05T00:00:00.000Z',
+          updatedAt: '2026-03-05T00:00:00.000Z',
+        },
+      ])
+      vi.mocked(todosApi.deleteTodo).mockResolvedValue(undefined)
+
+      const user = userEvent.setup()
+      render(<App />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Buy milk')).toBeInTheDocument()
+      })
+
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+      await user.click(deleteBtn)
+      const li = deleteBtn.closest('li')!
+      li.dispatchEvent(new Event('animationend'))
+
+      await waitFor(() => {
+        expect(screen.queryByText('Buy milk')).not.toBeInTheDocument()
+      })
+
+      expect(screen.getByLabelText('Add a new task')).toHaveFocus()
+    })
+  })
+
   it('deletes a task and calls API', async () => {
     vi.mocked(todosApi.fetchTodos).mockResolvedValue([
       {

@@ -116,6 +116,32 @@ describe('TaskList', () => {
       expect(checkbox).toHaveFocus()
     })
 
+    it('focuses input when only task is deleted', async () => {
+      const singleTodo: Todo[] = [mockTodos[0]]
+      const user = userEvent.setup()
+      const onDelete = vi.fn()
+      const { rerender } = render(
+        <TaskList todos={singleTodo} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={onDelete} />
+      )
+
+      // Add TaskInput to DOM for focus target
+      const input = document.createElement('input')
+      input.setAttribute('aria-label', 'Add a new task')
+      document.body.appendChild(input)
+
+      const deleteBtns = screen.getAllByRole('button', { name: /Delete task/ })
+      await user.click(deleteBtns[0])
+      const li = deleteBtns[0].closest('li')!
+      li.dispatchEvent(new Event('animationend'))
+
+      rerender(
+        <TaskList todos={[]} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={onDelete} />
+      )
+
+      expect(input).toHaveFocus()
+      document.body.removeChild(input)
+    })
+
     it('focuses previous task checkbox after deleting last task', async () => {
       const user = userEvent.setup()
       const onDelete = vi.fn()

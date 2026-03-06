@@ -31,7 +31,7 @@ export default function TaskInput({ onAddTodo }: TaskInputProps) {
       onKeyDown={handleKeyDown}
       placeholder="What needs to be done?"
       aria-label="Add a new task"
-      className="w-full rounded border border-border bg-surface px-3 py-2.5 text-base text-text-primary outline-none focus:ring-2 focus:ring-border-focus focus:ring-offset-2"
+      className="w-full rounded border border-border bg-surface px-3 py-2.5 text-base text-text-primary"
     />
   )
 }

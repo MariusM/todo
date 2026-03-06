@@ -1,6 +1,6 @@
 # Story 4.2: Keyboard Navigation & Focus Management
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -19,33 +19,33 @@ so that I can be productive without a mouse (FR23, NFR10).
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Audit existing keyboard/focus behavior against all ACs (AC: all)
-  - [ ] 1.1 Verify TaskInput auto-focus on mount (AC1) - already implemented, confirm working
-  - [ ] 1.2 Verify tab order across full page: input -> checkbox -> text -> delete -> next task (AC2)
-  - [ ] 1.3 Verify focus stays on TaskInput after task creation (AC3)
-  - [ ] 1.4 Verify focus moves to next task after deletion (AC4) - TaskList already has logic
-  - [ ] 1.5 Verify Enter on task text activates edit (AC6) - already implemented
-  - [ ] 1.6 Document gaps found during audit
-- [ ] Task 2: Fix focus ring consistency across ALL interactive elements (AC: 5)
-  - [ ] 2.1 Audit current focus styles on: TaskInput, checkbox, task text span, delete button, ErrorBanner dismiss button
-  - [ ] 2.2 Ensure ALL interactive elements use consistent `focus-visible` ring: 2px solid border-focus, 2px offset
-  - [ ] 2.3 Use `:focus-visible` (not `:focus`) to avoid showing ring on mouse clicks
-  - [ ] 2.4 Verify ring uses `outline` (not `box-shadow` or `ring`) for proper offset support
-- [ ] Task 3: Fix focus management gaps found in audit (AC: 1-4, 6)
-  - [ ] 3.1 Fix any tab order issues (ensure DOM order matches visual order)
-  - [ ] 3.2 Fix focus-after-delete edge cases (last item deleted, only item deleted)
-  - [ ] 3.3 Fix focus-after-create if not retained on input
-  - [ ] 3.4 Ensure no keyboard traps exist
-  - [ ] 3.5 Ensure Shift+Tab works in reverse order
-- [ ] Task 4: Write comprehensive keyboard navigation tests (AC: all)
-  - [ ] 4.1 Add/update tests in TaskInput.test.tsx for auto-focus and focus-after-create
-  - [ ] 4.2 Add/update tests in TaskItem.test.tsx for Enter-to-edit, focus ring classes
-  - [ ] 4.3 Add/update tests in TaskList.test.tsx for cross-item tab order and focus-after-delete
-  - [ ] 4.4 Add keyboard navigation integration tests in App.test.tsx
-- [ ] Task 5: Run full test suite, verify zero regressions (AC: all)
-  - [ ] 5.1 Run `npm test` - all existing tests must pass
-  - [ ] 5.2 Verify new tests pass
-  - [ ] 5.3 Check no visual regressions in responsive layout (story 4.1)
+- [x] Task 1: Audit existing keyboard/focus behavior against all ACs (AC: all)
+  - [x] 1.1 Verify TaskInput auto-focus on mount (AC1) - WORKING: useEffect + inputRef.focus()
+  - [x] 1.2 Verify tab order across full page: input -> checkbox -> text -> delete -> next task (AC2) - WORKING: DOM order correct
+  - [x] 1.3 Verify focus stays on TaskInput after task creation (AC3) - WORKING: existing test confirms
+  - [x] 1.4 Verify focus moves to next task after deletion (AC4) - WORKING: TaskList has focus logic + tests
+  - [x] 1.5 Verify Enter on task text activates edit (AC6) - WORKING: onKeyDown handler + test
+  - [x] 1.6 Document gaps found during audit - GAPS: (1) Focus ring missing on checkbox, text span, delete button, ErrorBanner dismiss; (2) TaskInput uses :focus not :focus-visible; (3) Uses ring (box-shadow) not outline
+- [x] Task 2: Fix focus ring consistency across ALL interactive elements (AC: 5)
+  - [x] 2.1 Audit current focus styles on: TaskInput, checkbox, task text span, delete button, ErrorBanner dismiss button
+  - [x] 2.2 Ensure ALL interactive elements use consistent `focus-visible` ring: 2px solid border-focus, 2px offset
+  - [x] 2.3 Use `:focus-visible` (not `:focus`) to avoid showing ring on mouse clicks
+  - [x] 2.4 Verify ring uses `outline` (not `box-shadow` or `ring`) for proper offset support
+- [x] Task 3: Fix focus management gaps found in audit (AC: 1-4, 6)
+  - [x] 3.1 Fix any tab order issues (ensure DOM order matches visual order) - NO FIX NEEDED: DOM order correct
+  - [x] 3.2 Fix focus-after-delete edge cases (last item deleted, only item deleted) - NO FIX NEEDED: already handled
+  - [x] 3.3 Fix focus-after-create if not retained on input - NO FIX NEEDED: already working
+  - [x] 3.4 Ensure no keyboard traps exist - VERIFIED: no traps found
+  - [x] 3.5 Ensure Shift+Tab works in reverse order - VERIFIED: natural browser behavior
+- [x] Task 4: Write comprehensive keyboard navigation tests (AC: all)
+  - [x] 4.1 Add/update tests in TaskInput.test.tsx for auto-focus and focus-after-create - EXISTING tests already cover AC1, AC3
+  - [x] 4.2 Add/update tests in TaskItem.test.tsx for Enter-to-edit, focus ring classes - Added: text span role/tabIndex test, Space-to-edit test
+  - [x] 4.3 Add/update tests in TaskList.test.tsx for cross-item tab order and focus-after-delete - Added: focus-to-input when only task deleted
+  - [x] 4.4 Add keyboard navigation integration tests in App.test.tsx - Added: 4 integration tests (tab input->checkbox, tab through task, cross-task tab, focus after delete)
+- [x] Task 5: Run full test suite, verify zero regressions (AC: all)
+  - [x] 5.1 Run `npm test` - all existing tests must pass - 197/197 passed
+  - [x] 5.2 Verify new tests pass - 7 new tests all pass
+  - [x] 5.3 Check no visual regressions in responsive layout (story 4.1) - No changes to responsive classes or layout
 
 ## Dev Notes
 
@@ -195,9 +195,30 @@ expect(element).toHaveClass('focus-visible:outline-2')
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6
 
 ### Debug Log References
+No blocking issues encountered.
 
 ### Completion Notes List
+- Audited all 6 ACs: AC1-4, AC6 already working; AC5 (focus ring) needed fixing
+- Implemented global `:focus-visible` CSS rule in index.css for consistent focus ring (2px solid border-focus, 2px offset) on ALL interactive elements
+- Removed per-component `focus:ring-*` and `outline-none` classes from TaskInput and TaskItem edit input to use global rule
+- Used `:focus-visible` (not `:focus`) so focus ring only shows on keyboard navigation, not mouse clicks
+- Uses native `outline` property (not `box-shadow`/`ring`) for proper offset support per AC5
+- Added 7 new tests: text span accessibility (role/tabIndex), Space-to-edit, focus-after-delete-only-item, 4 keyboard integration tests in App.test.tsx
+- All 197 tests pass (190 original + 7 new), zero regressions
+
+### Change Log
+- 2026-03-06: Implemented keyboard navigation & focus management (Story 4.2)
+  - Added global :focus-visible CSS rule for consistent focus ring on all interactive elements
+  - Removed per-component focus ring classes (TaskInput, TaskItem edit input)
+  - Added 7 keyboard navigation tests across TaskItem, TaskList, and App test files
 
 ### File List
+- client/src/index.css (modified) - Added global :focus-visible rule
+- client/src/components/TaskInput.tsx (modified) - Removed focus:ring-* and outline-none classes
+- client/src/components/TaskItem.tsx (modified) - Removed focus:outline-none from edit input
+- client/src/components/TaskItem.test.tsx (modified) - Added text span accessibility and Space-to-edit tests
+- client/src/components/TaskList.test.tsx (modified) - Added focus-to-input-on-only-item-delete test
+- client/src/App.test.tsx (modified) - Added 4 keyboard navigation integration tests
