@@ -152,4 +152,43 @@ describe('validateUpdateTodo', () => {
     const result = callMiddleware(validateUpdateTodo, { text: 123 })
     expectValidationError(result, 'Todo text cannot be empty')
   })
+
+  it('rejects array body', () => {
+    const result = callMiddleware(validateUpdateTodo, [{ text: 'test' }])
+    expectValidationError(result, 'Request body is required')
+  })
+
+  it('rejects null body', () => {
+    const result = callMiddleware(validateUpdateTodo, null)
+    expectValidationError(result, 'Request body is required')
+  })
+
+  it('accepts text with tab and newline characters', () => {
+    const result = callMiddleware(validateUpdateTodo, { text: 'line1\tindented\nline2' })
+    expect(result.nextCalled).toBe(true)
+    expect(result.error).toBeUndefined()
+  })
+
+  it('rejects text that is only tabs and newlines', () => {
+    const result = callMiddleware(validateUpdateTodo, { text: '\t\n\r' })
+    expectValidationError(result, 'Todo text cannot be empty')
+  })
+})
+
+describe('validateTodoId edge cases', () => {
+  it('rejects partial UUID (missing last section)', () => {
+    const result = callMiddleware(validateTodoId, {}, { id: '550e8400-e29b-41d4-a716' })
+    expectValidationError(result)
+  })
+
+  it('rejects UUID with extra characters', () => {
+    const result = callMiddleware(validateTodoId, {}, { id: '550e8400-e29b-41d4-a716-446655440000-extra' })
+    expectValidationError(result)
+  })
+
+  it('accepts uppercase UUID', () => {
+    const result = callMiddleware(validateTodoId, {}, { id: '550E8400-E29B-41D4-A716-446655440000' })
+    expect(result.nextCalled).toBe(true)
+    expect(result.error).toBeUndefined()
+  })
 })

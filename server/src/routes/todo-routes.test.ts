@@ -290,6 +290,34 @@ describe('PATCH /api/todos/:id', () => {
     expect(todo.text).not.toContain('<script>')
     expect(todo.text).toContain('&lt;script&gt;')
   })
+
+  it('sanitizes nested HTML tags in updated text', async () => {
+    const res = await fetch(url(`/api/todos/${validId}`), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: '<div><img src="x" onerror="alert(1)"></div>' }),
+    })
+
+    expect(res.status).toBe(200)
+    const todo = await res.json()
+    expect(todo.text).not.toContain('<div>')
+    expect(todo.text).not.toContain('<img')
+    expect(todo.text).toContain('&lt;div&gt;')
+  })
+
+  it('sanitizes ampersands and quotes in text', async () => {
+    const res = await fetch(url(`/api/todos/${validId}`), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: 'Tom & Jerry "quoted" \'apostrophe\'' }),
+    })
+
+    expect(res.status).toBe(200)
+    const todo = await res.json()
+    expect(todo.text).toContain('&amp;')
+    expect(todo.text).toContain('&quot;')
+    expect(todo.text).toContain('&#39;')
+  })
 })
 
 describe('DELETE /api/todos/:id', () => {

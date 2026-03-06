@@ -436,6 +436,101 @@ describe('useOptimisticTodos', () => {
     vi.unstubAllGlobals()
   })
 
+  it('uses fallback error message when API error lacks error.message structure', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+    vi.mocked(todosApi.createTodo).mockRejectedValue(new Error('plain error'))
+
+    const mockRandomUUID = vi.fn().mockReturnValue('fallback-uuid-1')
+    vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    await act(async () => {
+      result.current.addTodo('Will fail with plain error')
+    })
+
+    expect(result.current.errors).toHaveLength(1)
+    expect(result.current.errors[0].message).toBe('Failed to create todo')
+    expect(result.current.errors[0].code).toBe('CREATE_ERROR')
+
+    vi.unstubAllGlobals()
+  })
+
+  it('ignores update for non-existent todo id', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    act(() => {
+      result.current.updateTodo('non-existent-id', { text: 'Should not update' })
+    })
+
+    expect(result.current.todos).toHaveLength(1)
+    expect(result.current.todos[0].text).toBe('Buy milk')
+    expect(todosApi.updateTodo).not.toHaveBeenCalled()
+  })
+
+  it('ignores delete for non-existent todo id', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    act(() => {
+      result.current.deleteTodo('non-existent-id')
+    })
+
+    expect(result.current.todos).toHaveLength(1)
+    expect(todosApi.deleteTodo).not.toHaveBeenCalled()
+  })
+
+  it('uses fallback message for delete error without error.message structure', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+    vi.mocked(todosApi.deleteTodo).mockRejectedValue('string error')
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    await act(async () => {
+      result.current.deleteTodo('server-uuid-1')
+    })
+
+    expect(result.current.errors).toHaveLength(1)
+    expect(result.current.errors[0].message).toBe('Failed to delete todo')
+  })
+
+  it('uses fallback message for update error without error.message structure', async () => {
+    vi.mocked(todosApi.fetchTodos).mockResolvedValue([mockTodo])
+    vi.mocked(todosApi.updateTodo).mockRejectedValue(null)
+
+    const { result } = renderHook(() => useOptimisticTodos())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    await act(async () => {
+      result.current.updateTodo('server-uuid-1', { text: 'Will fail' })
+    })
+
+    expect(result.current.errors).toHaveLength(1)
+    expect(result.current.errors[0].message).toBe('Failed to update todo')
+  })
+
   it('concurrent updates: only the failed update rolls back, other persists', async () => {
     const todo1: Todo = { id: 'id-a', text: 'Alpha', completed: false, createdAt: '2026-03-05T00:00:00.000Z', updatedAt: '2026-03-05T00:00:00.000Z' }
     const todo2: Todo = { id: 'id-b', text: 'Beta', completed: false, createdAt: '2026-03-05T00:01:00.000Z', updatedAt: '2026-03-05T00:01:00.000Z' }

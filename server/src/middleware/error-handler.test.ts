@@ -67,4 +67,43 @@ describe('Error handler middleware', () => {
     expect(JSON.stringify(data)).not.toContain('stack')
     expect(JSON.stringify(data)).not.toContain('Something broke')
   })
+
+  it('handles thrown string errors as 500 INTERNAL_ERROR', async () => {
+    const app = express()
+    app.get('/throw-string', () => {
+      throw 'a plain string error' // eslint-disable-line no-throw-literal
+    })
+    app.use(errorHandler)
+
+    const { status, data } = await request(app, '/throw-string')
+    expect(status).toBe(500)
+    expect(data).toEqual({
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    })
+    expect(JSON.stringify(data)).not.toContain('plain string error')
+  })
+
+  it('handles errors without message property as 500 INTERNAL_ERROR', async () => {
+    const app = express()
+    app.get('/throw-object', () => {
+      throw { custom: 'error object' } // eslint-disable-line no-throw-literal
+    })
+    app.use(errorHandler)
+
+    const { status, data } = await request(app, '/throw-object')
+    expect(status).toBe(500)
+    expect(data).toEqual({
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
+    })
+  })
+
+  it('never exposes internal server paths in error response', async () => {
+    const app = createTestApp()
+    const { data } = await request(app, '/throw-generic')
+
+    const responseStr = JSON.stringify(data)
+    expect(responseStr).not.toMatch(/\/Users\//)
+    expect(responseStr).not.toMatch(/node_modules/)
+    expect(responseStr).not.toMatch(/\.ts/)
+  })
 })

@@ -134,4 +134,43 @@ describe('Database queries', () => {
       expect(result).toBe(false)
     })
   })
+
+  describe('edge cases', () => {
+    it('handles emoji text correctly', () => {
+      const todo = queries.createTodo('id-emoji', '🎉 Party time! 🥳')
+      expect(todo.text).toBe('🎉 Party time! 🥳')
+
+      const fetched = queries.getTodoById('id-emoji')
+      expect(fetched!.text).toBe('🎉 Party time! 🥳')
+    })
+
+    it('handles unicode characters correctly', () => {
+      const todo = queries.createTodo('id-unicode', '日本語テスト résumé café')
+      expect(todo.text).toBe('日本語テスト résumé café')
+    })
+
+    it('handles very long text', () => {
+      const longText = 'A'.repeat(10000)
+      const todo = queries.createTodo('id-long', longText)
+      expect(todo.text).toBe(longText)
+      expect(todo.text.length).toBe(10000)
+    })
+
+    it('correctly converts completed boolean from DB integer', () => {
+      queries.createTodo('id-bool', 'Boolean test')
+      const uncompleted = queries.getTodoById('id-bool')
+      expect(uncompleted!.completed).toBe(false)
+      expect(typeof uncompleted!.completed).toBe('boolean')
+
+      queries.updateTodo('id-bool', { completed: true })
+      const completed = queries.getTodoById('id-bool')
+      expect(completed!.completed).toBe(true)
+      expect(typeof completed!.completed).toBe('boolean')
+
+      queries.updateTodo('id-bool', { completed: false })
+      const uncompleted2 = queries.getTodoById('id-bool')
+      expect(uncompleted2!.completed).toBe(false)
+      expect(typeof uncompleted2!.completed).toBe('boolean')
+    })
+  })
 })
