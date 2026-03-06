@@ -12,8 +12,8 @@ export default function TaskInput({ onAddTodo }: TaskInputProps) {
     inputRef.current?.focus()
   }, [])
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key !== 'Enter') return
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
 
     const trimmed = text.trim()
     if (!trimmed) return
@@ -23,15 +23,16 @@ export default function TaskInput({ onAddTodo }: TaskInputProps) {
   }
 
   return (
-    <input
-      ref={inputRef}
-      type="text"
-      value={text}
-      onChange={(e) => setText(e.target.value)}
-      onKeyDown={handleKeyDown}
-      placeholder="What needs to be done?"
-      aria-label="Add a new task"
-      className="w-full rounded border border-border bg-surface px-3 py-2.5 text-base text-text-primary"
-    />
+    <form onSubmit={handleSubmit} aria-label="Add task">
+      <input
+        ref={inputRef}
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="What needs to be done?"
+        aria-label="Add a new task"
+        className="w-full rounded border border-border bg-surface px-3 py-2.5 text-base text-text-primary"
+      />
+    </form>
   )
 }

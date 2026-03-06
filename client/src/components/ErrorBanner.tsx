@@ -52,6 +52,7 @@ export default function ErrorBanner({ errors, onDismiss }: ErrorBannerProps) {
             else bannerRefs.current.delete(error.id)
           }}
           role="alert"
+          aria-atomic="true"
           className={`${exitingIds.has(error.id) ? 'banner-exit' : 'banner-enter'} flex items-center gap-3 rounded-lg border border-error-border bg-error-bg px-4 py-3 text-sm text-error-text`}
         >
           <span className="shrink-0" aria-hidden="true">

@@ -602,6 +602,106 @@ describe('App', () => {
     })
   })
 
+  describe('screen reader announcements', () => {
+    it('full journey: add → announce → complete → announce → delete → announce', async () => {
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+      vi.mocked(todosApi.createTodo).mockResolvedValue({
+        id: 'sr-uuid-1',
+        text: 'Test task',
+        completed: false,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      })
+      vi.mocked(todosApi.updateTodo).mockResolvedValue({
+        id: 'sr-uuid-1',
+        text: 'Test task',
+        completed: true,
+        createdAt: '2026-03-05T00:00:00.000Z',
+        updatedAt: '2026-03-05T00:00:00.000Z',
+      })
+      vi.mocked(todosApi.deleteTodo).mockResolvedValue(undefined)
+
+      const mockRandomUUID = vi.fn().mockReturnValue('sr-uuid-1')
+      vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+      const user = userEvent.setup()
+      const { container } = render(<App />)
+
+      await waitFor(() => {
+        expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+      })
+
+      const liveRegion = container.querySelector('[aria-live="polite"]')
+      expect(liveRegion).toBeInTheDocument()
+
+      // Add a task → announcement
+      const input = screen.getByLabelText('Add a new task')
+      await user.type(input, 'Test task{Enter}')
+      expect(liveRegion).toHaveTextContent('Task added: Test task')
+
+      // Complete the task → announcement
+      const checkbox = screen.getByRole('checkbox')
+      await user.click(checkbox)
+      expect(liveRegion).toHaveTextContent('Task completed: Test task')
+
+      // Delete the task → announcement
+      const deleteBtn = screen.getByRole('button', { name: /Delete task/ })
+      await user.click(deleteBtn)
+      const li = deleteBtn.closest('li')!
+      li.dispatchEvent(new Event('animationend'))
+
+      await waitFor(() => {
+        expect(liveRegion).toHaveTextContent('Task deleted: Test task')
+      })
+
+      vi.unstubAllGlobals()
+    })
+
+    it('task input is wrapped in a form with aria-label', async () => {
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+      render(<App />)
+      await waitFor(() => {
+        expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+      })
+      const form = screen.getByRole('form', { name: 'Add task' })
+      expect(form).toBeInTheDocument()
+      expect(form).toContainElement(screen.getByLabelText('Add a new task'))
+    })
+
+    it('error banner has role="alert" and aria-atomic', async () => {
+      vi.mocked(todosApi.fetchTodos).mockResolvedValue([])
+
+      let rejectCreate: (reason: unknown) => void
+      vi.mocked(todosApi.createTodo).mockImplementation(
+        () => new Promise((_resolve, reject) => { rejectCreate = reject })
+      )
+
+      const mockRandomUUID = vi.fn().mockReturnValue('sr-err-uuid')
+      vi.stubGlobal('crypto', { randomUUID: mockRandomUUID })
+
+      const user = userEvent.setup()
+      render(<App />)
+
+      await waitFor(() => {
+        expect(screen.getByText('No tasks yet')).toBeInTheDocument()
+      })
+
+      const input = screen.getByLabelText('Add a new task')
+      await user.type(input, 'Fail{Enter}')
+
+      await act(async () => {
+        rejectCreate({ error: { message: 'err', code: 'INTERNAL_ERROR' } })
+      })
+
+      await waitFor(() => {
+        const alert = screen.getByRole('alert')
+        expect(alert).toHaveAttribute('aria-atomic', 'true')
+      })
+
+      vi.unstubAllGlobals()
+    })
+  })
+
   it('deletes a task and calls API', async () => {
     vi.mocked(todosApi.fetchTodos).mockResolvedValue([
       {

@@ -43,10 +43,24 @@ describe('TaskList', () => {
     expect(screen.getByRole('list', { name: 'Task list' })).toBeInTheDocument()
   })
 
-  it('has aria-live for screen reader announcements', () => {
+  it('has a visually-hidden live region with aria-live="polite"', () => {
     const { container } = render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
-    const liveRegion = container.firstElementChild
-    expect(liveRegion).toHaveAttribute('aria-live', 'polite')
+    const liveRegion = container.querySelector('[aria-live="polite"]')
+    expect(liveRegion).toBeInTheDocument()
+    expect(liveRegion).toHaveClass('sr-only')
+    expect(liveRegion).toHaveAttribute('aria-atomic', 'true')
+  })
+
+  it('live region has aria-busy="true" during loading', () => {
+    const { container } = render(<TaskList todos={[]} isLoading={true} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const liveRegion = container.querySelector('[aria-live="polite"]')
+    expect(liveRegion).toHaveAttribute('aria-busy', 'true')
+  })
+
+  it('live region has aria-busy="false" when not loading', () => {
+    const { container } = render(<TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const liveRegion = container.querySelector('[aria-live="polite"]')
+    expect(liveRegion).toHaveAttribute('aria-busy', 'false')
   })
 
   it('does not render EmptyState when loading', () => {
@@ -95,6 +109,75 @@ describe('TaskList', () => {
     li.dispatchEvent(new Event('animationend'))
     expect(onDelete).toHaveBeenCalledWith('1')
     expect(onDelete).toHaveBeenCalledTimes(1)
+  })
+
+  describe('live region announcements', () => {
+    it('announces when a task is added', () => {
+      const { container, rerender } = render(
+        <TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      const newTodo: Todo = {
+        id: '3',
+        text: 'Read a book',
+        completed: false,
+        createdAt: '2026-03-05T02:00:00.000Z',
+        updatedAt: '2026-03-05T02:00:00.000Z',
+      }
+      rerender(
+        <TaskList todos={[...mockTodos, newTodo]} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      const liveRegion = container.querySelector('[aria-live="polite"]')
+      expect(liveRegion).toHaveTextContent('Task added: Read a book')
+    })
+
+    it('announces when a task is deleted', () => {
+      const { container, rerender } = render(
+        <TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      rerender(
+        <TaskList todos={[mockTodos[1]]} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      const liveRegion = container.querySelector('[aria-live="polite"]')
+      expect(liveRegion).toHaveTextContent('Task deleted: Buy milk')
+    })
+
+    it('announces when a task is completed', () => {
+      const { container, rerender } = render(
+        <TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      const updatedTodos = [
+        { ...mockTodos[0], completed: true },
+        mockTodos[1],
+      ]
+      rerender(
+        <TaskList todos={updatedTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      const liveRegion = container.querySelector('[aria-live="polite"]')
+      expect(liveRegion).toHaveTextContent('Task completed: Buy milk')
+    })
+
+    it('announces when a task is marked incomplete', () => {
+      const { container, rerender } = render(
+        <TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      const updatedTodos = [
+        mockTodos[0],
+        { ...mockTodos[1], completed: false },
+      ]
+      rerender(
+        <TaskList todos={updatedTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      const liveRegion = container.querySelector('[aria-live="polite"]')
+      expect(liveRegion).toHaveTextContent('Task marked incomplete: Walk the dog')
+    })
+
+    it('does not announce on initial load', () => {
+      const { container } = render(
+        <TaskList todos={mockTodos} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />
+      )
+      const liveRegion = container.querySelector('[aria-live="polite"]')
+      expect(liveRegion).toHaveTextContent('')
+    })
   })
 
   describe('focus management after deletion', () => {

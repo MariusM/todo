@@ -15,9 +15,23 @@ describe('EmptyState', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders a muted checkbox icon', () => {
+  it('renders decorative SVG with aria-hidden and no contradictory role', () => {
+    const { container } = render(<EmptyState />)
+    const svg = container.querySelector('svg')
+    expect(svg).toBeInTheDocument()
+    expect(svg).toHaveAttribute('aria-hidden', 'true')
+    expect(svg).not.toHaveAttribute('role')
+  })
+
+  it('heading is h2 level for correct page hierarchy', () => {
     render(<EmptyState />)
-    const icon = screen.getByRole('img', { hidden: true })
-    expect(icon).toBeInTheDocument()
+    const heading = screen.getByRole('heading', { level: 2 })
+    expect(heading).toHaveTextContent('No tasks yet')
+  })
+
+  it('instruction text is readable by screen readers', () => {
+    render(<EmptyState />)
+    const instruction = screen.getByText('Type a task above and press Enter to get started.')
+    expect(instruction).toBeVisible()
   })
 })

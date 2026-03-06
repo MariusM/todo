@@ -88,6 +88,25 @@ describe('ErrorBanner', () => {
     })
   })
 
+  it('each banner has aria-atomic="true"', () => {
+    const errors: ErrorInfo[] = [
+      { id: 'e1', message: 'Error 1', code: 'CREATE_ERROR' },
+      { id: 'e2', message: 'Error 2', code: 'DELETE_ERROR' },
+    ]
+    render(<ErrorBanner errors={errors} onDismiss={vi.fn()} />)
+    const alerts = screen.getAllByRole('alert')
+    alerts.forEach((alert) => {
+      expect(alert).toHaveAttribute('aria-atomic', 'true')
+    })
+  })
+
+  it('decorative SVG icon has aria-hidden="true"', () => {
+    const errors: ErrorInfo[] = [{ id: 'e1', message: 'Error', code: 'CREATE_ERROR' }]
+    const { container } = render(<ErrorBanner errors={errors} onDismiss={vi.fn()} />)
+    const iconSpan = container.querySelector('[aria-hidden="true"]')
+    expect(iconSpan).toBeInTheDocument()
+  })
+
   it('dismiss button has aria-label="Dismiss error"', () => {
     const errors: ErrorInfo[] = [{ id: 'e1', message: 'Error', code: 'CREATE_ERROR' }]
     render(<ErrorBanner errors={errors} onDismiss={vi.fn()} />)

@@ -73,4 +73,17 @@ describe('TaskInput', () => {
 
     expect(onAddTodo).not.toHaveBeenCalled()
   })
+
+  it('is wrapped in a form with aria-label', () => {
+    render(<TaskInput onAddTodo={vi.fn()} />)
+    const form = screen.getByRole('form', { name: 'Add task' })
+    expect(form).toBeInTheDocument()
+  })
+
+  it('input is contained within the form element', () => {
+    render(<TaskInput onAddTodo={vi.fn()} />)
+    const form = screen.getByRole('form', { name: 'Add task' })
+    const input = screen.getByLabelText('Add a new task')
+    expect(form).toContainElement(input)
+  })
 })

@@ -80,6 +80,20 @@ describe('TaskItem', () => {
     expect(checkbox).toHaveAccessibleName(`Mark "Walk the dog" as incomplete`)
   })
 
+  it('checkbox checked state reflects active todo (unchecked for screen readers)', () => {
+    render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const checkbox = screen.getByRole('checkbox') as HTMLInputElement
+    expect(checkbox.checked).toBe(false)
+    expect(checkbox).not.toBeChecked()
+  })
+
+  it('checkbox checked state reflects completed todo (checked for screen readers)', () => {
+    render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const checkbox = screen.getByRole('checkbox') as HTMLInputElement
+    expect(checkbox.checked).toBe(true)
+    expect(checkbox).toBeChecked()
+  })
+
   describe('inline editing', () => {
     it('enters edit mode when text is clicked, showing input with current text', async () => {
       const user = userEvent.setup()

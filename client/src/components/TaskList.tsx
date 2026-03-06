@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import type { Todo } from '../types/todo'
 import EmptyState from './EmptyState'
 import TaskItem from './TaskItem'
@@ -15,20 +15,63 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
   const listRef = useRef<HTMLUListElement>(null)
   const deletedIndexRef = useRef<number | null>(null)
   const hasLoadedRef = useRef(false)
-  const prevTodoIdsRef = useRef<Set<string>>(new Set())
+  const prevTodosRef = useRef<Todo[]>([])
+  const [announcement, setAnnouncement] = useState('')
 
   const newIds = new Set<string>()
   if (hasLoadedRef.current) {
+    const prevIds = new Set(prevTodosRef.current.map((t) => t.id))
     for (const todo of todos) {
-      if (!prevTodoIdsRef.current.has(todo.id)) {
+      if (!prevIds.has(todo.id)) {
         newIds.add(todo.id)
       }
     }
   }
 
   useEffect(() => {
-    if (!isLoading) hasLoadedRef.current = true
-    prevTodoIdsRef.current = new Set(todos.map((t) => t.id))
+    if (!hasLoadedRef.current) {
+      if (!isLoading) hasLoadedRef.current = true
+      prevTodosRef.current = todos
+      return
+    }
+
+    const prevTodos = prevTodosRef.current
+    const prevIds = new Set(prevTodos.map((t) => t.id))
+    const currentIds = new Set(todos.map((t) => t.id))
+
+    // Check for added todos
+    for (const todo of todos) {
+      if (!prevIds.has(todo.id)) {
+        setAnnouncement(`Task added: ${todo.text}`)
+        prevTodosRef.current = todos
+        return
+      }
+    }
+
+    // Check for deleted todos
+    for (const prev of prevTodos) {
+      if (!currentIds.has(prev.id)) {
+        setAnnouncement(`Task deleted: ${prev.text}`)
+        prevTodosRef.current = todos
+        return
+      }
+    }
+
+    // Check for completion status changes
+    for (const todo of todos) {
+      const prev = prevTodos.find((t) => t.id === todo.id)
+      if (prev && prev.completed !== todo.completed) {
+        setAnnouncement(
+          todo.completed
+            ? `Task completed: ${todo.text}`
+            : `Task marked incomplete: ${todo.text}`
+        )
+        prevTodosRef.current = todos
+        return
+      }
+    }
+
+    prevTodosRef.current = todos
   })
 
   const handleDelete = useCallback((id: string) => {
@@ -58,7 +101,10 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
   }, [todos])
 
   return (
-    <div aria-live="polite">
+    <div>
+      <div aria-live="polite" aria-atomic="true" className="sr-only" aria-busy={isLoading}>
+        {announcement}
+      </div>
       {isLoading ? (
         <p className="py-8 text-center text-sm text-text-muted">
           Loading tasks…

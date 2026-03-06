@@ -2,7 +2,6 @@ export default function EmptyState() {
   return (
     <div className="flex flex-col items-center py-12">
       <svg
-        role="img"
         aria-hidden="true"
         width="48"
         height="48"

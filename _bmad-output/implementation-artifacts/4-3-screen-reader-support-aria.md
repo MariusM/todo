@@ -1,6 +1,6 @@
 # Story 4.3: Screen Reader Support & ARIA
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -21,45 +21,45 @@ so that the app is fully usable without visual information (FR24, NFR11).
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Enhance TaskList with proper ARIA live region announcements (AC: #1, #3, #4)
-  - [ ] 1.1 Verify `role="list"` and `aria-label="Task list"` are present on `<ul>` (already exists — confirm)
-  - [ ] 1.2 Add a visually-hidden status announcement `<div>` with `aria-live="polite"` for dynamic changes (task added, deleted, completed/uncompleted)
-  - [ ] 1.3 Implement announcement text generation: "Task added: {text}", "Task deleted: {text}", "Task completed: {text}", "Task marked incomplete: {text}"
-  - [ ] 1.4 Add `aria-busy="true"` during loading state on the live region wrapper
-  - [ ] 1.5 Write tests for live region announcements on add/delete/complete/uncomplete
+- [x] Task 1: Enhance TaskList with proper ARIA live region announcements (AC: #1, #3, #4)
+  - [x] 1.1 Verify `role="list"` and `aria-label="Task list"` are present on `<ul>` (already exists — confirm)
+  - [x] 1.2 Add a visually-hidden status announcement `<div>` with `aria-live="polite"` for dynamic changes (task added, deleted, completed/uncompleted)
+  - [x] 1.3 Implement announcement text generation: "Task added: {text}", "Task deleted: {text}", "Task completed: {text}", "Task marked incomplete: {text}"
+  - [x] 1.4 Add `aria-busy="true"` during loading state on the live region wrapper
+  - [x] 1.5 Write tests for live region announcements on add/delete/complete/uncomplete
 
-- [ ] Task 2: Enhance TaskItem with screen reader semantics (AC: #2)
-  - [ ] 2.1 Verify native `<input type="checkbox">` exposes `aria-checked` automatically (it does — confirm with test)
-  - [ ] 2.2 Ensure checkbox `checked` prop correctly reflects `todo.completed` state so `aria-checked` matches
-  - [ ] 2.3 Verify existing `aria-label` on checkbox reads "Mark '{text}' as complete/incomplete"
-  - [ ] 2.4 Write screen reader semantic tests validating `aria-checked` toggles correctly
+- [x] Task 2: Enhance TaskItem with screen reader semantics (AC: #2)
+  - [x] 2.1 Verify native `<input type="checkbox">` exposes `aria-checked` automatically (it does — confirm with test)
+  - [x] 2.2 Ensure checkbox `checked` prop correctly reflects `todo.completed` state so `aria-checked` matches
+  - [x] 2.3 Verify existing `aria-label` on checkbox reads "Mark '{text}' as complete/incomplete"
+  - [x] 2.4 Write screen reader semantic tests validating `aria-checked` toggles correctly
 
-- [ ] Task 3: Enhance EmptyState for screen reader accessibility (AC: #5)
-  - [ ] 3.1 Fix contradictory SVG attributes: change `role="img" aria-hidden="true"` to just `aria-hidden="true"` (decorative icon)
-  - [ ] 3.2 Verify `<h2>No tasks yet</h2>` heading level is correct within page hierarchy (`<h1>Todo</h1>` → `<h2>` is correct)
-  - [ ] 3.3 Ensure instruction text "Type a task above and press Enter to get started" is readable by screen readers
-  - [ ] 3.4 Write test verifying EmptyState content is accessible
+- [x] Task 3: Enhance EmptyState for screen reader accessibility (AC: #5)
+  - [x] 3.1 Fix contradictory SVG attributes: change `role="img" aria-hidden="true"` to just `aria-hidden="true"` (decorative icon)
+  - [x] 3.2 Verify `<h2>No tasks yet</h2>` heading level is correct within page hierarchy (`<h1>Todo</h1>` → `<h2>` is correct)
+  - [x] 3.3 Ensure instruction text "Type a task above and press Enter to get started" is readable by screen readers
+  - [x] 3.4 Write test verifying EmptyState content is accessible
 
-- [ ] Task 4: Verify and enhance ErrorBanner ARIA (AC: #6)
-  - [ ] 4.1 Verify `role="alert"` is present (already exists — confirm)
-  - [ ] 4.2 Add `aria-atomic="true"` to ensure full error message is announced, not partial updates
-  - [ ] 4.3 Verify decorative SVG icon has `aria-hidden="true"` (already exists — confirm)
-  - [ ] 4.4 Make dismiss button label more specific: `aria-label="Dismiss error: {message}"` or keep generic if stacking
-  - [ ] 4.5 Write test verifying `role="alert"` and `aria-atomic` behavior
+- [x] Task 4: Verify and enhance ErrorBanner ARIA (AC: #6)
+  - [x] 4.1 Verify `role="alert"` is present (already exists — confirm)
+  - [x] 4.2 Add `aria-atomic="true"` to ensure full error message is announced, not partial updates
+  - [x] 4.3 Verify decorative SVG icon has `aria-hidden="true"` (already exists — confirm)
+  - [x] 4.4 Make dismiss button label more specific: `aria-label="Dismiss error: {message}"` or keep generic if stacking
+  - [x] 4.5 Write test verifying `role="alert"` and `aria-atomic` behavior
 
-- [ ] Task 5: Add form semantics to TaskInput (AC: relates to overall SR experience)
-  - [ ] 5.1 Wrap input in `<form>` with `onSubmit` handler and `aria-label="Add task"`
-  - [ ] 5.2 Verify existing `aria-label="Add a new task"` on input
-  - [ ] 5.3 Ensure form submission still works correctly (Enter key → submit → prevent default)
-  - [ ] 5.4 Write test verifying form semantics and ARIA labels
+- [x] Task 5: Add form semantics to TaskInput (AC: relates to overall SR experience)
+  - [x] 5.1 Wrap input in `<form>` with `onSubmit` handler and `aria-label="Add task"`
+  - [x] 5.2 Verify existing `aria-label="Add a new task"` on input
+  - [x] 5.3 Ensure form submission still works correctly (Enter key → submit → prevent default)
+  - [x] 5.4 Write test verifying form semantics and ARIA labels
 
-- [ ] Task 6: Component test suite for screen reader support
-  - [ ] 6.1 TaskList tests: live region exists, announcements fire on add/delete/complete
-  - [ ] 6.2 TaskItem tests: aria-checked reflects state, aria-labels are correct
-  - [ ] 6.3 EmptyState tests: accessible content, no contradictory attributes
-  - [ ] 6.4 ErrorBanner tests: role="alert", aria-atomic, dismiss label
-  - [ ] 6.5 TaskInput tests: form wrapper with aria-label
-  - [ ] 6.6 Integration test (App.test.tsx): full screen reader journey — add task → announcement → complete → announcement → delete → announcement
+- [x] Task 6: Component test suite for screen reader support
+  - [x] 6.1 TaskList tests: live region exists, announcements fire on add/delete/complete
+  - [x] 6.2 TaskItem tests: aria-checked reflects state, aria-labels are correct
+  - [x] 6.3 EmptyState tests: accessible content, no contradictory attributes
+  - [x] 6.4 ErrorBanner tests: role="alert", aria-atomic, dismiss label
+  - [x] 6.5 TaskInput tests: form wrapper with aria-label
+  - [x] 6.6 Integration test (App.test.tsx): full screen reader journey — add task → announcement → complete → announcement → delete → announcement
 
 ## Dev Notes
 
@@ -235,9 +235,33 @@ expect(liveRegion).toHaveTextContent('Task completed: Buy milk')
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6
 
 ### Debug Log References
+None — implementation completed without issues.
 
 ### Completion Notes List
+- TaskList: Added dedicated visually-hidden `<div aria-live="polite" aria-atomic="true" className="sr-only">` for announcements. Replaced previous `aria-live` on wrapper div. Implemented announcement diffing using `useRef` to track previous todos and detect adds, deletes, and completion changes. Added `aria-busy` on live region during loading.
+- TaskItem: Verified native `<input type="checkbox">` automatically exposes `aria-checked` via `checked` prop — no changes needed to component. Added verification tests.
+- EmptyState: Removed contradictory `role="img"` from decorative SVG (kept `aria-hidden="true"`). Verified h2 heading level and readable instruction text.
+- ErrorBanner: Added `aria-atomic="true"` to each alert div. Verified existing `role="alert"`, `aria-hidden="true"` on decorative SVG icon, and dismiss button `aria-label`.
+- TaskInput: Wrapped input in `<form>` with `onSubmit` handler and `aria-label="Add task"`. Moved Enter key logic to form submission for better screen reader semantics.
+- Integration test: Added full screen reader journey test (add → announce → complete → announce → delete → announce) and form/alert ARIA verification tests.
+- All 215 tests pass (197 original + 18 new). Zero regressions.
 
 ### File List
+- `client/src/components/TaskList.tsx` — Modified: Added announcement live region with `aria-live="polite"`, `aria-atomic`, `sr-only` class, `aria-busy` during loading; refactored todo diffing to track previous todos for announcement generation
+- `client/src/components/TaskList.test.tsx` — Modified: Added 5 tests for live region (exists, aria-busy, announcements for add/delete/complete/uncomplete, no announce on initial load)
+- `client/src/components/TaskItem.test.tsx` — Modified: Added 2 tests verifying checkbox checked state reflects todo completion for screen readers
+- `client/src/components/TaskInput.tsx` — Modified: Wrapped input in `<form>` with `onSubmit` handler and `aria-label="Add task"`
+- `client/src/components/TaskInput.test.tsx` — Modified: Added 2 tests for form wrapper with aria-label
+- `client/src/components/ErrorBanner.tsx` — Modified: Added `aria-atomic="true"` to alert divs
+- `client/src/components/ErrorBanner.test.tsx` — Modified: Added 2 tests for `aria-atomic` and decorative SVG `aria-hidden`
+- `client/src/components/EmptyState.tsx` — Modified: Removed contradictory `role="img"` from decorative SVG
+- `client/src/components/EmptyState.test.tsx` — Modified: Updated SVG test, added h2 heading level test and instruction visibility test
+- `client/src/App.test.tsx` — Modified: Added 3 integration tests (full SR journey, form semantics, error banner ARIA attributes)
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` — Modified: Updated story status
+- `_bmad-output/implementation-artifacts/4-3-screen-reader-support-aria.md` — Modified: Updated tasks, status, dev agent record, file list, change log
+
+## Change Log
+- 2026-03-06: Implemented story 4.3 — Screen Reader Support & ARIA. Added live region announcements for task add/delete/complete/uncomplete, form semantics for TaskInput, aria-atomic on ErrorBanner, fixed contradictory SVG attributes on EmptyState, verified aria-checked on checkboxes. 18 new tests added, 215 total passing.
