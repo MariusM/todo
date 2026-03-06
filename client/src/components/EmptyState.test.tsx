@@ -29,6 +29,14 @@ describe('EmptyState', () => {
     expect(heading).toHaveTextContent('No tasks yet')
   })
 
+  it('heading and description use contrast-compliant secondary text color', () => {
+    render(<EmptyState />)
+    const heading = screen.getByRole('heading', { level: 2 })
+    expect(heading).toHaveClass('text-text-secondary')
+    const description = screen.getByText('Type a task above and press Enter to get started.')
+    expect(description).toHaveClass('text-text-secondary')
+  })
+
   it('instruction text is readable by screen readers', () => {
     const { container } = render(<EmptyState />)
     const instruction = screen.getByText('Type a task above and press Enter to get started.')

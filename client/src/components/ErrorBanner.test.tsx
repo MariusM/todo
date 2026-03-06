@@ -114,6 +114,33 @@ describe('ErrorBanner', () => {
     expect(button).toHaveAttribute('aria-label', 'Dismiss error')
   })
 
+  it('error banner uses triple indicator: color + icon + text (AC #3)', () => {
+    const errors: ErrorInfo[] = [{ id: 'e1', message: 'Error', code: 'CREATE_ERROR' }]
+    const { container } = render(<ErrorBanner errors={errors} onDismiss={vi.fn()} />)
+    // 1. Color indicator: error background and text classes
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveClass('bg-error-bg')
+    expect(alert).toHaveClass('text-error-text')
+    // 2. Icon indicator: SVG warning icon is present and visible
+    const svg = container.querySelector('svg')
+    expect(svg).toBeInTheDocument()
+    expect(svg).toHaveAttribute('fill', 'currentColor')
+    // Icon parent span is aria-hidden but visually present (decorative for SR since role="alert" announces text)
+    const iconSpan = svg!.closest('span')
+    expect(iconSpan).toHaveAttribute('aria-hidden', 'true')
+    expect(iconSpan).toHaveClass('shrink-0')
+    // 3. Text indicator: human-readable error message
+    expect(screen.getByText("Adding that task didn't go through -- try again?")).toBeInTheDocument()
+  })
+
+  it('error banner icon is visually rendered (not display:none or zero-size)', () => {
+    const errors: ErrorInfo[] = [{ id: 'e1', message: 'Error', code: 'CREATE_ERROR' }]
+    const { container } = render(<ErrorBanner errors={errors} onDismiss={vi.fn()} />)
+    const svg = container.querySelector('svg')
+    expect(svg).toHaveAttribute('width', '20')
+    expect(svg).toHaveAttribute('height', '20')
+  })
+
   it('falls back to raw error.message for unknown error codes', () => {
     const errors: ErrorInfo[] = [{ id: 'e1', message: 'Some unknown error happened', code: 'UNKNOWN_CODE' }]
     render(<ErrorBanner errors={errors} onDismiss={vi.fn()} />)

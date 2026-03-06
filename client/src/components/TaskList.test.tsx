@@ -27,6 +27,12 @@ describe('TaskList', () => {
     expect(screen.getByText('Loading tasks…')).toBeInTheDocument()
   })
 
+  it('loading text uses contrast-compliant muted color class', () => {
+    render(<TaskList todos={[]} isLoading={true} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const loadingText = screen.getByText('Loading tasks…')
+    expect(loadingText).toHaveClass('text-text-muted')
+  })
+
   it('renders EmptyState when no todos and not loading', () => {
     render(<TaskList todos={[]} isLoading={false} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     expect(screen.getByText('No tasks yet')).toBeInTheDocument()

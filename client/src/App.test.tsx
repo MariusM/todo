@@ -702,6 +702,81 @@ describe('App', () => {
     })
   })
 
+  describe('color contrast WCAG AA compliance (AC #5)', () => {
+    /**
+     * WCAG 2.1 relative luminance and contrast ratio calculations.
+     * Since JSDOM doesn't compute real CSS, we verify the theme token values directly.
+     */
+    function sRGBtoLinear(c: number): number {
+      const s = c / 255
+      return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
+    }
+
+    function relativeLuminance(hex: string): number {
+      const r = parseInt(hex.slice(1, 3), 16)
+      const g = parseInt(hex.slice(3, 5), 16)
+      const b = parseInt(hex.slice(5, 7), 16)
+      return 0.2126 * sRGBtoLinear(r) + 0.7152 * sRGBtoLinear(g) + 0.0722 * sRGBtoLinear(b)
+    }
+
+    function contrastRatio(hex1: string, hex2: string): number {
+      const l1 = relativeLuminance(hex1)
+      const l2 = relativeLuminance(hex2)
+      const lighter = Math.max(l1, l2)
+      const darker = Math.min(l1, l2)
+      return (lighter + 0.05) / (darker + 0.05)
+    }
+
+    // Theme token values from index.css @theme block
+    const WHITE = '#FFFFFF'
+    const TEXT_PRIMARY = '#1C1917'
+    const TEXT_SECONDARY = '#78716C'
+    const TEXT_MUTED = '#78716C'
+    const COMPLETED_TEXT = '#78716C'
+    const ACCENT = '#2563EB'
+    const ERROR_TEXT = '#991B1B'
+    const ERROR_BG = '#FEF2F2'
+
+    it('primary text on white meets 4.5:1 AA minimum', () => {
+      expect(contrastRatio(TEXT_PRIMARY, WHITE)).toBeGreaterThanOrEqual(4.5)
+    })
+
+    it('secondary text on white meets 4.5:1 AA minimum', () => {
+      expect(contrastRatio(TEXT_SECONDARY, WHITE)).toBeGreaterThanOrEqual(4.5)
+    })
+
+    it('muted text on white meets 4.5:1 AA minimum (AC #1)', () => {
+      expect(contrastRatio(TEXT_MUTED, WHITE)).toBeGreaterThanOrEqual(4.5)
+    })
+
+    it('completed text on white meets 4.5:1 AA minimum (AC #1)', () => {
+      expect(contrastRatio(COMPLETED_TEXT, WHITE)).toBeGreaterThanOrEqual(4.5)
+    })
+
+    it('accent blue on white meets 4.5:1 AA minimum (AC #4)', () => {
+      expect(contrastRatio(ACCENT, WHITE)).toBeGreaterThanOrEqual(4.5)
+    })
+
+    it('error text on error background meets 4.5:1 AA minimum', () => {
+      expect(contrastRatio(ERROR_TEXT, ERROR_BG)).toBeGreaterThanOrEqual(4.5)
+    })
+
+    it('documents all color contrast ratios for audit trail', () => {
+      const ratios = {
+        'text-primary on white': contrastRatio(TEXT_PRIMARY, WHITE),
+        'text-secondary on white': contrastRatio(TEXT_SECONDARY, WHITE),
+        'text-muted on white': contrastRatio(TEXT_MUTED, WHITE),
+        'completed-text on white': contrastRatio(COMPLETED_TEXT, WHITE),
+        'accent on white': contrastRatio(ACCENT, WHITE),
+        'error-text on error-bg': contrastRatio(ERROR_TEXT, ERROR_BG),
+      }
+      // All must pass WCAG AA 4.5:1
+      for (const [name, ratio] of Object.entries(ratios)) {
+        expect(ratio, `${name} contrast ratio ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5)
+      }
+    })
+  })
+
   it('deletes a task and calls API', async () => {
     vi.mocked(todosApi.fetchTodos).mockResolvedValue([
       {

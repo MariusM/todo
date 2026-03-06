@@ -118,7 +118,7 @@ export default function TaskItem({ todo, onToggle, onEdit, onDelete, animateEntr
         className="flex items-center justify-center min-w-[44px] min-h-[44px] shrink-0
                    text-border hover:text-error-text focus:text-error-text
                    opacity-0 group-hover:opacity-100 group-focus-within:opacity-100
-                   max-sm:opacity-100
+                   max-sm:opacity-100 max-sm:text-text-secondary
                    transition-colors duration-fast cursor-pointer"
         aria-label={`Delete task: ${todo.text}`}
       >

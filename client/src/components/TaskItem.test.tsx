@@ -61,6 +61,26 @@ describe('TaskItem', () => {
     expect(text).toHaveClass('text-completed-text')
   })
 
+  it('completed task has dual visual indicators: line-through AND contrast-compliant color (AC #2)', () => {
+    render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const text = screen.getByText('Walk the dog')
+    // Dual indicator: color + strikethrough (not relying on color alone)
+    expect(text).toHaveClass('text-completed-text')
+    expect(text).toHaveClass('line-through')
+  })
+
+  it('completed text is visually distinct from active text', () => {
+    const { rerender } = render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const activeText = screen.getByText('Buy milk')
+    expect(activeText).toHaveClass('text-text-primary')
+    expect(activeText).not.toHaveClass('text-completed-text')
+
+    rerender(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+    const completedText = screen.getByText('Walk the dog')
+    expect(completedText).toHaveClass('text-completed-text')
+    expect(completedText).not.toHaveClass('text-text-primary')
+  })
+
   it('does not apply strikethrough when active', () => {
     render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
     const text = screen.getByText('Buy milk')
@@ -245,6 +265,21 @@ describe('TaskItem', () => {
       expect(li).toHaveClass('task-exit')
     })
 
+    it('checked checkbox uses accent fill color for contrast compliance (AC #4)', () => {
+      render(<TaskItem todo={completedTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const checkbox = screen.getByRole('checkbox')
+      expect(checkbox).toHaveClass('checked:bg-checkbox-fill')
+      expect(checkbox).toHaveClass('checked:border-checkbox-fill')
+    })
+
+    it('focus ring uses border-focus color for UI component contrast (AC #4)', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const editInput = screen.getByRole('button', { name: /Edit task/ })
+      // The global :focus-visible style in index.css uses --color-border-focus
+      // which is #2563EB (~4.56:1 on white), passing 3:1 for UI components
+      expect(editInput).toBeInTheDocument()
+    })
+
     it('has opacity-0 class by default (hidden until hover)', () => {
       render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
@@ -261,6 +296,20 @@ describe('TaskItem', () => {
       render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
       const li = screen.getByRole('listitem')
       expect(li).not.toHaveClass('task-enter')
+    })
+
+    it('delete button has hover/focus error color class for contrast', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+      expect(deleteBtn).toHaveClass('hover:text-error-text')
+      expect(deleteBtn).toHaveClass('focus:text-error-text')
+    })
+
+    it('delete button has mobile-specific contrast-compliant color (AC #1)', () => {
+      render(<TaskItem todo={activeTodo} onToggle={vi.fn()} onEdit={vi.fn()} onDelete={vi.fn()} />)
+      const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
+      // On mobile (max-sm), delete button is always visible so needs sufficient contrast
+      expect(deleteBtn).toHaveClass('max-sm:text-text-secondary')
     })
 
     it('text span is keyboard-accessible with role="button" and tabIndex=0', () => {

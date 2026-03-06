@@ -8,13 +8,13 @@
   --color-border-focus: #2563EB;
   --color-text-primary: #1C1917;
   --color-text-secondary: #78716C;
-  --color-text-muted: #A8A29E;
+  --color-text-muted: #78716C;
   --color-accent: #2563EB;
   --color-accent-hover: #1D4ED8;
   --color-error-bg: #FEF2F2;
   --color-error-text: #991B1B;
   --color-error-border: #FECACA;
-  --color-completed-text: #A8A29E;
+  --color-completed-text: #78716C;
   --color-checkbox-fill: #2563EB;
 
   /* Typography — system font stack, no custom fonts */

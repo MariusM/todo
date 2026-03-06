@@ -67,7 +67,7 @@ development_status:
   4-1-responsive-layout: done
   4-2-keyboard-navigation-focus-management: done
   4-3-screen-reader-support-aria: done
-  4-4-color-contrast-visual-accessibility: ready-for-dev
+  4-4-color-contrast-visual-accessibility: review
   epic-4-retrospective: optional
 
   # Epic 5: Quality, Testing & Deployment
