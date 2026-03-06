@@ -1,6 +1,6 @@
 # Story 4.2: Keyboard Navigation & Focus Management
 
-Status: review
+Status: done
 
 ## Story
 
@@ -210,6 +210,10 @@ No blocking issues encountered.
 - All 197 tests pass (190 original + 7 new), zero regressions
 
 ### Change Log
+- 2026-03-06: Code review fixes (Story 4.2)
+  - Added e.preventDefault() for Space key on text span to prevent page scroll (HIGH fix)
+  - Changed edit input focus:border-border-focus to focus-visible: for consistency (MEDIUM fix)
+  - Wrapped animationend dispatch in act() in App.test.tsx delete test (MEDIUM fix)
 - 2026-03-06: Implemented keyboard navigation & focus management (Story 4.2)
   - Added global :focus-visible CSS rule for consistent focus ring on all interactive elements
   - Removed per-component focus ring classes (TaskInput, TaskItem edit input)

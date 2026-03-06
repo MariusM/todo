@@ -624,9 +624,11 @@ describe('App', () => {
     const deleteBtn = screen.getByRole('button', { name: 'Delete task: Buy milk' })
     await user.click(deleteBtn)
 
-    // Simulate animationend
+    // Simulate animationend inside act to avoid React state update warnings
     const li = deleteBtn.closest('li')!
-    li.dispatchEvent(new Event('animationend'))
+    await act(async () => {
+      li.dispatchEvent(new Event('animationend'))
+    })
 
     // Task should be removed optimistically
     await waitFor(() => {
