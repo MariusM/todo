@@ -17,7 +17,7 @@ export default function TaskList({ todos, isLoading, onToggle, onEdit, onDelete 
   const hasLoadedRef = useRef(false)
   const prevTodosRef = useRef<Todo[]>([])
   const [announcement, setAnnouncement] = useState('')
-  const repeatTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  const repeatTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const newIds = new Set<string>()
   if (hasLoadedRef.current) {

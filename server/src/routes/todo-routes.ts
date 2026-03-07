@@ -33,7 +33,7 @@ export function createTodoRoutes(queries: ReturnType<typeof createQueries>) {
   })
 
   router.patch('/api/todos/:id', validateTodoId, validateUpdateTodo, (req, res) => {
-    const { id } = req.params
+    const id = req.params.id as string
     const fields: { text?: string; completed?: boolean } = {}
 
     if (req.body.text !== undefined) {
@@ -52,7 +52,7 @@ export function createTodoRoutes(queries: ReturnType<typeof createQueries>) {
   })
 
   router.delete('/api/todos/:id', validateTodoId, (req, res) => {
-    const { id } = req.params
+    const id = req.params.id as string
 
     const deleted = queries.deleteTodo(id)
     if (!deleted) {
