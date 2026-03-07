@@ -1,14 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-const API_URL = 'http://localhost:3001/api/todos'
-
-async function deleteAllTodos() {
-  const res = await fetch(API_URL)
-  const todos = await res.json()
-  for (const todo of todos) {
-    await fetch(`${API_URL}/${todo.id}`, { method: 'DELETE' })
-  }
-}
+import { deleteAllTodos } from './fixtures'
 
 test.beforeEach(async ({ page }) => {
   await deleteAllTodos()
@@ -38,7 +29,7 @@ test.describe('Journey 3: Edit & Delete', () => {
     await editInput.press('Enter')
 
     // Verify updated text - the span reappears with new text
-    await expect(page.getByRole('button', { name: 'Edit task: Updated text' })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('button', { name: 'Edit task: Updated text' })).toBeVisible()
   })
 
   test('delete removes task from the list', async ({ page }) => {
@@ -53,7 +44,7 @@ test.describe('Journey 3: Edit & Delete', () => {
     await page.getByLabel('Delete task: Delete me').click()
 
     // Wait for task removal (animation is 200ms + API call)
-    await expect(page.getByRole('heading', { name: 'No tasks yet' })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: 'No tasks yet' })).toBeVisible()
   })
 
   test('list count updates correctly after operations', async ({ page }) => {
@@ -76,7 +67,7 @@ test.describe('Journey 3: Edit & Delete', () => {
     await page.getByLabel('Delete task: Task one').click()
 
     // Verify count decreased (wait for animation)
-    await expect(list.getByRole('listitem')).toHaveCount(1, { timeout: 10000 })
+    await expect(list.getByRole('listitem')).toHaveCount(1)
     await expect(page.getByRole('button', { name: 'Edit task: Task two' })).toBeVisible()
   })
 })

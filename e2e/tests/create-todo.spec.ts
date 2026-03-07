@@ -1,14 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-const API_URL = 'http://localhost:3001/api/todos'
-
-async function deleteAllTodos() {
-  const res = await fetch(API_URL)
-  const todos = await res.json()
-  for (const todo of todos) {
-    await fetch(`${API_URL}/${todo.id}`, { method: 'DELETE' })
-  }
-}
+import { deleteAllTodos } from './fixtures'
 
 test.beforeEach(async ({ page }) => {
   await deleteAllTodos()
@@ -33,8 +24,12 @@ test.describe('Journey 1: First Visit', () => {
 
   test('task persists after page refresh', async ({ page }) => {
     const input = page.getByLabel('Add a new task')
+    const createResponse = page.waitForResponse(
+      (r) => r.url().includes('/api/todos') && r.request().method() === 'POST' && r.status() === 201
+    )
     await input.fill('Persistent task')
     await input.press('Enter')
+    await createResponse
 
     await expect(page.getByRole('button', { name: 'Edit task: Persistent task' })).toBeVisible()
 

@@ -1,15 +1,6 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-
-const API_URL = 'http://localhost:3001/api/todos'
-
-async function deleteAllTodos() {
-  const res = await fetch(API_URL)
-  const todos = await res.json()
-  for (const todo of todos) {
-    await fetch(`${API_URL}/${todo.id}`, { method: 'DELETE' })
-  }
-}
+import { deleteAllTodos } from './fixtures'
 
 test.beforeEach(async ({ page }) => {
   await deleteAllTodos()
@@ -91,6 +82,17 @@ test.describe('Journey 5: Accessibility', () => {
     await expect(page.getByRole('button', { name: 'Edit task: Axe test task' })).toBeVisible()
 
     // Run axe-core audit
+    const results = await new AxeBuilder({ page }).analyze()
+    const criticalViolations = results.violations.filter(
+      (v) => v.impact === 'critical'
+    )
+    expect(criticalViolations).toHaveLength(0)
+  })
+
+  test('axe-core audit passes on empty state', async ({ page }) => {
+    // Audit the empty state (different heading/layout)
+    await expect(page.getByRole('heading', { name: 'No tasks yet' })).toBeVisible()
+
     const results = await new AxeBuilder({ page }).analyze()
     const criticalViolations = results.violations.filter(
       (v) => v.impact === 'critical'

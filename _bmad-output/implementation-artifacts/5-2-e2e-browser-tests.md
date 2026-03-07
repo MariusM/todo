@@ -1,6 +1,6 @@
 # Story 5.2: E2E Browser Tests
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -199,23 +199,25 @@ Claude Opus 4.6
 
 - Installed Playwright chromium browser binary and @axe-core/playwright dependency
 - Added test:e2e script to root package.json and test script to e2e/package.json
-- Created 5 E2E test spec files covering all 5 user journeys (13 total tests)
+- Created 5 E2E test spec files + 1 shared fixtures file covering all 5 user journeys (16 total tests after code review fixes)
 - Modified playwright.config.ts: set fullyParallel: false and workers: 1 (strictly necessary — shared DB prevents parallel execution)
-- All 13 E2E tests pass consistently; 261 existing unit/integration tests pass with zero regressions (1 pre-existing timezone flaky test in queries.test.ts unrelated to this story)
+- All 16 E2E tests pass consistently; 261 existing unit/integration tests pass with zero regressions (1 pre-existing timezone flaky test in queries.test.ts unrelated to this story)
 - Each test uses beforeEach with API-based cleanup (GET all todos, DELETE each) for proper isolation
 - No production source code was modified — testing-only changes
 
 ### Change Log
 
 - 2026-03-07: Implemented story 5.2 — E2E browser tests with Playwright covering 5 user journeys (13 tests)
+- 2026-03-07: Code review fixes — extracted shared fixtures, added error handling to cleanup, fixed persistence test race condition, added PATCH/DELETE failure tests, added empty state axe audit, verified error banner message content (16 tests total)
 
 ### File List
 
+- e2e/tests/fixtures.ts (new) — Shared test utilities (API_URL, deleteAllTodos with error handling)
 - e2e/tests/create-todo.spec.ts (new) — Journey 1: First Visit tests
 - e2e/tests/complete-todo.spec.ts (new) — Journey 2: Task Completion tests
 - e2e/tests/edit-delete-todo.spec.ts (new) — Journey 3: Edit & Delete tests
-- e2e/tests/error-handling.spec.ts (new) — Journey 4: Error Recovery tests
-- e2e/tests/accessibility.spec.ts (new) — Journey 5: Accessibility tests
+- e2e/tests/error-handling.spec.ts (new) — Journey 4: Error Recovery tests (POST, PATCH, DELETE failures)
+- e2e/tests/accessibility.spec.ts (new) — Journey 5: Accessibility tests (including empty state audit)
 - e2e/package.json (modified) — Added test script and @axe-core/playwright dependency
 - e2e/playwright.config.ts (modified) — Set fullyParallel: false, workers: 1 for shared DB isolation
 - package.json (modified) — Added test:e2e script
