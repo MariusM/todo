@@ -74,6 +74,6 @@ development_status:
   epic-5: in-progress
   5-1-unit-integration-tests: done
   5-2-e2e-browser-tests: done
-  5-3-security-hardening: backlog
+  5-3-security-hardening: ready-for-dev
   5-4-docker-deployment-ci-pipeline: backlog
   epic-5-retrospective: optional
