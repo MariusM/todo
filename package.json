@@ -12,7 +12,8 @@
     "build": "npm run build -w client && npm run build -w server",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "npm run test -w e2e"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.18"

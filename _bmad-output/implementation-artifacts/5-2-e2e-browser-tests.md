@@ -1,6 +1,6 @@
 # Story 5.2: E2E Browser Tests
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -22,44 +22,44 @@ so that I can verify the full stack works together (NFR19).
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Install Playwright and configure test infrastructure (AC: #1)
-  - [ ] 1.1 Run `npx playwright install chromium` in e2e workspace to install browser binary
-  - [ ] 1.2 Add `@axe-core/playwright` dev dependency to e2e/package.json for accessibility auditing
-  - [ ] 1.3 Add `test:e2e` script to root package.json: `npm run test -w e2e`
-  - [ ] 1.4 Add `test` script to e2e/package.json: `npx playwright test`
-  - [ ] 1.5 Verify playwright.config.ts baseURL matches dev server (localhost:5173)
-  - [ ] 1.6 Create `e2e/tests/` directory for test files
-- [ ] Task 2: Journey 1 — First Visit (AC: #2)
-  - [ ] 2.1 Create `e2e/tests/create-todo.spec.ts`
-  - [ ] 2.2 Test: navigate to app, verify empty state message displayed
-  - [ ] 2.3 Test: type task text in input, press Enter, verify task appears in list
-  - [ ] 2.4 Test: reload page, verify task persists in list
-- [ ] Task 3: Journey 2 — Task Completion (AC: #3)
-  - [ ] 3.1 Create `e2e/tests/complete-todo.spec.ts`
-  - [ ] 3.2 Test: create a task, mark it complete, verify visual distinction (line-through/opacity classes)
-  - [ ] 3.3 Test: reload page, verify completed state persists
-  - [ ] 3.4 Test: toggle task back to active, verify visual change reverts
-- [ ] Task 4: Journey 3 — Edit & Delete (AC: #4)
-  - [ ] 4.1 Create `e2e/tests/edit-delete-todo.spec.ts`
-  - [ ] 4.2 Test: create a task, activate inline edit (double-click), change text, save (Enter), verify updated text
-  - [ ] 4.3 Test: delete a task, verify it is removed from the list
-  - [ ] 4.4 Test: verify list count updates correctly after operations
-- [ ] Task 5: Journey 4 — Error Recovery (AC: #5)
-  - [ ] 5.1 Create `e2e/tests/error-handling.spec.ts`
-  - [ ] 5.2 Test: use `page.route()` to intercept API calls and simulate 500 failure
-  - [ ] 5.3 Test: verify optimistic UI rollback (task reverts to previous state)
-  - [ ] 5.4 Test: verify error banner appears with descriptive message
-  - [ ] 5.5 Test: verify recovery after API is restored (banner dismisses, operations succeed)
-- [ ] Task 6: Journey 5 — Accessibility (AC: #6)
-  - [ ] 6.1 Create `e2e/tests/accessibility.spec.ts`
-  - [ ] 6.2 Test: Tab through all interactive elements (input, checkboxes, edit, delete buttons)
-  - [ ] 6.3 Test: Enter to submit new task from input
-  - [ ] 6.4 Test: Escape to cancel inline edit
-  - [ ] 6.5 Test: run axe-core audit via `@axe-core/playwright` — assert zero critical violations
-- [ ] Task 7: Verify all tests pass together (AC: #7)
-  - [ ] 7.1 Run full suite: `npx playwright test` — all 5+ specs pass
-  - [ ] 7.2 Verify no test pollution (each test cleans up or uses fresh state)
-  - [ ] 7.3 Verify existing 261 unit/integration tests still pass with zero regressions
+- [x] Task 1: Install Playwright and configure test infrastructure (AC: #1)
+  - [x] 1.1 Run `npx playwright install chromium` in e2e workspace to install browser binary
+  - [x] 1.2 Add `@axe-core/playwright` dev dependency to e2e/package.json for accessibility auditing
+  - [x] 1.3 Add `test:e2e` script to root package.json: `npm run test -w e2e`
+  - [x] 1.4 Add `test` script to e2e/package.json: `npx playwright test`
+  - [x] 1.5 Verify playwright.config.ts baseURL matches dev server (localhost:5173)
+  - [x] 1.6 Create `e2e/tests/` directory for test files
+- [x] Task 2: Journey 1 — First Visit (AC: #2)
+  - [x] 2.1 Create `e2e/tests/create-todo.spec.ts`
+  - [x] 2.2 Test: navigate to app, verify empty state message displayed
+  - [x] 2.3 Test: type task text in input, press Enter, verify task appears in list
+  - [x] 2.4 Test: reload page, verify task persists in list
+- [x] Task 3: Journey 2 — Task Completion (AC: #3)
+  - [x] 3.1 Create `e2e/tests/complete-todo.spec.ts`
+  - [x] 3.2 Test: create a task, mark it complete, verify visual distinction (line-through/opacity classes)
+  - [x] 3.3 Test: reload page, verify completed state persists
+  - [x] 3.4 Test: toggle task back to active, verify visual change reverts
+- [x] Task 4: Journey 3 — Edit & Delete (AC: #4)
+  - [x] 4.1 Create `e2e/tests/edit-delete-todo.spec.ts`
+  - [x] 4.2 Test: create a task, activate inline edit (double-click), change text, save (Enter), verify updated text
+  - [x] 4.3 Test: delete a task, verify it is removed from the list
+  - [x] 4.4 Test: verify list count updates correctly after operations
+- [x] Task 5: Journey 4 — Error Recovery (AC: #5)
+  - [x] 5.1 Create `e2e/tests/error-handling.spec.ts`
+  - [x] 5.2 Test: use `page.route()` to intercept API calls and simulate 500 failure
+  - [x] 5.3 Test: verify optimistic UI rollback (task reverts to previous state)
+  - [x] 5.4 Test: verify error banner appears with descriptive message
+  - [x] 5.5 Test: verify recovery after API is restored (banner dismisses, operations succeed)
+- [x] Task 6: Journey 5 — Accessibility (AC: #6)
+  - [x] 6.1 Create `e2e/tests/accessibility.spec.ts`
+  - [x] 6.2 Test: Tab through all interactive elements (input, checkboxes, edit, delete buttons)
+  - [x] 6.3 Test: Enter to submit new task from input
+  - [x] 6.4 Test: Escape to cancel inline edit
+  - [x] 6.5 Test: run axe-core audit via `@axe-core/playwright` — assert zero critical violations
+- [x] Task 7: Verify all tests pass together (AC: #7)
+  - [x] 7.1 Run full suite: `npx playwright test` — all 5+ specs pass (13 tests across 5 spec files)
+  - [x] 7.2 Verify no test pollution (each test cleans up or uses fresh state)
+  - [x] 7.3 Verify existing 261 unit/integration tests still pass with zero regressions
 
 ## Dev Notes
 
@@ -185,10 +185,37 @@ so that I can verify the full stack works together (NFR19).
 
 ### Agent Model Used
 
-(to be filled by dev agent)
+Claude Opus 4.6
 
 ### Debug Log References
 
+- Initial parallel execution (fullyParallel: true) caused flaky tests due to shared DB state — tests running concurrently would delete each other's todos via beforeEach cleanup. Fixed by setting workers: 1 and fullyParallel: false.
+- getByText() matched both visible task text and sr-only aria-live announcements (e.g. "Task added: X"). Fixed by using getByRole('button', { name: 'Edit task: X' }) for task text spans and getByRole('heading', { name: 'No tasks yet' }) for empty state.
+- Checkbox toggle required .click() not .check()/.uncheck() since the aria-label changes between "Mark X as complete" and "Mark X as incomplete".
+- Completion persistence test needed waitForResponse on PATCH to ensure API call finishes before page.reload().
+- npm cache EACCES error encountered during @axe-core/playwright install — resolved with --cache /tmp/npm-cache-fix as documented in story Dev Notes.
+
 ### Completion Notes List
 
+- Installed Playwright chromium browser binary and @axe-core/playwright dependency
+- Added test:e2e script to root package.json and test script to e2e/package.json
+- Created 5 E2E test spec files covering all 5 user journeys (13 total tests)
+- Modified playwright.config.ts: set fullyParallel: false and workers: 1 (strictly necessary — shared DB prevents parallel execution)
+- All 13 E2E tests pass consistently; 261 existing unit/integration tests pass with zero regressions (1 pre-existing timezone flaky test in queries.test.ts unrelated to this story)
+- Each test uses beforeEach with API-based cleanup (GET all todos, DELETE each) for proper isolation
+- No production source code was modified — testing-only changes
+
+### Change Log
+
+- 2026-03-07: Implemented story 5.2 — E2E browser tests with Playwright covering 5 user journeys (13 tests)
+
 ### File List
+
+- e2e/tests/create-todo.spec.ts (new) — Journey 1: First Visit tests
+- e2e/tests/complete-todo.spec.ts (new) — Journey 2: Task Completion tests
+- e2e/tests/edit-delete-todo.spec.ts (new) — Journey 3: Edit & Delete tests
+- e2e/tests/error-handling.spec.ts (new) — Journey 4: Error Recovery tests
+- e2e/tests/accessibility.spec.ts (new) — Journey 5: Accessibility tests
+- e2e/package.json (modified) — Added test script and @axe-core/playwright dependency
+- e2e/playwright.config.ts (modified) — Set fullyParallel: false, workers: 1 for shared DB isolation
+- package.json (modified) — Added test:e2e script
