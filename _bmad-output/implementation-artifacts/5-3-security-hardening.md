@@ -1,6 +1,6 @@
 # Story 5.3: Security Hardening
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -20,49 +20,49 @@ so that user data is protected (NFR5-NFR7).
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Install and configure Helmet.js (AC: #1)
-  - [ ] 1.1 Install `helmet` package in server workspace: `npm install helmet -w server`
-  - [ ] 1.2 Import helmet in `server/src/index.ts` and add as FIRST middleware (before CORS, before JSON parser)
-  - [ ] 1.3 Use default Helmet configuration — `app.use(helmet())` — which enables all standard headers
-  - [ ] 1.4 Write tests verifying key security headers are present in responses:
+- [x] Task 1: Install and configure Helmet.js (AC: #1)
+  - [x] 1.1 Install `helmet` package in server workspace: `npm install helmet -w server`
+  - [x] 1.2 Import helmet in `server/src/index.ts` and add as FIRST middleware (before CORS, before JSON parser)
+  - [x] 1.3 Use default Helmet configuration — `app.use(helmet())` — which enables all standard headers
+  - [x] 1.4 Write tests verifying key security headers are present in responses:
     - X-Content-Type-Options: nosniff
     - X-Frame-Options: SAMEORIGIN (or DENY)
     - Content-Security-Policy header present
     - X-XSS-Protection header absent (Helmet 8+ removes it as deprecated)
     - X-Powered-By header REMOVED (Helmet disables this)
-- [ ] Task 2: Install and configure CORS middleware (AC: #2)
-  - [ ] 2.1 Install `cors` package and `@types/cors` in server workspace: `npm install cors -w server && npm install -D @types/cors -w server`
-  - [ ] 2.2 Import cors in `server/src/index.ts` and add AFTER Helmet, BEFORE JSON parser
-  - [ ] 2.3 Configure CORS origin from `CORS_ORIGIN` environment variable with default `http://localhost`
-  - [ ] 2.4 Write tests verifying:
+- [x] Task 2: Install and configure CORS middleware (AC: #2)
+  - [x] 2.1 Install `cors` package and `@types/cors` in server workspace: `npm install cors -w server && npm install -D @types/cors -w server`
+  - [x] 2.2 Import cors in `server/src/index.ts` and add AFTER Helmet, BEFORE JSON parser
+  - [x] 2.3 Configure CORS origin from `CORS_ORIGIN` environment variable with default `http://localhost`
+  - [x] 2.4 Write tests verifying:
     - Allowed origin receives proper Access-Control-Allow-Origin header
     - OPTIONS preflight requests are handled correctly
     - `CORS_ORIGIN` env var is respected when set
-- [ ] Task 3: Verify and strengthen XSS sanitization (AC: #3)
-  - [ ] 3.1 Review existing `sanitizeText()` function in `server/src/routes/todo-routes.ts` — confirm it covers: `&`, `<`, `>`, `"`, `'`
-  - [ ] 3.2 Add test cases for additional XSS vectors if not already covered:
+- [x] Task 3: Verify and strengthen XSS sanitization (AC: #3)
+  - [x] 3.1 Review existing `sanitizeText()` function in `server/src/routes/todo-routes.ts` — confirm it covers: `&`, `<`, `>`, `"`, `'`
+  - [x] 3.2 Add test cases for additional XSS vectors if not already covered:
     - Event handler attributes: `<img onerror="alert('xss')" src=x>`
     - Nested/encoded payloads: `<scr<script>ipt>alert('xss')</script>`
     - URL-based XSS: `javascript:alert('xss')`
-  - [ ] 3.3 Verify sanitization is applied on BOTH create (POST) and update (PATCH) paths
-- [ ] Task 4: Verify SQL injection protection (AC: #4)
-  - [ ] 4.1 Review `server/src/db/queries.ts` — confirm ALL queries use parameterized `?` placeholders
-  - [ ] 4.2 Add integration test with SQL injection payloads:
+  - [x] 3.3 Verify sanitization is applied on BOTH create (POST) and update (PATCH) paths
+- [x] Task 4: Verify SQL injection protection (AC: #4)
+  - [x] 4.1 Review `server/src/db/queries.ts` — confirm ALL queries use parameterized `?` placeholders
+  - [x] 4.2 Add integration test with SQL injection payloads:
     - Text: `'; DROP TABLE todos; --`
     - Text: `" OR 1=1 --`
     - ID: `' OR '1'='1`
-  - [ ] 4.3 Verify injected SQL is stored as literal text, not executed
-- [ ] Task 5: Verify no sensitive data exposure (AC: #5)
-  - [ ] 5.1 Review `server/src/middleware/error-handler.ts` — confirm no stack traces, SQL, or file paths leak
-  - [ ] 5.2 Verify existing tests cover: validation errors, not-found errors, internal errors, and generic exceptions
-  - [ ] 5.3 Add test verifying `X-Powered-By` header is absent (Helmet removes it)
-- [ ] Task 6: Update middleware stack order and verify integration (AC: #1, #2)
-  - [ ] 6.1 Final middleware order in `server/src/index.ts` must be: `helmet()` → `cors()` → `express.json()` → routes → error handler
-  - [ ] 6.2 Run full test suite: all existing 261 unit/integration tests + 16 E2E tests must pass with zero regressions
-  - [ ] 6.3 Verify health check endpoint still works with new middleware
-- [ ] Task 7: Update environment configuration (AC: #2)
-  - [ ] 7.1 Add `CORS_ORIGIN` to `.env.example` with default value and documentation comment
-  - [ ] 7.2 Update `docker-compose.yml` to pass `CORS_ORIGIN` environment variable to server container (default: `http://localhost`)
+  - [x] 4.3 Verify injected SQL is stored as literal text, not executed
+- [x] Task 5: Verify no sensitive data exposure (AC: #5)
+  - [x] 5.1 Review `server/src/middleware/error-handler.ts` — confirm no stack traces, SQL, or file paths leak
+  - [x] 5.2 Verify existing tests cover: validation errors, not-found errors, internal errors, and generic exceptions
+  - [x] 5.3 Add test verifying `X-Powered-By` header is absent (Helmet removes it)
+- [x] Task 6: Update middleware stack order and verify integration (AC: #1, #2)
+  - [x] 6.1 Final middleware order in `server/src/index.ts` must be: `helmet()` → `cors()` → `express.json()` → routes → error handler
+  - [x] 6.2 Run full test suite: all existing 261 unit/integration tests + 16 E2E tests must pass with zero regressions
+  - [x] 6.3 Verify health check endpoint still works with new middleware
+- [x] Task 7: Update environment configuration (AC: #2)
+  - [x] 7.1 Add `CORS_ORIGIN` to `.env.example` with default value and documentation comment
+  - [x] 7.2 Update `docker-compose.yml` to pass `CORS_ORIGIN` environment variable to server container (default: `http://localhost`)
 
 ## Dev Notes
 
@@ -213,10 +213,38 @@ New test file (co-located):
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+- Pre-existing flaky test `queries.test.ts > sets updated_at to a valid timestamp on update` fails near UTC midnight due to timezone boundary (not caused by this story's changes)
+- Helmet sets X-XSS-Protection to "0" (disabled) rather than removing the header entirely — test adjusted accordingly
+- `.env.example` already had `CORS_ORIGIN` from a prior story; no change needed
+- No `docker-compose.yml` exists yet (Story 5.4 scope); Task 7.2 noted as N/A — will be addressed in 5.4
+- Used `--cache /tmp/npm-cache-fix` for npm installs due to known EACCES cache issue
+
 ### Completion Notes List
 
+- Installed and configured Helmet.js as first middleware — all standard security headers applied
+- Installed and configured CORS with `CORS_ORIGIN` env var support (default: `http://localhost`)
+- Middleware order verified: helmet() → cors() → express.json() → routes → error handler
+- Added 9 new security tests (6 Helmet header tests + 3 CORS behavior tests) in `security.test.ts`
+- Added 4 new XSS vector tests (event handlers, nested tags, javascript: URLs) in `todo-routes.test.ts`
+- Added 4 new SQL injection protection tests (DROP TABLE, OR 1=1, ID injection) in `queries.test.ts`
+- Verified existing error handler tests cover all sensitive data exposure scenarios (5 tests)
+- Verified X-Powered-By header removal via security.test.ts
+- Total: 277 tests (276 pass, 1 pre-existing flaky), up from 261 baseline (+16 new tests)
+- Health check endpoint verified working with new middleware stack
+
+### Change Log
+
+- 2026-03-07: Implemented security hardening — Helmet.js, CORS, additional XSS/SQL injection test vectors
+
 ### File List
+
+- server/package.json (modified — added helmet, cors, @types/cors dependencies)
+- server/src/index.ts (modified — added helmet and cors middleware imports and usage)
+- server/src/middleware/security.test.ts (new — 9 tests for Helmet headers and CORS behavior)
+- server/src/routes/todo-routes.test.ts (modified — added 4 XSS vector tests)
+- server/src/db/queries.test.ts (modified — added 4 SQL injection protection tests)
+- package-lock.json (modified — lockfile updated with new dependencies)

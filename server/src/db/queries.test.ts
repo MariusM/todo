@@ -135,6 +135,37 @@ describe('Database queries', () => {
     })
   })
 
+  describe('SQL injection protection', () => {
+    it('stores SQL injection payload as literal text via create', () => {
+      const todo = queries.createTodo('id-sqli-1', "'; DROP TABLE todos; --")
+      expect(todo.text).toBe("'; DROP TABLE todos; --")
+
+      // Verify table still exists and works
+      const all = queries.getAllTodos()
+      expect(all.length).toBeGreaterThan(0)
+    })
+
+    it('stores OR-based injection payload as literal text', () => {
+      const todo = queries.createTodo('id-sqli-2', '" OR 1=1 --')
+      expect(todo.text).toBe('" OR 1=1 --')
+    })
+
+    it('handles injection payload in update', () => {
+      queries.createTodo('id-sqli-3', 'Original')
+      const updated = queries.updateTodo('id-sqli-3', { text: "'; DROP TABLE todos; --" })
+      expect(updated!.text).toBe("'; DROP TABLE todos; --")
+
+      // Verify table still exists
+      const all = queries.getAllTodos()
+      expect(all.length).toBeGreaterThan(0)
+    })
+
+    it('handles injection payload in ID lookup', () => {
+      const todo = queries.getTodoById("' OR '1'='1")
+      expect(todo).toBeUndefined()
+    })
+  })
+
   describe('edge cases', () => {
     it('handles emoji text correctly', () => {
       const todo = queries.createTodo('id-emoji', '🎉 Party time! 🥳')

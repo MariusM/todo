@@ -106,6 +106,49 @@ describe('POST /api/todos', () => {
     expect(todo.text).toContain('&lt;script&gt;')
   })
 
+  it('sanitizes event handler XSS vectors', async () => {
+    const id = '550e8400-e29b-41d4-a716-446655440012'
+    const res = await fetch(url('/api/todos'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, text: '<img onerror="alert(\'xss\')" src=x>' }),
+    })
+
+    expect(res.status).toBe(201)
+    const todo = await res.json()
+    expect(todo.text).not.toContain('<img')
+    expect(todo.text).toContain('&lt;img')
+  })
+
+  it('sanitizes nested/broken script tags', async () => {
+    const id = '550e8400-e29b-41d4-a716-446655440013'
+    const res = await fetch(url('/api/todos'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, text: '<scr<script>ipt>alert("xss")</script>' }),
+    })
+
+    expect(res.status).toBe(201)
+    const todo = await res.json()
+    expect(todo.text).not.toContain('<script>')
+    expect(todo.text).toContain('&lt;scr&lt;script&gt;ipt&gt;')
+  })
+
+  it('sanitizes javascript: URL XSS vectors', async () => {
+    const id = '550e8400-e29b-41d4-a716-446655440014'
+    const res = await fetch(url('/api/todos'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, text: 'javascript:alert(\'xss\')' }),
+    })
+
+    expect(res.status).toBe(201)
+    const todo = await res.json()
+    // javascript: URLs don't contain HTML entities, so they pass through
+    // but since the text is rendered as text content (not href), it's safe
+    expect(todo.text).toBe('javascript:alert(&#39;xss&#39;)')
+  })
+
   it('returns error for duplicate ID', async () => {
     const id = '550e8400-e29b-41d4-a716-446655440002'
     await fetch(url('/api/todos'), {
