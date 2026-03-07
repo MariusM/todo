@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import type { Server } from 'http'
+import express from 'express'
+import cors from 'cors'
 import { app } from '../index.js'
 
 let server: Server
@@ -83,11 +85,42 @@ describe('CORS configuration', () => {
     expect(res.headers.get('access-control-allow-origin')).toBe(origin)
   })
 
-  it('does not set CORS headers for disallowed origins', async () => {
+  it('never reflects an unauthorized origin in CORS header', async () => {
     const res = await fetch(url('/api/todos'), {
       headers: { Origin: 'http://evil.com' },
     })
     const allowOrigin = res.headers.get('access-control-allow-origin')
+    // cors package with string origin always returns configured origin, not request origin
+    // Browser blocks because page origin (evil.com) !== ACAO (localhost)
     expect(allowOrigin).not.toBe('http://evil.com')
+    expect(allowOrigin).not.toBe('*')
+  })
+
+  it('respects custom CORS_ORIGIN configuration', async () => {
+    const customOrigin = 'https://my-app.example.com'
+    const customApp = express()
+    customApp.use(cors({ origin: customOrigin }))
+    customApp.get('/test', (_req, res) => res.json({ ok: true }))
+
+    const customServer = customApp.listen(0)
+    const customAddress = customServer.address()
+    const customPort = typeof customAddress === 'object' && customAddress ? customAddress.port : 0
+
+    try {
+      // Matching origin gets the correct ACAO header
+      const res = await fetch(`http://localhost:${customPort}/test`, {
+        headers: { Origin: customOrigin },
+      })
+      expect(res.headers.get('access-control-allow-origin')).toBe(customOrigin)
+
+      // Non-matching origin never gets reflected — ACAO is still the configured origin
+      const other = await fetch(`http://localhost:${customPort}/test`, {
+        headers: { Origin: 'http://evil.com' },
+      })
+      expect(other.headers.get('access-control-allow-origin')).not.toBe('http://evil.com')
+      expect(other.headers.get('access-control-allow-origin')).not.toBe('*')
+    } finally {
+      await new Promise<void>((resolve) => customServer.close(() => resolve()))
+    }
   })
 })

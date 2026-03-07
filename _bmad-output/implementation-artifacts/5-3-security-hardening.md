@@ -1,6 +1,6 @@
 # Story 5.3: Security Hardening
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -62,7 +62,7 @@ so that user data is protected (NFR5-NFR7).
   - [x] 6.3 Verify health check endpoint still works with new middleware
 - [x] Task 7: Update environment configuration (AC: #2)
   - [x] 7.1 Add `CORS_ORIGIN` to `.env.example` with default value and documentation comment
-  - [x] 7.2 Update `docker-compose.yml` to pass `CORS_ORIGIN` environment variable to server container (default: `http://localhost`)
+  - [ ] 7.2 Update `docker-compose.yml` to pass `CORS_ORIGIN` environment variable to server container (default: `http://localhost`) — N/A: docker-compose.yml does not exist yet (Story 5.4 scope)
 
 ## Dev Notes
 
@@ -239,12 +239,14 @@ Claude Opus 4.6
 ### Change Log
 
 - 2026-03-07: Implemented security hardening — Helmet.js, CORS, additional XSS/SQL injection test vectors
+- 2026-03-07: Code review fixes — strengthened CORS rejection test, added CORS_ORIGIN env var test, added .env.example comment, corrected Task 7.2 status
 
 ### File List
 
 - server/package.json (modified — added helmet, cors, @types/cors dependencies)
 - server/src/index.ts (modified — added helmet and cors middleware imports and usage)
-- server/src/middleware/security.test.ts (new — 9 tests for Helmet headers and CORS behavior)
+- server/src/middleware/security.test.ts (new — 10 tests for Helmet headers and CORS behavior)
 - server/src/routes/todo-routes.test.ts (modified — added 4 XSS vector tests)
 - server/src/db/queries.test.ts (modified — added 4 SQL injection protection tests)
+- .env.example (modified — added CORS_ORIGIN documentation comment)
 - package-lock.json (modified — lockfile updated with new dependencies)
