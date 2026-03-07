@@ -75,5 +75,5 @@ development_status:
   5-1-unit-integration-tests: done
   5-2-e2e-browser-tests: done
   5-3-security-hardening: done
-  5-4-docker-deployment-ci-pipeline: review
+  5-4-docker-deployment-ci-pipeline: done
   epic-5-retrospective: optional

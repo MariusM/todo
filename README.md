@@ -55,7 +55,7 @@ npm run test:e2e
 ### Run
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 The app will be available at `http://localhost`. Nginx serves the frontend and proxies `/api/*` requests to the backend.
@@ -63,15 +63,15 @@ The app will be available at `http://localhost`. Nginx serves the frontend and p
 ### Stop
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### Data Persistence
 
-SQLite data is stored in a named Docker volume (`todo-data`). Data persists across `docker-compose down` and `docker-compose up` cycles. To remove the volume and reset data:
+SQLite data is stored in a named Docker volume (`todo-data`). Data persists across `docker compose down` and `docker compose up` cycles. To remove the volume and reset data:
 
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ## Environment Variables

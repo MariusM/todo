@@ -1,6 +1,6 @@
 # Story 5.4: Docker Deployment & CI Pipeline
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -227,8 +227,31 @@ Claude Opus 4.6 (claude-opus-4-6)
 - CI pipeline: lint (tsc) → test (vitest coverage) → e2e (playwright) → docker-build (compose build)
 - README covers local dev, Docker deployment, env vars, and CI/CD
 
+### Senior Developer Review (AI)
+
+**Reviewer:** Marius (adversarial code review) — 2026-03-07
+**Outcome:** Approved with fixes applied
+
+**Issues Found:** 3 High, 4 Medium, 3 Low
+**Issues Fixed:** 7 (all HIGH + all MEDIUM)
+
+**Fixes Applied:**
+- H1: Added `USER nginx` to Dockerfile.client, changed listen port to 8080, updated docker-compose mapping to 80:8080 (non-root compliance)
+- H2: Added healthcheck to server service in docker-compose.yml with `depends_on: condition: service_healthy`
+- H3: Added explicit failure guards after CI E2E polling loops
+- M1: Added `user nginx;` directive to nginx.conf
+- M2: Updated README from deprecated `docker-compose` to `docker compose` v2 syntax
+- M3: Added `restart: unless-stopped` to both services in docker-compose.yml
+- M4: Changed server from `ports: "3001:3001"` to `expose: ["3001"]` (internal-only access)
+
+**Remaining (LOW, not fixed):**
+- L1: Redundant `text/html` in gzip_types
+- L2: No `gzip_min_length` configured
+- L3: CI Docker build doesn't test container startup
+
 ### Change Log
 
+- 2026-03-07: Code review fixes — non-root nginx, health checks, CI failure guards, docker compose v2
 - 2026-03-07: Implemented story 5.4 — Docker deployment infrastructure and CI pipeline
 
 ### File List

@@ -23,6 +23,8 @@ COPY --from=build /app/client/dist /usr/share/nginx/html
 RUN mkdir -p /tmp/nginx && \
     chown -R nginx:nginx /tmp/nginx /usr/share/nginx/html /var/log/nginx
 
-EXPOSE 80
+USER nginx
+
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]
