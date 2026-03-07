@@ -1,0 +1,16 @@
+node_modules
+dist
+data/
+*.db
+.env
+.env.*
+coverage
+playwright-report
+test-results
+.git
+.github
+_bmad*
+.claude
+.cursor
+.windsurf
+README.md
